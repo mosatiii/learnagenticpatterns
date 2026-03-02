@@ -27,6 +27,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.9,
     },
     {
+      url: `${baseUrl}/guide/from-software-engineer-to-agentic-architect`,
+      lastModified: LAST_CONTENT_UPDATE,
+      changeFrequency: "monthly",
+      priority: 0.9,
+    },
+    {
       url: `${baseUrl}/about`,
       lastModified: LAST_CONTENT_UPDATE,
       changeFrequency: "monthly",

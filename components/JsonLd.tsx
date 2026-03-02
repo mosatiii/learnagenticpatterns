@@ -1,6 +1,36 @@
 import { patterns } from "@/data/patterns";
 import type { Pattern } from "@/data/patterns";
 
+const AUTHOR_SCHEMA = {
+  "@type": "Person" as const,
+  name: "Mousa Al-Jawaheri",
+  url: "https://www.linkedin.com/in/mosatiii/",
+  jobTitle: "Agentic AI Architect & Educator",
+  alumniOf: [
+    {
+      "@type": "EducationalOrganization" as const,
+      name: "University of Waterloo",
+      department: "Master of Business, Entrepreneurship & Technology (MBET)",
+    },
+    {
+      "@type": "EducationalOrganization" as const,
+      name: "American University of Iraq, Sulaimani",
+      department: "BSc. Software Engineering",
+    },
+  ],
+  knowsAbout: [
+    "Agentic AI Design Patterns",
+    "Software Architecture",
+    "Multi-Agent Systems",
+    "LLM Orchestration",
+    "AI Product Development",
+  ],
+  sameAs: [
+    "https://www.linkedin.com/in/mosatiii/",
+    "https://github.com/mosatiii",
+  ],
+};
+
 export function WebSiteJsonLd() {
   const schema = {
     "@context": "https://schema.org",
@@ -9,11 +39,7 @@ export function WebSiteJsonLd() {
     url: "https://learnagenticpatterns.com",
     description:
       "A free curriculum mapping 21 Agentic AI Design Patterns to Software Engineering concepts you already know.",
-    author: {
-      "@type": "Person",
-      name: "Mousa Al-Jawaheri",
-      url: "https://www.linkedin.com/in/mosatiii/",
-    },
+    author: AUTHOR_SCHEMA,
   };
 
   return (
@@ -37,11 +63,7 @@ export function CourseJsonLd() {
       name: "Learn Agentic Patterns",
       url: "https://learnagenticpatterns.com",
     },
-    creator: {
-      "@type": "Person",
-      name: "Mousa Al-Jawaheri",
-      url: "https://www.linkedin.com/in/mosatiii/",
-    },
+    creator: AUTHOR_SCHEMA,
     isAccessibleForFree: true,
     inLanguage: "en",
     numberOfCredits: 0,
@@ -83,20 +105,25 @@ export function CourseJsonLd() {
 }
 
 export function PatternArticleJsonLd({ pattern }: { pattern: Pattern }) {
+  const articleBody = [
+    pattern.agenticDefinition,
+    pattern.description,
+    `How ${pattern.name} maps to ${pattern.sweParallelFull}: ${pattern.mapping.similarity}`,
+    `Key divergence from classical ${pattern.sweParallel}: ${pattern.mapping.divergence}`,
+    `Key takeaway: ${pattern.keyTakeaway}`,
+  ].join("\n\n");
+
   const schema = {
     "@context": "https://schema.org",
     "@type": "TechArticle",
     headline: `${pattern.name} → ${pattern.sweParallel}`,
     description: pattern.description,
+    articleBody,
     url: `https://learnagenticpatterns.com/patterns/${pattern.slug}`,
     image: `https://learnagenticpatterns.com/patterns/${pattern.slug}/opengraph-image`,
     datePublished: "2025-01-15T00:00:00Z",
     dateModified: "2026-03-01T00:00:00Z",
-    author: {
-      "@type": "Person",
-      name: "Mousa Al-Jawaheri",
-      url: "https://www.linkedin.com/in/mosatiii/",
-    },
+    author: AUTHOR_SCHEMA,
     publisher: {
       "@type": "Organization",
       name: "Learn Agentic Patterns",
@@ -113,9 +140,21 @@ export function PatternArticleJsonLd({ pattern }: { pattern: Pattern }) {
       name: "Learn Agentic Design Patterns",
       url: "https://learnagenticpatterns.com",
     },
-    keywords: `${pattern.name}, ${pattern.sweParallel}, agentic AI, design patterns, LLM`,
+    about: [
+      {
+        "@type": "Thing",
+        name: pattern.name,
+        description: pattern.agenticDefinition,
+      },
+      {
+        "@type": "Thing",
+        name: pattern.sweParallelFull,
+        description: `Classical software engineering pattern that maps to ${pattern.name}. Similarity: ${pattern.mapping.similarity}`,
+      },
+    ],
+    keywords: `${pattern.name}, ${pattern.sweParallel}, ${pattern.sweParallelFull}, agentic AI, design patterns, LLM, software engineering`,
     articleSection: "Agentic Design Patterns",
-    wordCount: pattern.description.length + pattern.agenticDefinition.length,
+    wordCount: articleBody.length,
   };
 
   return (
@@ -185,11 +224,7 @@ export function CheatSheetJsonLd() {
       "Free PDF mapping 21 agentic AI design patterns to classical software engineering concepts. Prompt Chaining → Pipe & Filter, Reflection → TDD, and 19 more.",
     url: "https://learnagenticpatterns.com/agentic-ai-design-patterns-cheatsheet",
     isAccessibleForFree: true,
-    author: {
-      "@type": "Person",
-      name: "Mousa Al-Jawaheri",
-      url: "https://www.linkedin.com/in/mosatiii/",
-    },
+    author: AUTHOR_SCHEMA,
     publisher: {
       "@type": "Organization",
       name: "Learn Agentic Patterns",
@@ -208,10 +243,7 @@ export function CheatSheetJsonLd() {
         educationalRole: "Professional",
         audienceType: "Senior Software Engineers",
       },
-      author: {
-        "@type": "Person",
-        name: "Mousa Al-Jawaheri",
-      },
+      author: AUTHOR_SCHEMA,
       teaches: [
         "Agentic AI Design Patterns",
         "Multi-Agent Systems Architecture",
