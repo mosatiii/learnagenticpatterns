@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X } from "lucide-react";
+import { Menu, X, LogOut, User } from "lucide-react";
 import Link from "next/link";
 import ProgressBadge from "@/components/ProgressBadge";
 import { useAuth } from "@/contexts/AuthContext";
@@ -16,12 +16,25 @@ const navLinks = [
 export default function NavBar() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const { user, isLoading } = useAuth();
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const { user, isLoading, logout } = useAuth();
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setDropdownOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   return (
@@ -64,17 +77,64 @@ export default function NavBar() {
                 user ? (
                   <div className="flex items-center gap-4">
                     <ProgressBadge />
-                    <span className="font-mono text-xs text-text-secondary">
-                      {user.firstName}
-                    </span>
+
+                    {/* User dropdown */}
+                    <div className="relative" ref={dropdownRef}>
+                      <button
+                        onClick={() => setDropdownOpen(!dropdownOpen)}
+                        className="flex items-center gap-2 font-mono text-xs text-text-secondary hover:text-primary transition-colors px-3 py-1.5 rounded-md hover:bg-surface border border-transparent hover:border-border"
+                      >
+                        <User size={14} />
+                        {user.firstName}
+                      </button>
+
+                      <AnimatePresence>
+                        {dropdownOpen && (
+                          <motion.div
+                            initial={{ opacity: 0, y: -5 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -5 }}
+                            transition={{ duration: 0.15 }}
+                            className="absolute right-0 top-full mt-2 w-48 bg-surface border border-border rounded-lg shadow-xl overflow-hidden"
+                          >
+                            <div className="px-4 py-3 border-b border-border">
+                              <p className="font-mono text-xs text-text-primary font-bold truncate">
+                                {user.firstName}
+                              </p>
+                              <p className="font-mono text-xs text-text-secondary truncate">
+                                {user.email}
+                              </p>
+                            </div>
+                            <button
+                              onClick={() => {
+                                setDropdownOpen(false);
+                                logout();
+                              }}
+                              className="w-full flex items-center gap-2 px-4 py-3 text-left font-mono text-xs text-text-secondary hover:text-red-400 hover:bg-red-500/5 transition-colors"
+                            >
+                              <LogOut size={14} />
+                              Log out
+                            </button>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </div>
                   </div>
                 ) : (
-                  <Link
-                    href="/#signup"
-                    className="bg-accent hover:bg-accent/90 text-white font-sans font-semibold text-sm px-5 py-2.5 rounded-md transition-all hover:shadow-lg hover:shadow-accent/20"
-                  >
-                    Sign Up Free
-                  </Link>
+                  <div className="flex items-center gap-3">
+                    <Link
+                      href="/login"
+                      className="font-mono text-sm text-text-secondary hover:text-primary transition-colors"
+                    >
+                      Log In
+                    </Link>
+                    <Link
+                      href="/signup"
+                      className="bg-accent hover:bg-accent/90 text-white font-sans font-semibold text-sm px-5 py-2.5 rounded-md transition-all hover:shadow-lg hover:shadow-accent/20"
+                    >
+                      Sign Up Free
+                    </Link>
+                  </div>
                 )
               )}
             </div>
@@ -114,20 +174,44 @@ export default function NavBar() {
 
               {!isLoading && (
                 user ? (
-                  <div className="flex items-center justify-between pt-2 border-t border-border">
-                    <span className="font-mono text-xs text-text-secondary">
-                      {user.firstName}
-                    </span>
-                    <ProgressBadge />
+                  <div className="pt-4 border-t border-border space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <User size={14} className="text-text-secondary" />
+                        <span className="font-mono text-xs text-text-primary">
+                          {user.firstName}
+                        </span>
+                      </div>
+                      <ProgressBadge />
+                    </div>
+                    <button
+                      onClick={() => {
+                        setMobileOpen(false);
+                        logout();
+                      }}
+                      className="flex items-center gap-2 font-mono text-xs text-text-secondary hover:text-red-400 transition-colors py-2"
+                    >
+                      <LogOut size={14} />
+                      Log out
+                    </button>
                   </div>
                 ) : (
-                  <Link
-                    href="/#signup"
-                    onClick={() => setMobileOpen(false)}
-                    className="block w-full text-center bg-accent hover:bg-accent/90 text-white font-sans font-semibold text-sm px-5 py-2.5 rounded-md transition-all mt-4"
-                  >
-                    Sign Up Free
-                  </Link>
+                  <div className="pt-4 border-t border-border space-y-3">
+                    <Link
+                      href="/login"
+                      onClick={() => setMobileOpen(false)}
+                      className="block w-full text-center border border-border hover:border-primary/50 text-text-secondary hover:text-primary font-sans font-semibold text-sm px-5 py-2.5 rounded-md transition-all"
+                    >
+                      Log In
+                    </Link>
+                    <Link
+                      href="/signup"
+                      onClick={() => setMobileOpen(false)}
+                      className="block w-full text-center bg-accent hover:bg-accent/90 text-white font-sans font-semibold text-sm px-5 py-2.5 rounded-md transition-all"
+                    >
+                      Sign Up Free
+                    </Link>
+                  </div>
                 )
               )}
             </div>

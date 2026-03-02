@@ -92,7 +92,7 @@ export default function PatternCard({ pattern, index }: PatternCardProps) {
   }
 
   return (
-    <Link href="/#signup" className="block">
+    <Link href="/signup" className="block">
       {content}
     </Link>
   );

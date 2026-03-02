@@ -6,7 +6,6 @@ import { motion } from "framer-motion";
 import { Lock, ArrowRight, ChevronRight, Home, CheckCircle2 } from "lucide-react";
 import Link from "next/link";
 import CodeBlock from "@/components/CodeBlock";
-import WaitlistForm from "@/components/WaitlistForm";
 import ProgressCircle from "@/components/ProgressCircle";
 import { patterns, getPatternBySlug } from "@/data/patterns";
 import { formatPatternNumber } from "@/lib/utils";
@@ -76,9 +75,25 @@ export default function PatternDetailPage() {
               This pattern is available for free. Sign up to unlock all 21
               patterns — no credit card, no catch.
             </p>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+              <Link
+                href="/signup"
+                className="inline-flex items-center gap-2 bg-accent hover:bg-accent/90 text-white font-sans font-semibold px-8 py-3.5 rounded-md transition-all hover:shadow-lg hover:shadow-accent/20"
+              >
+                Sign Up Free
+                <ArrowRight size={18} />
+              </Link>
+              <Link
+                href="/login"
+                className="inline-flex items-center gap-2 border border-border hover:border-primary/50 text-text-secondary hover:text-primary font-sans font-medium px-8 py-3.5 rounded-md transition-all"
+              >
+                Already have an account? Log in
+              </Link>
+            </div>
+            <p className="text-text-secondary/50 text-xs mt-4 font-mono">
+              No credit card required.
+            </p>
           </div>
-
-          <WaitlistForm />
         </div>
       </main>
     );
@@ -110,7 +125,7 @@ export default function PatternDetailPage() {
                 return (
                   <Link
                     key={p.slug}
-                    href={pAccess ? `/patterns/${p.slug}` : "/#signup"}
+                    href={pAccess ? `/patterns/${p.slug}` : "/signup"}
                     className={`
                       flex items-center gap-2 px-3 py-2 rounded text-xs font-mono transition-colors
                       ${
@@ -299,7 +314,7 @@ export default function PatternDetailPage() {
                   href={
                     nextPattern.isUnlocked || user
                       ? `/patterns/${nextPattern.slug}`
-                      : "/#signup"
+                      : "/signup"
                   }
                   className="flex items-center justify-between bg-surface border border-border rounded-lg p-6 hover:border-primary/30 transition-all group"
                 >

@@ -22,8 +22,14 @@ interface AuthContextValue {
   user: AuthUser | null;
   isLoading: boolean;
   readSlugs: string[];
-  signup: (data: { firstName: string; email: string; role: string; challenge?: string }) => Promise<void>;
-  verify: (email: string) => Promise<boolean>;
+  signup: (data: {
+    firstName: string;
+    email: string;
+    password: string;
+    role: string;
+    challenge?: string;
+  }) => Promise<void>;
+  login: (email: string, password: string) => Promise<void>;
   logout: () => void;
   markRead: (slug: string) => void;
   progressPercent: number;
@@ -61,7 +67,7 @@ export function AuthProvider({ children, totalPatterns }: { children: ReactNode;
         setReadSlugs(data.progress || []);
       }
     } catch {
-      // Silently fail — progress is non-critical
+      // Progress is non-critical
     }
   }, []);
 
@@ -74,14 +80,12 @@ export function AuthProvider({ children, totalPatterns }: { children: ReactNode;
 
         const stored: StoredAuth = JSON.parse(raw);
 
-        // Check expiry
         if (Date.now() > stored.expiresAt) {
           clearStorage();
           setIsLoading(false);
           return;
         }
 
-        // Verify email still exists in DB
         const res = await fetch("/api/auth/verify", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -91,7 +95,6 @@ export function AuthProvider({ children, totalPatterns }: { children: ReactNode;
         if (res.ok) {
           const data = await res.json();
           setUser(data.user);
-          // Refresh the 90-day timer on every verified visit
           saveToStorage(stored.email, data.user.firstName);
           await fetchProgress(stored.email);
         } else {
@@ -106,19 +109,22 @@ export function AuthProvider({ children, totalPatterns }: { children: ReactNode;
     init();
   }, [fetchProgress]);
 
-  const signup = async (formData: { firstName: string; email: string; role: string; challenge?: string }) => {
+  const signup = async (formData: {
+    firstName: string;
+    email: string;
+    password: string;
+    role: string;
+    challenge?: string;
+  }) => {
     const res = await fetch("/api/signup", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(formData),
     });
 
-    if (!res.ok) {
-      const err = await res.json();
-      throw new Error(err.message || "Signup failed");
-    }
-
     const data = await res.json();
+    if (!res.ok) throw new Error(data.message || "Signup failed");
+
     setUser(data.user);
     saveToStorage(data.user.email, data.user.firstName);
     await fetchProgress(data.user.email);
@@ -128,26 +134,32 @@ export function AuthProvider({ children, totalPatterns }: { children: ReactNode;
     }
   };
 
-  const verify = async (email: string): Promise<boolean> => {
-    const res = await fetch("/api/auth/verify", {
+  const login = async (email: string, password: string) => {
+    const res = await fetch("/api/auth/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email }),
+      body: JSON.stringify({ email, password }),
     });
 
-    if (!res.ok) return false;
-
     const data = await res.json();
+    if (!res.ok) throw new Error(data.message || "Login failed");
+
     setUser(data.user);
     saveToStorage(data.user.email, data.user.firstName);
     await fetchProgress(data.user.email);
-    return true;
+
+    if (typeof window !== "undefined" && process.env.NEXT_PUBLIC_POSTHOG_KEY) {
+      posthog.capture("user_logged_in");
+    }
   };
 
   const logout = () => {
     clearStorage();
     setUser(null);
     setReadSlugs([]);
+    if (typeof window !== "undefined" && process.env.NEXT_PUBLIC_POSTHOG_KEY) {
+      posthog.reset();
+    }
   };
 
   const markRead = useCallback(
@@ -178,7 +190,7 @@ export function AuthProvider({ children, totalPatterns }: { children: ReactNode;
 
   return (
     <AuthContext.Provider
-      value={{ user, isLoading, readSlugs, signup, verify, logout, markRead, progressPercent }}
+      value={{ user, isLoading, readSlugs, signup, login, logout, markRead, progressPercent }}
     >
       {children}
     </AuthContext.Provider>

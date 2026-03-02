@@ -1,10 +1,9 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Briefcase, GraduationCap, Award, ExternalLink } from "lucide-react";
+import { Briefcase, GraduationCap, Award, ExternalLink, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import SectionHeader from "@/components/SectionHeader";
-import WaitlistForm from "@/components/WaitlistForm";
 
 const experience = [
   {
@@ -411,15 +410,29 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* Sign Up */}
-      <section id="signup" className="py-24 bg-code-bg">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      {/* Sign Up CTA */}
+      <section className="py-24 bg-code-bg">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <SectionHeader
             title="Sign Up Free — Unlock All 21 Patterns"
             subtitle="No credit card. No catch. Instant access to every pattern, code example, and architecture diagram."
             decorator="→"
           />
-          <WaitlistForm />
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-8">
+            <Link
+              href="/signup"
+              className="inline-flex items-center gap-2 bg-accent hover:bg-accent/90 text-white font-sans font-semibold text-base px-8 py-3.5 rounded-md transition-all hover:shadow-lg hover:shadow-accent/20"
+            >
+              Create Free Account
+              <ArrowRight size={18} />
+            </Link>
+            <Link
+              href="/login"
+              className="inline-flex items-center gap-2 border border-border hover:border-primary/50 text-text-secondary hover:text-primary font-sans font-medium text-base px-8 py-3.5 rounded-md transition-all"
+            >
+              Already have an account? Log in
+            </Link>
+          </div>
         </div>
       </section>
     </main>

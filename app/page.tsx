@@ -6,7 +6,6 @@ import { ArrowRight, AlertTriangle, Eye, Target, Quote, Lock, BookOpen } from "l
 import Link from "next/link";
 import SectionHeader from "@/components/SectionHeader";
 import PatternCard from "@/components/PatternCard";
-import WaitlistForm from "@/components/WaitlistForm";
 import MappingTable from "@/components/MappingTable";
 import MaturityLevel from "@/components/MaturityLevel";
 import ProgressCircle from "@/components/ProgressCircle";
@@ -313,7 +312,7 @@ export default function HomePage() {
                   <ArrowRight size={18} />
                 </Link>
                 <Link
-                  href="#signup"
+                  href="/signup"
                   className="inline-flex items-center justify-center gap-2 border border-border hover:border-primary/50 text-text-secondary hover:text-primary font-sans font-medium text-base px-8 py-3.5 rounded-md transition-all"
                 >
                   Sign Up to Unlock All 21 →
@@ -496,15 +495,32 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* SIGN UP */}
+      {/* SIGN UP CTA */}
       <section id="signup" className="py-24 bg-code-bg">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <SectionHeader
             title="Sign Up Free — Unlock All 21 Patterns"
-            subtitle="Get instant access to the full curriculum, code examples, and architecture diagrams. No credit card. No catch. Unsubscribe anytime."
+            subtitle="Get instant access to the full curriculum, code examples, and architecture diagrams. No credit card. No catch."
             decorator="→"
           />
-          <WaitlistForm />
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-8">
+            <Link
+              href="/signup"
+              className="inline-flex items-center gap-2 bg-accent hover:bg-accent/90 text-white font-sans font-semibold text-base px-8 py-3.5 rounded-md transition-all hover:shadow-lg hover:shadow-accent/20"
+            >
+              Create Free Account
+              <ArrowRight size={18} />
+            </Link>
+            <Link
+              href="/login"
+              className="inline-flex items-center gap-2 border border-border hover:border-primary/50 text-text-secondary hover:text-primary font-sans font-medium text-base px-8 py-3.5 rounded-md transition-all"
+            >
+              Already have an account? Log in
+            </Link>
+          </div>
+          <p className="text-text-secondary/60 text-xs font-mono mt-6">
+            100% free · No credit card · Unsubscribe anytime
+          </p>
         </div>
       </section>
 

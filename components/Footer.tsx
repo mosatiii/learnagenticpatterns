@@ -5,7 +5,7 @@ const footerLinks = [
   { label: "Home", href: "/" },
   { label: "Curriculum", href: "/#curriculum" },
   { label: "About", href: "/about" },
-  { label: "Sign Up", href: "/#signup" },
+  { label: "Sign Up", href: "/signup" },
 ];
 
 const socialLinks = [

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import { waitlistSchema } from "@/lib/validations";
+import bcrypt from "bcryptjs";
+import { signupSchema } from "@/lib/validations";
 import { query } from "@/lib/db";
 
 interface DbUser {
@@ -11,20 +12,39 @@ interface DbUser {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const validated = waitlistSchema.parse(body);
+    const validated = signupSchema.parse(body);
 
-    // Upsert: if email already exists, just return the existing user
+    const passwordHash = await bcrypt.hash(validated.password, 12);
+
+    // Check if email already exists
+    const existing = await query<DbUser>(
+      "SELECT id FROM users WHERE email = $1",
+      [validated.email.toLowerCase().trim()]
+    );
+
+    if (existing.length > 0) {
+      return NextResponse.json(
+        { success: false, message: "An account with this email already exists. Please log in." },
+        { status: 409 }
+      );
+    }
+
     const rows = await query<DbUser>(
-      `INSERT INTO users (email, first_name, role, challenge)
-       VALUES ($1, $2, $3, $4)
-       ON CONFLICT (email) DO UPDATE SET first_name = EXCLUDED.first_name
+      `INSERT INTO users (email, first_name, password_hash, role, challenge)
+       VALUES ($1, $2, $3, $4, $5)
        RETURNING id, email, first_name`,
-      [validated.email, validated.firstName, validated.role, validated.challenge || null]
+      [
+        validated.email.toLowerCase().trim(),
+        validated.firstName,
+        passwordHash,
+        validated.role,
+        validated.challenge || null,
+      ]
     );
 
     const user = rows[0];
 
-    // Send confirmation email via Resend (if configured)
+    // Send welcome email via Resend
     const resendKey = process.env.RESEND_API_KEY;
     if (resendKey && resendKey !== "your_resend_key") {
       try {
@@ -41,12 +61,6 @@ export async function POST(request: Request) {
             html: `
               <h2>Welcome, ${validated.firstName}! You're in.</h2>
               <p>You now have access to all 21 Agentic Design Patterns — completely free.</p>
-              <p>Here's what's waiting for you:</p>
-              <ul>
-                <li>21 Agentic Design Patterns mapped to SWE concepts you already know</li>
-                <li>Before & after code examples for every pattern</li>
-                <li>Architecture diagrams and production notes</li>
-              </ul>
               <p><a href="https://learnagenticpatterns.com/#curriculum">Start learning now →</a></p>
               <p>— Mousa</p>
             `,
