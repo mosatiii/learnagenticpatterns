@@ -9,7 +9,9 @@ import PatternCard from "@/components/PatternCard";
 import WaitlistForm from "@/components/WaitlistForm";
 import MappingTable from "@/components/MappingTable";
 import MaturityLevel from "@/components/MaturityLevel";
+import ProgressCircle from "@/components/ProgressCircle";
 import { patterns } from "@/data/patterns";
+import { useAuth } from "@/contexts/AuthContext";
 
 // ─── Stagger animation helpers ─────────────────────────────
 const stagger = {
@@ -137,6 +139,8 @@ const faqs = [
 
 // ─── Main Page Component ────────────────────────────────────
 export default function HomePage() {
+  const { user } = useAuth();
+
   return (
     <main className="relative z-10">
       {/* ── SECTION 1: HERO ───────────────────────────────── */}
@@ -272,16 +276,22 @@ export default function HomePage() {
             decorator="$"
           />
 
-          <div className="flex flex-wrap items-center justify-center gap-4 mb-10">
-            <span className="inline-flex items-center gap-2 font-mono text-sm border border-primary/30 text-primary rounded-full px-4 py-1.5">
-              <span className="w-2 h-2 rounded-full bg-primary" />
-              7 patterns open now
-            </span>
-            <span className="inline-flex items-center gap-2 font-mono text-sm border border-accent/30 text-accent rounded-full px-4 py-1.5">
-              <Lock size={12} />
-              14 more — free with sign-up
-            </span>
-          </div>
+          {user ? (
+            <div className="flex flex-col items-center gap-2 mb-10">
+              <ProgressCircle size={140} strokeWidth={10} />
+            </div>
+          ) : (
+            <div className="flex flex-wrap items-center justify-center gap-4 mb-10">
+              <span className="inline-flex items-center gap-2 font-mono text-sm border border-primary/30 text-primary rounded-full px-4 py-1.5">
+                <span className="w-2 h-2 rounded-full bg-primary" />
+                7 patterns open now
+              </span>
+              <span className="inline-flex items-center gap-2 font-mono text-sm border border-accent/30 text-accent rounded-full px-4 py-1.5">
+                <Lock size={12} />
+                14 more — free with sign-up
+              </span>
+            </div>
+          )}
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
             {patterns.map((pattern, i) => (

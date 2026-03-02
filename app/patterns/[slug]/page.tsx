@@ -1,14 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import { motion } from "framer-motion";
-import { Lock, ArrowRight, ChevronRight, Home } from "lucide-react";
+import { Lock, ArrowRight, ChevronRight, Home, CheckCircle2 } from "lucide-react";
 import Link from "next/link";
 import CodeBlock from "@/components/CodeBlock";
 import WaitlistForm from "@/components/WaitlistForm";
+import ProgressCircle from "@/components/ProgressCircle";
 import { patterns, getPatternBySlug } from "@/data/patterns";
 import { formatPatternNumber } from "@/lib/utils";
+import { useAuth } from "@/contexts/AuthContext";
 
 const tabs = [
   { id: "overview", label: "Overview" },
@@ -23,6 +25,22 @@ export default function PatternDetailPage() {
   const slug = params.slug as string;
   const pattern = getPatternBySlug(slug);
   const [activeTab, setActiveTab] = useState("overview");
+  const { user, readSlugs, markRead } = useAuth();
+
+  // User can access if pattern is open by default OR user is signed in
+  const canAccess = pattern ? pattern.isUnlocked || !!user : false;
+
+  // Mark pattern as read after 5 seconds of viewing
+  useEffect(() => {
+    if (!canAccess || !pattern || !user) return;
+    if (readSlugs.includes(pattern.slug)) return;
+
+    const timer = setTimeout(() => {
+      markRead(pattern.slug);
+    }, 5000);
+
+    return () => clearTimeout(timer);
+  }, [canAccess, pattern, user, readSlugs, markRead]);
 
   if (!pattern) {
     return (
@@ -39,14 +57,14 @@ export default function PatternDetailPage() {
     );
   }
 
-  if (!pattern.isUnlocked) {
+  // Locked and user not signed in
+  if (!canAccess) {
     return (
       <main className="relative z-10 pt-24 min-h-screen">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-          {/* Breadcrumb */}
           <Breadcrumb patternName={pattern.name} />
 
-          <div className="text-center py-20">
+          <div className="text-center py-12">
             <Lock className="w-16 h-16 text-text-secondary/40 mx-auto mb-6" />
             <h1 className="font-mono text-3xl text-text-primary font-bold mb-4">
               {formatPatternNumber(pattern.number)} — {pattern.name}
@@ -54,21 +72,13 @@ export default function PatternDetailPage() {
             <p className="text-text-secondary text-lg mb-2">
               ≈ {pattern.sweParallelFull}
             </p>
-            <p className="text-text-secondary mb-8 max-w-lg mx-auto">
+            <p className="text-text-secondary mb-10 max-w-lg mx-auto">
               This pattern is available for free. Sign up to unlock all 21
               patterns — no credit card, no catch.
             </p>
-            <Link
-              href="/#signup"
-              className="inline-flex items-center gap-2 bg-accent hover:bg-accent/90 text-white font-sans font-semibold px-6 py-3 rounded-md transition-all hover:shadow-lg hover:shadow-accent/20"
-            >
-              Sign Up Free to Unlock
-              <ArrowRight size={18} />
-            </Link>
-            <p className="text-text-secondary/50 text-xs mt-4 font-mono">
-              No credit card required. Unsubscribe anytime.
-            </p>
           </div>
+
+          <WaitlistForm />
         </div>
       </main>
     );
@@ -81,40 +91,54 @@ export default function PatternDetailPage() {
     <main className="relative z-10 pt-24">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 lg:grid-cols-[250px_1fr] gap-8">
-          {/* Sidebar — pattern list */}
+          {/* Sidebar */}
           <aside className="hidden lg:block">
             <div className="sticky top-24 space-y-1">
+              {/* Progress circle */}
+              {user && (
+                <div className="mb-6 flex justify-center">
+                  <ProgressCircle size={100} strokeWidth={6} />
+                </div>
+              )}
+
               <h4 className="font-mono text-xs text-primary mb-3">
                 {">"} All Patterns
               </h4>
-              {patterns.map((p) => (
-                <Link
-                  key={p.slug}
-                  href={p.isUnlocked ? `/patterns/${p.slug}` : "#"}
-                  className={`
-                    flex items-center gap-2 px-3 py-2 rounded text-xs font-mono transition-colors
-                    ${
-                      p.slug === slug
-                        ? "bg-primary/10 text-primary border border-primary/20"
-                        : p.isUnlocked
-                        ? "text-text-secondary hover:text-primary hover:bg-surface"
-                        : "text-text-secondary/40 cursor-default"
-                    }
-                  `}
-                >
-                  <span className="w-6 text-right flex-shrink-0">
-                    {formatPatternNumber(p.number)}
-                  </span>
-                  <span className="truncate">{p.name}</span>
-                  {!p.isUnlocked && <Lock size={10} className="ml-auto flex-shrink-0" />}
-                </Link>
-              ))}
+              {patterns.map((p) => {
+                const pAccess = p.isUnlocked || !!user;
+                const pRead = readSlugs.includes(p.slug);
+                return (
+                  <Link
+                    key={p.slug}
+                    href={pAccess ? `/patterns/${p.slug}` : "/#signup"}
+                    className={`
+                      flex items-center gap-2 px-3 py-2 rounded text-xs font-mono transition-colors
+                      ${
+                        p.slug === slug
+                          ? "bg-primary/10 text-primary border border-primary/20"
+                          : pAccess
+                          ? "text-text-secondary hover:text-primary hover:bg-surface"
+                          : "text-text-secondary/40"
+                      }
+                    `}
+                  >
+                    <span className="w-6 text-right flex-shrink-0">
+                      {formatPatternNumber(p.number)}
+                    </span>
+                    <span className="truncate">{p.name}</span>
+                    {pRead ? (
+                      <CheckCircle2 size={10} className="ml-auto flex-shrink-0 text-success" />
+                    ) : !pAccess ? (
+                      <Lock size={10} className="ml-auto flex-shrink-0" />
+                    ) : null}
+                  </Link>
+                );
+              })}
             </div>
           </aside>
 
           {/* Main content */}
           <div>
-            {/* Breadcrumb */}
             <Breadcrumb patternName={pattern.name} />
 
             {/* Header */}
@@ -123,9 +147,16 @@ export default function PatternDetailPage() {
               animate={{ opacity: 1, y: 0 }}
               className="mb-8"
             >
-              <span className="font-mono text-primary text-sm">
-                Pattern {formatPatternNumber(pattern.number)}
-              </span>
+              <div className="flex items-center gap-3 mb-2">
+                <span className="font-mono text-primary text-sm">
+                  Pattern {formatPatternNumber(pattern.number)}
+                </span>
+                {readSlugs.includes(pattern.slug) && (
+                  <span className="inline-flex items-center gap-1 text-success text-xs font-mono bg-success/10 px-2 py-0.5 rounded-full">
+                    <CheckCircle2 size={10} /> Read
+                  </span>
+                )}
+              </div>
               <h1 className="font-mono text-3xl md:text-4xl font-bold text-text-primary mt-2 mb-3">
                 {pattern.name}
               </h1>
@@ -266,7 +297,7 @@ export default function PatternDetailPage() {
               <div className="mt-12 pt-8 border-t border-border">
                 <Link
                   href={
-                    nextPattern.isUnlocked
+                    nextPattern.isUnlocked || user
                       ? `/patterns/${nextPattern.slug}`
                       : "/#signup"
                   }

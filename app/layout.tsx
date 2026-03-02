@@ -3,6 +3,7 @@ import "./globals.css";
 import NavBar from "@/components/NavBar";
 import Footer from "@/components/Footer";
 import AnimatedGrid from "@/components/AnimatedGrid";
+import Providers from "@/components/Providers";
 
 export const metadata: Metadata = {
   title: "Learn Agentic Patterns | For Senior Developers",
@@ -33,10 +34,12 @@ export default function RootLayout({
   return (
     <html lang="en" className="antialiased">
       <body className="min-h-screen bg-background text-text-primary relative">
-        <AnimatedGrid />
-        <NavBar />
-        <div className="relative z-10">{children}</div>
-        <Footer />
+        <Providers>
+          <AnimatedGrid />
+          <NavBar />
+          <div className="relative z-10">{children}</div>
+          <Footer />
+        </Providers>
       </body>
     </html>
   );

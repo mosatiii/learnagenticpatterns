@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X } from "lucide-react";
 import Link from "next/link";
+import ProgressBadge from "@/components/ProgressBadge";
+import { useAuth } from "@/contexts/AuthContext";
 
 const navLinks = [
   { label: "Home", href: "/" },
@@ -14,6 +16,7 @@ const navLinks = [
 export default function NavBar() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const { user, isLoading } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -56,12 +59,24 @@ export default function NavBar() {
                   {link.label}
                 </Link>
               ))}
-              <Link
-                href="/#signup"
-                className="bg-accent hover:bg-accent/90 text-white font-sans font-semibold text-sm px-5 py-2.5 rounded-md transition-all hover:shadow-lg hover:shadow-accent/20"
-              >
-                Sign Up Free
-              </Link>
+
+              {!isLoading && (
+                user ? (
+                  <div className="flex items-center gap-4">
+                    <ProgressBadge />
+                    <span className="font-mono text-xs text-text-secondary">
+                      {user.firstName}
+                    </span>
+                  </div>
+                ) : (
+                  <Link
+                    href="/#signup"
+                    className="bg-accent hover:bg-accent/90 text-white font-sans font-semibold text-sm px-5 py-2.5 rounded-md transition-all hover:shadow-lg hover:shadow-accent/20"
+                  >
+                    Sign Up Free
+                  </Link>
+                )
+              )}
             </div>
 
             {/* Mobile Menu Button */}
@@ -96,13 +111,25 @@ export default function NavBar() {
                   {">"} {link.label}
                 </Link>
               ))}
-              <Link
-                href="/#signup"
-                onClick={() => setMobileOpen(false)}
-                className="block w-full text-center bg-accent hover:bg-accent/90 text-white font-sans font-semibold text-sm px-5 py-2.5 rounded-md transition-all mt-4"
-              >
-                Sign Up Free
-              </Link>
+
+              {!isLoading && (
+                user ? (
+                  <div className="flex items-center justify-between pt-2 border-t border-border">
+                    <span className="font-mono text-xs text-text-secondary">
+                      {user.firstName}
+                    </span>
+                    <ProgressBadge />
+                  </div>
+                ) : (
+                  <Link
+                    href="/#signup"
+                    onClick={() => setMobileOpen(false)}
+                    className="block w-full text-center bg-accent hover:bg-accent/90 text-white font-sans font-semibold text-sm px-5 py-2.5 rounded-md transition-all mt-4"
+                  >
+                    Sign Up Free
+                  </Link>
+                )
+              )}
             </div>
           </motion.div>
         )}

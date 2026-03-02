@@ -1,10 +1,11 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Lock, ArrowRight } from "lucide-react";
+import { Lock, ArrowRight, CheckCircle2 } from "lucide-react";
 import Link from "next/link";
 import { formatPatternNumber } from "@/lib/utils";
 import type { Pattern } from "@/data/patterns";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface PatternCardProps {
   pattern: Pattern;
@@ -12,6 +13,12 @@ interface PatternCardProps {
 }
 
 export default function PatternCard({ pattern, index }: PatternCardProps) {
+  const { user, readSlugs } = useAuth();
+
+  // Unlocked if: pattern is open by default, OR user is signed in
+  const canAccess = pattern.isUnlocked || !!user;
+  const isRead = readSlugs.includes(pattern.slug);
+
   const content = (
     <motion.div
       initial={{ opacity: 0, y: 30 }}
@@ -22,26 +29,26 @@ export default function PatternCard({ pattern, index }: PatternCardProps) {
         relative group bg-surface border border-border rounded-lg p-6
         transition-all duration-300
         ${
-          pattern.isUnlocked
+          canAccess
             ? "hover:border-primary/50 hover:shadow-lg hover:shadow-primary/5 hover:-translate-y-1 cursor-pointer"
             : "hover:border-accent/30 cursor-pointer"
         }
+        ${isRead ? "border-l-2 border-l-success" : ""}
       `}
-      style={{
-        transformStyle: "preserve-3d",
-        perspective: "1000px",
-      }}
     >
-      {/* Pattern number */}
       <div className="flex items-center justify-between mb-3">
         <span className="font-mono text-primary text-sm font-bold">
           {formatPatternNumber(pattern.number)}
         </span>
-        {pattern.isUnlocked ? (
-          <ArrowRight
-            size={14}
-            className="text-text-secondary group-hover:text-primary transition-colors"
-          />
+        {canAccess ? (
+          isRead ? (
+            <CheckCircle2 size={14} className="text-success" />
+          ) : (
+            <ArrowRight
+              size={14}
+              className="text-text-secondary group-hover:text-primary transition-colors"
+            />
+          )
         ) : (
           <div className="flex items-center gap-1.5 text-accent">
             <Lock size={12} />
@@ -50,18 +57,15 @@ export default function PatternCard({ pattern, index }: PatternCardProps) {
         )}
       </div>
 
-      {/* Pattern name */}
       <h3 className="font-mono text-text-primary font-bold text-lg mb-2 group-hover:text-primary transition-colors">
         {pattern.name}
       </h3>
 
-      {/* SWE parallel */}
       <p className="text-text-secondary text-sm mb-3 font-mono">
         ≈ {pattern.sweParallel}
       </p>
 
-      {/* Description for unlocked, teaser for locked */}
-      {pattern.isUnlocked ? (
+      {canAccess ? (
         <p className="text-text-secondary text-sm leading-relaxed line-clamp-3">
           {pattern.description}
         </p>
@@ -71,16 +75,15 @@ export default function PatternCard({ pattern, index }: PatternCardProps) {
         </p>
       )}
 
-      {/* Glow effect on hover */}
       <div
         className={`absolute inset-0 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none border ${
-          pattern.isUnlocked ? "border-primary/30" : "border-accent/20"
+          canAccess ? "border-primary/30" : "border-accent/20"
         }`}
       />
     </motion.div>
   );
 
-  if (pattern.isUnlocked) {
+  if (canAccess) {
     return (
       <Link href={`/patterns/${pattern.slug}`} className="block">
         {content}

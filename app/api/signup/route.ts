@@ -1,23 +1,11 @@
 import { NextResponse } from "next/server";
 import { waitlistSchema } from "@/lib/validations";
-import { promises as fs } from "fs";
-import path from "path";
+import { query } from "@/lib/db";
 
-const LEADS_FILE = path.join(process.cwd(), "data", "leads.json");
-
-async function readLeads(): Promise<unknown[]> {
-  try {
-    const data = await fs.readFile(LEADS_FILE, "utf-8");
-    return JSON.parse(data);
-  } catch {
-    return [];
-  }
-}
-
-async function writeLeads(leads: unknown[]) {
-  const dir = path.dirname(LEADS_FILE);
-  await fs.mkdir(dir, { recursive: true });
-  await fs.writeFile(LEADS_FILE, JSON.stringify(leads, null, 2));
+interface DbUser {
+  id: number;
+  email: string;
+  first_name: string;
 }
 
 export async function POST(request: Request) {
@@ -25,16 +13,18 @@ export async function POST(request: Request) {
     const body = await request.json();
     const validated = waitlistSchema.parse(body);
 
-    // Append to leads.json
-    const leads = await readLeads();
-    leads.push({
-      ...validated,
-      timestamp: new Date().toISOString(),
-      id: `lead_${Date.now()}`,
-    });
-    await writeLeads(leads);
+    // Upsert: if email already exists, just return the existing user
+    const rows = await query<DbUser>(
+      `INSERT INTO users (email, first_name, role, challenge)
+       VALUES ($1, $2, $3, $4)
+       ON CONFLICT (email) DO UPDATE SET first_name = EXCLUDED.first_name
+       RETURNING id, email, first_name`,
+      [validated.email, validated.firstName, validated.role, validated.challenge || null]
+    );
 
-    // Send confirmation email via Resend (if API key is configured)
+    const user = rows[0];
+
+    // Send confirmation email via Resend (if configured)
     const resendKey = process.env.RESEND_API_KEY;
     if (resendKey && resendKey !== "your_resend_key") {
       try {
@@ -63,7 +53,6 @@ export async function POST(request: Request) {
           }),
         });
 
-        // Notify admin
         const adminEmail = process.env.ADMIN_EMAIL;
         if (adminEmail) {
           await fetch("https://api.resend.com/emails", {
@@ -73,8 +62,7 @@ export async function POST(request: Request) {
               "Content-Type": "application/json",
             },
             body: JSON.stringify({
-              from:
-                process.env.FROM_EMAIL || "noreply@learnagenticpatterns.com",
+              from: process.env.FROM_EMAIL || "noreply@learnagenticpatterns.com",
               to: adminEmail,
               subject: `New signup: ${validated.firstName} (${validated.role})`,
               html: `
@@ -89,12 +77,11 @@ export async function POST(request: Request) {
         }
       } catch (emailErr) {
         console.error("Email sending failed:", emailErr);
-        // Don't fail the whole request if email fails
       }
     }
 
     return NextResponse.json(
-      { success: true, message: "You're in! All patterns unlocked." },
+      { success: true, user: { id: user.id, email: user.email, firstName: user.first_name } },
       { status: 200 }
     );
   } catch (error) {
