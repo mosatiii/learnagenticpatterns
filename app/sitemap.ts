@@ -21,6 +21,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 1,
     },
     {
+      url: `${baseUrl}/agentic-ai-design-patterns-cheatsheet`,
+      lastModified: LAST_CONTENT_UPDATE,
+      changeFrequency: "weekly",
+      priority: 0.9,
+    },
+    {
       url: `${baseUrl}/about`,
       lastModified: LAST_CONTENT_UPDATE,
       changeFrequency: "monthly",

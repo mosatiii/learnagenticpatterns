@@ -4,6 +4,7 @@ import { Github, Linkedin } from "lucide-react";
 const footerLinks = [
   { label: "Home", href: "/" },
   { label: "Curriculum", href: "/#curriculum" },
+  { label: "Free Cheat Sheet", href: "/agentic-ai-design-patterns-cheatsheet" },
   { label: "About", href: "/about" },
   { label: "Sign Up", href: "/signup" },
 ];

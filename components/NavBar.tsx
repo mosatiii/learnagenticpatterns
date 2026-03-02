@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, LogOut, User } from "lucide-react";
+import { Menu, X, LogOut, User, FileText } from "lucide-react";
 import Link from "next/link";
 import ProgressBadge from "@/components/ProgressBadge";
 import { useAuth } from "@/contexts/AuthContext";
@@ -72,6 +72,14 @@ export default function NavBar() {
                   {link.label}
                 </Link>
               ))}
+
+              <Link
+                href="/agentic-ai-design-patterns-cheatsheet"
+                className="inline-flex items-center gap-1.5 font-mono text-xs text-accent border border-accent/30 hover:border-accent/60 rounded-full px-3 py-1.5 transition-colors hover:bg-accent/5"
+              >
+                <FileText size={12} />
+                Free Cheat Sheet
+              </Link>
 
               {!isLoading && (
                 user ? (
@@ -171,6 +179,14 @@ export default function NavBar() {
                   {">"} {link.label}
                 </Link>
               ))}
+
+              <Link
+                href="/agentic-ai-design-patterns-cheatsheet"
+                onClick={() => setMobileOpen(false)}
+                className="block font-mono text-sm text-accent hover:text-accent/80 transition-colors py-2"
+              >
+                {">"} Free Cheat Sheet
+              </Link>
 
               {!isLoading && (
                 user ? (

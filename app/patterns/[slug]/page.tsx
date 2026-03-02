@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import { motion } from "framer-motion";
-import { Lock, ArrowRight, ChevronRight, Home, CheckCircle2 } from "lucide-react";
+import { Lock, ArrowRight, ChevronRight, Home, CheckCircle2, Download } from "lucide-react";
 import Link from "next/link";
 import CodeBlock from "@/components/CodeBlock";
 import ProgressCircle from "@/components/ProgressCircle";
@@ -315,6 +315,32 @@ export default function PatternDetailPage() {
                 </div>
               )}
             </motion.div>
+
+            {/* Cheat sheet CTA */}
+            <div className="mt-12 pt-8 border-t border-border">
+              <Link
+                href="/agentic-ai-design-patterns-cheatsheet"
+                className="flex items-center justify-between bg-code-bg border border-accent/20 rounded-lg p-6 hover:border-accent/40 transition-all group"
+              >
+                <div className="flex items-center gap-4">
+                  <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center flex-shrink-0">
+                    <Download size={18} className="text-accent" />
+                  </div>
+                  <div>
+                    <span className="font-mono text-xs text-accent">
+                      Free PDF
+                    </span>
+                    <h4 className="font-mono text-text-primary font-bold mt-0.5 group-hover:text-accent transition-colors">
+                      Get the complete 21-pattern reference card
+                    </h4>
+                    <p className="text-text-secondary text-xs mt-1">
+                      All 21 agentic patterns mapped to classical SWE — one printable cheat sheet.
+                    </p>
+                  </div>
+                </div>
+                <ArrowRight className="text-text-secondary group-hover:text-accent transition-colors flex-shrink-0 hidden sm:block" />
+              </Link>
+            </div>
 
             {/* Next pattern CTA */}
             {nextPattern && (
