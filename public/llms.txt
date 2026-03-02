@@ -1,0 +1,80 @@
+# Learn Agentic Patterns
+
+> A free curriculum and interactive practice platform that teaches senior software engineers 21 agentic AI design patterns by mapping each one to classical software engineering concepts they already know.
+
+## About This Site
+
+- [Homepage](https://learnagenticpatterns.com): Free curriculum mapping 21 Agentic AI Design Patterns to software engineering concepts. Built for senior developers, architects, and technical leaders who want to understand and build AI agent systems.
+- [About](https://learnagenticpatterns.com/about): Created by Mousa Al-Jawaheri, Technical Product Leader with a Software Engineering background and MBET from the University of Waterloo. Specializes in agentic design patterns, multi-agent orchestration, and AI product development.
+
+## What Are Agentic AI Design Patterns?
+
+Agentic AI design patterns are reusable architectural blueprints for building AI systems that can perceive, reason, plan, and act autonomously. They are the equivalent of classical software engineering design patterns (like Gang of Four patterns) but applied to LLM-powered agent systems. This curriculum covers all 21 patterns from Antonio Gullí's framework, each mapped to a classical SWE parallel:
+
+1. Prompt Chaining → Pipe & Filter Architecture
+2. Routing → Strategy Pattern / Service Mesh
+3. Parallelization → Scatter-Gather / MapReduce
+4. Reflection → Test-Driven Development (TDD)
+5. Tool Use → Adapter Pattern / Plugin Architecture
+6. Planning → Saga Pattern / Workflow Engines
+7. Multi-Agent Collaboration → Microservices Architecture
+8. Memory Management → Cache Hierarchy (L1/L2/L3)
+9. Learning & Adaptation → CI/CD for AI Behavior
+10. State Management (MCP) → USB-C for AI Tools
+11. Goal Setting & Monitoring → APM / Observability
+12. Exception Handling → Circuit Breaker Pattern
+13. Human-in-the-Loop → Manual Approval Gates
+14. Knowledge Retrieval (RAG) → Database Query Pipeline
+15. Inter-Agent Communication → Message Queue / Event Bus
+16. Resource-Aware Optimization → Load Balancer / Model Router
+17. Reasoning Techniques → BFS / Tree Search Algorithms
+18. Guardrails & Safety → Input/Output Validation Middleware
+19. Evaluation & Monitoring → Datadog for AI
+20. Prioritization → Priority Queue / Task Scheduler
+21. Exploration & Discovery → Chaos Engineering for AI
+
+## Pattern Deep Dives
+
+- [Prompt Chaining](https://learnagenticpatterns.com/patterns/prompt-chaining): How to decompose complex tasks into sequential LLM calls with validation gates between steps. Maps to Pipe & Filter Architecture.
+- [Routing](https://learnagenticpatterns.com/patterns/routing): How to classify input and route to specialized agents based on intent. Maps to Strategy Pattern.
+- [Parallelization](https://learnagenticpatterns.com/patterns/parallelization): How to split work across multiple agents running simultaneously and merge results. Maps to Scatter-Gather / MapReduce.
+- [Reflection](https://learnagenticpatterns.com/patterns/reflection): How to build self-improving systems where an agent critiques its own output. Maps to TDD.
+- [Tool Use](https://learnagenticpatterns.com/patterns/tool-use): How to connect agents to external APIs, databases, and tools. Maps to Adapter Pattern.
+- [Planning](https://learnagenticpatterns.com/patterns/planning): How to break goals into step-by-step plans with execution monitoring and re-planning. Maps to Saga Pattern.
+- [Multi-Agent Collaboration](https://learnagenticpatterns.com/patterns/multi-agent-collaboration): How to orchestrate teams of specialized agents. Maps to Microservices Architecture.
+- [Memory Management](https://learnagenticpatterns.com/patterns/memory-management): How to implement short-term and long-term memory for context-aware agents. Maps to Cache Hierarchy.
+- [Learning & Adaptation](https://learnagenticpatterns.com/patterns/learning-adaptation): How to build agents that improve from feedback with drift guards. Maps to CI/CD.
+- [State Management (MCP)](https://learnagenticpatterns.com/patterns/state-management-mcp): How Model Context Protocol standardizes tool integration. Maps to USB-C for AI.
+- [Goal Setting & Monitoring](https://learnagenticpatterns.com/patterns/goal-setting-monitoring): How agents track progress toward objectives and self-correct. Maps to APM.
+- [Exception Handling](https://learnagenticpatterns.com/patterns/exception-handling-recovery): How to build resilient pipelines with fallbacks and circuit breakers.
+- [Human-in-the-Loop](https://learnagenticpatterns.com/patterns/human-in-the-loop): How to add human approval gates for high-risk agent actions.
+- [Knowledge Retrieval (RAG)](https://learnagenticpatterns.com/patterns/knowledge-retrieval-rag): How to build retrieve-rank-generate pipelines for grounded answers.
+- [Inter-Agent Communication](https://learnagenticpatterns.com/patterns/inter-agent-communication): How agents exchange structured messages via protocols.
+- [Resource Optimization](https://learnagenticpatterns.com/patterns/resource-aware-optimization): How to route tasks to the right model based on complexity and cost.
+- [Reasoning Techniques](https://learnagenticpatterns.com/patterns/reasoning-techniques): How to implement chain-of-thought, tree-of-thought, and decomposition.
+- [Guardrails & Safety](https://learnagenticpatterns.com/patterns/guardrails-safety): How to filter input for injection and scan output for PII and toxicity.
+- [Evaluation & Monitoring](https://learnagenticpatterns.com/patterns/evaluation-monitoring): How to score agent responses, track quality trends, and alert on degradation.
+- [Prioritization](https://learnagenticpatterns.com/patterns/prioritization): How to build intelligent task schedulers with urgency scoring.
+- [Exploration & Discovery](https://learnagenticpatterns.com/patterns/exploration-discovery): How to build hypothesis-testing research agents.
+
+## Interactive Practice
+
+- [Practice Building AI Agents](https://learnagenticpatterns.com/practice): 21 interactive drag-and-drop exercises where you build agent architectures, run simulations, and get scored on correctness, resilience, and efficiency. No coding required.
+
+## Free Resources
+
+- [Agentic AI Design Patterns Cheat Sheet](https://learnagenticpatterns.com/agentic-ai-design-patterns-cheatsheet): Free PDF mapping all 21 patterns to SWE concepts. Direct download, no email required.
+- [Career Guide: From Software Engineer to Agentic Architect](https://learnagenticpatterns.com/guide/from-software-engineer-to-agentic-architect): How senior developers can transition into AI architecture roles using their existing expertise.
+
+## Key Questions This Site Answers
+
+- What is agentic AI and how is it different from regular AI?
+- What are the 21 agentic design patterns?
+- How do I build AI agents as a software engineer?
+- How can senior developers transition to AI roles?
+- What is the Model Context Protocol (MCP)?
+- What is RAG and how does retrieval-augmented generation work?
+- How do multi-agent systems work?
+- What are the best practices for building production AI agents?
+- How can software engineers survive the AI transition?
+- What design patterns should I know for building autonomous AI systems?

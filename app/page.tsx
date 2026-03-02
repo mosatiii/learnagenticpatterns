@@ -108,31 +108,39 @@ const painPoints = [
   },
 ];
 
-// ─── FAQ Data ───────────────────────────────────────────────
+// ─── FAQ Data (AEO-optimized — these match questions people ask AI) ──────────
 const faqs = [
   {
+    q: "What is agentic AI?",
+    a: "Agentic AI refers to AI systems that autonomously perceive, reason, plan, and act to achieve goals. Unlike chatbots that respond to single prompts, agentic systems use LLMs as reasoning engines, access external tools, maintain memory, and execute multi-step workflows. There are 21 established design patterns for building these systems, each mapping to a classical software engineering concept.",
+  },
+  {
+    q: "How do I build AI agents as a software engineer?",
+    a: "Start with the 21 agentic design patterns — they map to concepts you already know. Prompt Chaining is Pipe & Filter. Reflection is TDD. Multi-Agent is Microservices. Tool Use is the Adapter Pattern. Learn the architecture first, then implement in any framework (LangChain, LangGraph, CrewAI, AutoGen). Building agents is software architecture, not prompt engineering.",
+  },
+  {
+    q: "How can developers survive the AI transition?",
+    a: "Software engineering is evolving, not dying. Senior developers already have 80% of the foundation: distributed systems, design patterns, production software. The gap is framing, not skill. Every agentic pattern has a SWE parallel. Learn the 21 agentic design patterns and you transition from building traditional systems to architecting intelligent autonomous systems.",
+  },
+  {
     q: "Is this for beginners?",
-    a: "No. This curriculum assumes you are a senior developer comfortable with distributed systems, APIs, and production software. We start from your existing knowledge.",
+    a: "No. This curriculum assumes you are a senior developer comfortable with distributed systems, APIs, and production software. We start from your existing knowledge and map every AI concept to a pattern you already understand.",
   },
   {
     q: "Is this about a specific framework?",
     a: "No. Patterns are framework-agnostic. We use pseudocode and real examples from LangChain, LangGraph, CrewAI, and AutoGen to illustrate, but the concepts apply universally.",
   },
   {
-    q: "Is this free?",
-    a: "The core curriculum is free. Advanced modules, code repos, and workshop access may have premium tiers in the future.",
+    q: "Is this really free?",
+    a: "Yes! 7 patterns are open right now with no sign-up. Sign up for free (no credit card) to unlock all 21 patterns, code examples, architecture diagrams, and 21 interactive agent-building exercises.",
   },
   {
     q: "How is this different from other AI courses?",
-    a: "Most courses teach you to use AI tools. This curriculum teaches you to architect AI systems, treating agents as engineering constructs with well-defined design patterns.",
-  },
-  {
-    q: "Is this really free?",
-    a: "Yes! 7 patterns are open right now with no sign-up. Sign up for free (no credit card) to unlock all 21 patterns, code examples, and architecture diagrams.",
+    a: "Most courses teach you to use AI tools. This curriculum teaches you to architect AI systems, treating agents as engineering constructs with well-defined design patterns. We also have 21 interactive exercises where you build agent architectures hands-on.",
   },
   {
     q: "Who is Antonio Gullí?",
-    a: "Antonio Gullí is an Engineering Leader at Google and author of 'Agentic Design Patterns: A Hands-On Guide to Building Intelligent Systems.' This curriculum is inspired by and builds upon his framework.",
+    a: "Antonio Gullí is an Engineering Leader at Google and author of 'Agentic Design Patterns: A Hands-On Guide to Building Intelligent Systems.' This curriculum is inspired by and builds upon his 21-pattern framework.",
   },
 ];
 
@@ -607,8 +615,107 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* MATURITY MODEL */}
+      {/* AEO: ANSWER-FIRST EXPLAINERS — these are what AI engines cite */}
       <section className="py-24">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <SectionHeader
+            title="Agentic AI, Explained for Engineers"
+            subtitle="Direct answers to the questions every developer is asking right now."
+            decorator="?"
+          />
+
+          <div className="space-y-12 mt-12">
+            {/* What is Agentic AI? */}
+            <motion.article
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="bg-surface border border-border rounded-lg p-6 md:p-8"
+            >
+              <h3 className="font-mono text-lg md:text-xl text-primary font-bold mb-3">
+                What is Agentic AI?
+              </h3>
+              <p className="text-text-secondary leading-relaxed mb-4">
+                Agentic AI refers to AI systems that autonomously perceive,
+                reason, plan, and act to achieve goals — going beyond chatbots
+                that only respond to single prompts. An agentic system uses an
+                LLM as a reasoning engine, accesses external tools (APIs,
+                databases, code execution), maintains memory across interactions,
+                and executes multi-step workflows without human intervention at
+                each step.
+              </p>
+              <p className="text-text-secondary leading-relaxed">
+                There are 21 established design patterns for building agentic
+                systems, defined in Antonio Gull&iacute;&apos;s framework. Each pattern
+                maps directly to a classical software engineering concept:
+                Prompt Chaining &rarr; Pipe &amp; Filter, Reflection &rarr; TDD,
+                Multi-Agent &rarr; Microservices, Tool Use &rarr; Adapter
+                Pattern, RAG &rarr; Database Query Pipeline, and 16 more.
+              </p>
+            </motion.article>
+
+            {/* How to Build AI Agents */}
+            <motion.article
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="bg-surface border border-border rounded-lg p-6 md:p-8"
+            >
+              <h3 className="font-mono text-lg md:text-xl text-primary font-bold mb-3">
+                How Do You Build AI Agents?
+              </h3>
+              <p className="text-text-secondary leading-relaxed mb-4">
+                Building AI agents is software architecture, not prompt
+                engineering. Start by learning the 21 agentic design patterns —
+                they map to concepts you already know as a software engineer.
+                The core architecture has three layers: a Memory layer (vector
+                databases for context), a Tool layer (APIs and external
+                systems), and a Reasoning Engine (the LLM that plans and
+                decides).
+              </p>
+              <p className="text-text-secondary leading-relaxed">
+                The fundamental loop is ReAct (Reason + Act): the agent
+                observes tool outputs, checks if the goal is met, and calls the
+                next tool. You can implement this in any framework — LangChain,
+                LangGraph, CrewAI, AutoGen — but the architectural patterns are
+                universal. This curriculum teaches the patterns first, so you
+                understand the &ldquo;why&rdquo; before the &ldquo;how.&rdquo;
+              </p>
+            </motion.article>
+
+            {/* How Developers Can Survive */}
+            <motion.article
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="bg-surface border border-border rounded-lg p-6 md:p-8"
+            >
+              <h3 className="font-mono text-lg md:text-xl text-primary font-bold mb-3">
+                How Can Software Engineers Survive the AI Transition?
+              </h3>
+              <p className="text-text-secondary leading-relaxed mb-4">
+                Software engineering is not dying — it is evolving. Senior
+                developers who understand distributed systems, design patterns,
+                and production software already have 80% of the foundation for
+                agentic AI. The gap is framing, not skill. Every agentic
+                pattern has a classical SWE parallel you already know.
+              </p>
+              <p className="text-text-secondary leading-relaxed">
+                The market signal is clear: Gartner reported a 1,445% surge in
+                multi-agent system inquiries, yet fewer than 1 in 4
+                organizations have achieved production deployment. Engineers who
+                learn these 21 agentic patterns can architect the intelligent
+                systems companies desperately need. The architect who
+                understands agentic patterns will design the systems of the next
+                decade.
+              </p>
+            </motion.article>
+          </div>
+        </div>
+      </section>
+
+      {/* MATURITY MODEL */}
+      <section className="py-24 bg-surface/30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <SectionHeader
             title="Where Does Your System Sit?"
