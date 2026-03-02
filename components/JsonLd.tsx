@@ -1,5 +1,6 @@
 import { patterns } from "@/data/patterns";
 import type { Pattern } from "@/data/patterns";
+import type { BlogPost } from "@/data/blog";
 
 const AUTHOR_SCHEMA = {
   "@type": "Person" as const,
@@ -324,6 +325,116 @@ export function CheatSheetJsonLd() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
       />
     </>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Blog — Article + FAQPage (dual schema for maximum AI discoverability)
+// ---------------------------------------------------------------------------
+
+export function BlogPostJsonLd({ post }: { post: BlogPost }) {
+  const url = `https://learnagenticpatterns.com/blog/${post.slug}`;
+
+  const articleBody = [
+    post.tldr,
+    ...post.sections.map((s) => [s.heading, s.body].filter(Boolean).join(": ")),
+    `Key Takeaway: ${post.keyTakeaway}`,
+  ].join("\n\n");
+
+  const articleSchema = {
+    "@context": "https://schema.org",
+    "@type": "TechArticle",
+    headline: post.title,
+    description: post.description,
+    articleBody,
+    url,
+    datePublished: `${post.publishedAt}T00:00:00Z`,
+    dateModified: `${post.updatedAt}T00:00:00Z`,
+    author: AUTHOR_SCHEMA,
+    publisher: {
+      "@type": "Organization",
+      name: "Learn Agentic Patterns",
+      url: "https://learnagenticpatterns.com",
+      logo: {
+        "@type": "ImageObject",
+        url: "https://learnagenticpatterns.com/icon",
+      },
+    },
+    inLanguage: "en",
+    isAccessibleForFree: true,
+    isPartOf: {
+      "@type": "Blog",
+      name: "Learn Agentic Patterns Blog",
+      url: "https://learnagenticpatterns.com/blog",
+    },
+    keywords: post.tags.join(", ") + ", agentic AI, AI agents, design patterns",
+    articleSection: "Agentic AI",
+    wordCount: articleBody.split(/\s+/).length,
+    timeRequired: `PT${post.readingTime}M`,
+    about: {
+      "@type": "Thing",
+      name: post.title.replace(/[?:]/g, ""),
+      description: post.aiAnswer,
+    },
+  };
+
+  // FAQ schema with the AI Q&A — this makes the post show up when AI
+  // systems or search engines encounter the question.
+  const faqSchema = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: [
+      {
+        "@type": "Question",
+        name: post.aiQuestion,
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: post.aiAnswer,
+        },
+      },
+    ],
+  };
+
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+      />
+    </>
+  );
+}
+
+export function BlogListJsonLd({
+  posts,
+}: {
+  posts: { title: string; slug: string; description: string }[];
+}) {
+  const schema = {
+    "@context": "https://schema.org",
+    "@type": "Blog",
+    name: "Learn Agentic Patterns Blog",
+    description:
+      "Concise, AI-optimized articles about building AI agents — agentic design patterns, RAG, MCP, multi-agent systems, and more.",
+    url: "https://learnagenticpatterns.com/blog",
+    author: AUTHOR_SCHEMA,
+    blogPost: posts.map((p) => ({
+      "@type": "BlogPosting",
+      headline: p.title,
+      description: p.description,
+      url: `https://learnagenticpatterns.com/blog/${p.slug}`,
+    })),
+  };
+
+  return (
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+    />
   );
 }
 
