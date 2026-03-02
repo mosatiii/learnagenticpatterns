@@ -11,6 +11,7 @@ import MaturityLevel from "@/components/MaturityLevel";
 import ProgressCircle from "@/components/ProgressCircle";
 import { patterns } from "@/data/patterns";
 import { useAuth } from "@/contexts/AuthContext";
+import { CourseJsonLd } from "@/components/JsonLd";
 
 // ─── Stagger animation helpers ─────────────────────────────
 const stagger = {
@@ -268,6 +269,7 @@ export default function HomePage() {
   // ─── NOT SIGNED IN: Landing page ───────────────────────────
   return (
     <main className="relative z-10">
+      <CourseJsonLd />
       {/* HERO */}
       <section className="min-h-screen flex items-center pt-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">

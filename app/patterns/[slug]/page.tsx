@@ -10,6 +10,7 @@ import ProgressCircle from "@/components/ProgressCircle";
 import { patterns, getPatternBySlug } from "@/data/patterns";
 import { formatPatternNumber } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
+import { PatternArticleJsonLd, BreadcrumbJsonLd } from "@/components/JsonLd";
 
 const tabs = [
   { id: "overview", label: "Overview" },
@@ -104,6 +105,14 @@ export default function PatternDetailPage() {
 
   return (
     <main className="relative z-10 pt-24">
+      <PatternArticleJsonLd pattern={pattern} />
+      <BreadcrumbJsonLd
+        items={[
+          { name: "Home", url: "https://learnagenticpatterns.com" },
+          { name: "Curriculum", url: "https://learnagenticpatterns.com/#curriculum" },
+          { name: pattern.name, url: `https://learnagenticpatterns.com/patterns/${pattern.slug}` },
+        ]}
+      />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 lg:grid-cols-[250px_1fr] gap-8">
           {/* Sidebar */}
