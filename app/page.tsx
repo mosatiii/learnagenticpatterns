@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { ArrowRight, AlertTriangle, Eye, Target, Quote, Lock } from "lucide-react";
+import { ArrowRight, AlertTriangle, Eye, Target, Quote, Lock, BookOpen } from "lucide-react";
 import Link from "next/link";
 import SectionHeader from "@/components/SectionHeader";
 import PatternCard from "@/components/PatternCard";
@@ -27,7 +27,6 @@ function HeroDiagram() {
   return (
     <div className="relative w-full max-w-md mx-auto aspect-square cursor-crosshair">
       <svg viewBox="0 0 400 400" className="w-full h-full">
-        {/* Connection lines with animation */}
         <motion.line
           x1="200" y1="80" x2="320" y2="200"
           stroke="#00D4FF" strokeWidth="1.5" strokeDasharray="6 4"
@@ -53,7 +52,6 @@ function HeroDiagram() {
           transition={{ duration: 2, delay: 1.5, repeat: Infinity, repeatType: "loop" }}
         />
 
-        {/* Nodes */}
         {[
           { cx: 200, cy: 80, label: "LLM" },
           { cx: 320, cy: 200, label: "Tools" },
@@ -139,15 +137,142 @@ const faqs = [
 
 // ─── Main Page Component ────────────────────────────────────
 export default function HomePage() {
-  const { user } = useAuth();
+  const { user, readSlugs, isLoading } = useAuth();
 
+  // Find the next unread pattern for "Continue learning" CTA
+  const nextUnread = patterns.find((p) => !readSlugs.includes(p.slug));
+
+  // While auth state is loading, show nothing (prevents flash)
+  if (isLoading) {
+    return <main className="relative z-10 min-h-screen" />;
+  }
+
+  // ─── SIGNED-IN: Dashboard view ─────────────────────────────
+  if (user) {
+    return (
+      <main className="relative z-10">
+        {/* Dashboard Hero */}
+        <section className="pt-28 pb-16">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="flex flex-col lg:flex-row items-center gap-12"
+            >
+              {/* Left: Greeting + next pattern */}
+              <div className="flex-1">
+                <span className="inline-block font-mono text-xs text-primary border border-primary/30 rounded-full px-3 py-1 mb-4">
+                  Welcome back
+                </span>
+                <h1 className="font-mono text-3xl md:text-4xl lg:text-5xl font-bold text-text-primary leading-tight mb-4">
+                  Keep going,{" "}
+                  <span className="text-gradient">{user.firstName}.</span>
+                </h1>
+
+                {readSlugs.length === 0 ? (
+                  <p className="text-text-secondary text-lg mb-8 max-w-lg">
+                    You have all 21 patterns unlocked. Pick one below and start
+                    building your agentic architecture mental model.
+                  </p>
+                ) : readSlugs.length === patterns.length ? (
+                  <p className="text-text-secondary text-lg mb-8 max-w-lg">
+                    You&apos;ve read all 21 patterns. Revisit any pattern to
+                    refresh your understanding.
+                  </p>
+                ) : (
+                  <p className="text-text-secondary text-lg mb-8 max-w-lg">
+                    You&apos;ve completed{" "}
+                    <span className="text-primary font-mono font-bold">
+                      {readSlugs.length}
+                    </span>{" "}
+                    of 21 patterns. Pick up where you left off.
+                  </p>
+                )}
+
+                {nextUnread && (
+                  <Link
+                    href={`/patterns/${nextUnread.slug}`}
+                    className="inline-flex items-center gap-3 bg-accent hover:bg-accent/90 text-white font-sans font-semibold text-base px-8 py-3.5 rounded-md transition-all hover:shadow-lg hover:shadow-accent/20"
+                  >
+                    <BookOpen size={18} />
+                    Continue: Pattern {String(nextUnread.number).padStart(2, "0")} — {nextUnread.name}
+                    <ArrowRight size={18} />
+                  </Link>
+                )}
+              </div>
+
+              {/* Right: Progress circle */}
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.2 }}
+              >
+                <ProgressCircle size={180} strokeWidth={12} />
+              </motion.div>
+            </motion.div>
+          </div>
+        </section>
+
+        {/* Curriculum grid */}
+        <section id="curriculum" className="py-16 bg-surface/30">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <SectionHeader
+              title="Your Curriculum"
+              subtitle="All 21 patterns unlocked. Patterns you've read are marked with a checkmark."
+              decorator="$"
+            />
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+              {patterns.map((pattern, i) => (
+                <PatternCard key={pattern.id} pattern={pattern} index={i} />
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Maturity Model — educational, keep for everyone */}
+        <section className="py-24">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <SectionHeader
+              title="Where Does Your System Sit?"
+              subtitle="Five levels of agent autonomy — from zero-shot responses to fully autonomous multi-agent systems."
+              decorator="L0→L4"
+            />
+            <MaturityLevel />
+          </div>
+        </section>
+
+        {/* Manifesto quote */}
+        <section className="py-24 bg-surface/30">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+            >
+              <Quote className="w-12 h-12 text-primary/30 mx-auto mb-6" />
+              <blockquote className="font-mono text-xl md:text-2xl lg:text-3xl text-text-primary leading-relaxed mb-6">
+                &ldquo;Software Engineering is not dying. It is evolving. The
+                architect who understands agentic patterns will design the
+                intelligent systems of the next decade.&rdquo;
+              </blockquote>
+              <cite className="text-primary font-mono text-sm not-italic">
+                — Mousa
+              </cite>
+            </motion.div>
+          </div>
+        </section>
+      </main>
+    );
+  }
+
+  // ─── NOT SIGNED IN: Landing page ───────────────────────────
   return (
     <main className="relative z-10">
-      {/* ── SECTION 1: HERO ───────────────────────────────── */}
+      {/* HERO */}
       <section className="min-h-screen flex items-center pt-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            {/* Left: Text */}
             <motion.div
               variants={stagger.container}
               initial="hidden"
@@ -203,7 +328,6 @@ export default function HomePage() {
               </motion.p>
             </motion.div>
 
-            {/* Right: Animated diagram */}
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -216,14 +340,13 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── SECTION 2: THE PROBLEM ────────────────────────── */}
+      {/* THE PROBLEM */}
       <section className="py-24 bg-surface/30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <SectionHeader
             title="You've shipped distributed systems. You've scaled microservices. But Agentic AI feels different."
             decorator="--"
           />
-
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12">
             {painPoints.map((point, i) => (
               <motion.div
@@ -244,7 +367,6 @@ export default function HomePage() {
               </motion.div>
             ))}
           </div>
-
           <motion.p
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
@@ -256,7 +378,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── SECTION 3: THE BRIDGE (Mapping Table) ─────────── */}
+      {/* MAPPING TABLE */}
       <section className="py-24">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <SectionHeader
@@ -267,7 +389,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── SECTION 4: THE CURRICULUM (21 Patterns) ───────── */}
+      {/* CURRICULUM */}
       <section id="curriculum" className="py-24 bg-surface/30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <SectionHeader
@@ -275,24 +397,16 @@ export default function HomePage() {
             subtitle="From 'What is an Agent?' to architecting autonomous multi-agent enterprises."
             decorator="$"
           />
-
-          {user ? (
-            <div className="flex flex-col items-center gap-2 mb-10">
-              <ProgressCircle size={140} strokeWidth={10} />
-            </div>
-          ) : (
-            <div className="flex flex-wrap items-center justify-center gap-4 mb-10">
-              <span className="inline-flex items-center gap-2 font-mono text-sm border border-primary/30 text-primary rounded-full px-4 py-1.5">
-                <span className="w-2 h-2 rounded-full bg-primary" />
-                7 patterns open now
-              </span>
-              <span className="inline-flex items-center gap-2 font-mono text-sm border border-accent/30 text-accent rounded-full px-4 py-1.5">
-                <Lock size={12} />
-                14 more — free with sign-up
-              </span>
-            </div>
-          )}
-
+          <div className="flex flex-wrap items-center justify-center gap-4 mb-10">
+            <span className="inline-flex items-center gap-2 font-mono text-sm border border-primary/30 text-primary rounded-full px-4 py-1.5">
+              <span className="w-2 h-2 rounded-full bg-primary" />
+              7 patterns open now
+            </span>
+            <span className="inline-flex items-center gap-2 font-mono text-sm border border-accent/30 text-accent rounded-full px-4 py-1.5">
+              <Lock size={12} />
+              14 more — free with sign-up
+            </span>
+          </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
             {patterns.map((pattern, i) => (
               <PatternCard key={pattern.id} pattern={pattern} index={i} />
@@ -301,7 +415,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── SECTION 5: MATURITY MODEL ─────────────────────── */}
+      {/* MATURITY MODEL */}
       <section className="py-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <SectionHeader
@@ -313,23 +427,19 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── SECTION 6: ABOUT MOUSA ────────────────────────── */}
+      {/* ABOUT MOUSA */}
       <section className="py-24 bg-surface/30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <SectionHeader title="Who Built This & Why" decorator="~" />
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
-            {/* Bio */}
             <motion.div
               initial={{ opacity: 0, x: -20 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5 }}
             >
-              {/* Avatar placeholder */}
               <div className="w-24 h-24 rounded-full bg-surface border-2 border-primary/30 flex items-center justify-center mb-6">
-                <span className="font-mono text-primary text-2xl font-bold">
-                  M
-                </span>
+                <span className="font-mono text-primary text-2xl font-bold">M</span>
               </div>
               <div className="space-y-4 text-text-secondary leading-relaxed">
                 <p>
@@ -358,7 +468,6 @@ export default function HomePage() {
               </Link>
             </motion.div>
 
-            {/* Stats */}
             <motion.div
               initial={{ opacity: 0, x: 20 }}
               whileInView={{ opacity: 1, x: 0 }}
@@ -379,9 +488,7 @@ export default function HomePage() {
                   <div className="font-mono text-3xl text-primary font-bold mb-2">
                     {stat.value}
                   </div>
-                  <div className="text-text-secondary text-xs">
-                    {stat.label}
-                  </div>
+                  <div className="text-text-secondary text-xs">{stat.label}</div>
                 </div>
               ))}
             </motion.div>
@@ -389,7 +496,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── SECTION 7: SIGN UP ─────────────────────────────── */}
+      {/* SIGN UP */}
       <section id="signup" className="py-24 bg-code-bg">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <SectionHeader
@@ -401,7 +508,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── SECTION 8: MANIFESTO QUOTE ────────────────────── */}
+      {/* MANIFESTO QUOTE */}
       <section className="py-24">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <motion.div
@@ -423,7 +530,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── SECTION 9: FAQ ────────────────────────────────── */}
+      {/* FAQ */}
       <section className="py-24 bg-surface/30">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
           <SectionHeader title="Common Questions" decorator="?" />
@@ -485,4 +592,3 @@ function FAQItem({
     </motion.div>
   );
 }
-
