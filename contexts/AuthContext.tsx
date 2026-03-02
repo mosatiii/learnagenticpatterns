@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from "react";
 import posthog from "posthog-js";
+import { POSTHOG_KEY } from "@/lib/posthog-config";
 
 const STORAGE_KEY = "lap_auth";
 const NINETY_DAYS_MS = 90 * 24 * 60 * 60 * 1000;
@@ -129,7 +130,7 @@ export function AuthProvider({ children, totalPatterns }: { children: ReactNode;
     saveToStorage(data.user.email, data.user.firstName);
     await fetchProgress(data.user.email);
 
-    if (typeof window !== "undefined" && process.env.NEXT_PUBLIC_POSTHOG_KEY) {
+    if (typeof window !== "undefined" && POSTHOG_KEY) {
       posthog.capture("user_signed_up", { role: formData.role });
     }
   };
@@ -148,7 +149,7 @@ export function AuthProvider({ children, totalPatterns }: { children: ReactNode;
     saveToStorage(data.user.email, data.user.firstName);
     await fetchProgress(data.user.email);
 
-    if (typeof window !== "undefined" && process.env.NEXT_PUBLIC_POSTHOG_KEY) {
+    if (typeof window !== "undefined" && POSTHOG_KEY) {
       posthog.capture("user_logged_in");
     }
   };
@@ -157,7 +158,7 @@ export function AuthProvider({ children, totalPatterns }: { children: ReactNode;
     clearStorage();
     setUser(null);
     setReadSlugs([]);
-    if (typeof window !== "undefined" && process.env.NEXT_PUBLIC_POSTHOG_KEY) {
+    if (typeof window !== "undefined" && POSTHOG_KEY) {
       posthog.reset();
     }
   };
@@ -169,7 +170,7 @@ export function AuthProvider({ children, totalPatterns }: { children: ReactNode;
         if (prev.includes(slug)) return prev;
         const updated = [...prev, slug];
 
-        if (typeof window !== "undefined" && process.env.NEXT_PUBLIC_POSTHOG_KEY) {
+        if (typeof window !== "undefined" && POSTHOG_KEY) {
           posthog.capture("pattern_read", {
             pattern: slug,
             totalRead: updated.length,
