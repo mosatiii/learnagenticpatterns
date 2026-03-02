@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { loginSchema } from "@/lib/validations";
 import { query } from "@/lib/db";
+import { rateLimit, getClientIp } from "@/lib/rate-limit";
 
 interface DbUser {
   id: number;
@@ -12,6 +13,15 @@ interface DbUser {
 
 export async function POST(request: Request) {
   try {
+    const ip = getClientIp(request);
+    const limiter = rateLimit(ip, { maxRequests: 10, windowMs: 15 * 60 * 1000 });
+    if (!limiter.success) {
+      return NextResponse.json(
+        { success: false, message: "Too many login attempts. Please try again later." },
+        { status: 429 }
+      );
+    }
+
     const body = await request.json();
     const validated = loginSchema.parse(body);
 

@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { signupSchema } from "@/lib/validations";
 import { query } from "@/lib/db";
+import { rateLimit, getClientIp } from "@/lib/rate-limit";
+import { welcomeEmail, adminNotificationEmail } from "@/lib/email-templates";
 
 interface DbUser {
   id: number;
@@ -11,6 +13,15 @@ interface DbUser {
 
 export async function POST(request: Request) {
   try {
+    const ip = getClientIp(request);
+    const limiter = rateLimit(ip, { maxRequests: 5, windowMs: 15 * 60 * 1000 });
+    if (!limiter.success) {
+      return NextResponse.json(
+        { success: false, message: "Too many attempts. Please try again later." },
+        { status: 429 }
+      );
+    }
+
     const body = await request.json();
     const validated = signupSchema.parse(body);
 
@@ -48,6 +59,8 @@ export async function POST(request: Request) {
     const resendKey = process.env.RESEND_API_KEY;
     if (resendKey && resendKey !== "your_resend_key") {
       try {
+        const fromEmail = process.env.FROM_EMAIL || "noreply@learnagenticpatterns.com";
+
         await fetch("https://api.resend.com/emails", {
           method: "POST",
           headers: {
@@ -55,20 +68,15 @@ export async function POST(request: Request) {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            from: process.env.FROM_EMAIL || "noreply@learnagenticpatterns.com",
+            from: fromEmail,
             to: validated.email,
             subject: "Welcome to Learn Agentic Patterns!",
-            html: `
-              <h2>Welcome, ${validated.firstName}! You're in.</h2>
-              <p>You now have access to all 21 Agentic Design Patterns — completely free.</p>
-              <p><a href="https://learnagenticpatterns.com/#curriculum">Start learning now →</a></p>
-              <p>— Mousa</p>
-            `,
+            html: welcomeEmail(validated.firstName),
           }),
         });
 
-        const adminEmail = process.env.ADMIN_EMAIL;
-        if (adminEmail) {
+        const adminAddr = process.env.ADMIN_EMAIL;
+        if (adminAddr) {
           await fetch("https://api.resend.com/emails", {
             method: "POST",
             headers: {
@@ -76,16 +84,15 @@ export async function POST(request: Request) {
               "Content-Type": "application/json",
             },
             body: JSON.stringify({
-              from: process.env.FROM_EMAIL || "noreply@learnagenticpatterns.com",
-              to: adminEmail,
+              from: fromEmail,
+              to: adminAddr,
               subject: `New signup: ${validated.firstName} (${validated.role})`,
-              html: `
-                <h3>New Lead</h3>
-                <p><strong>Name:</strong> ${validated.firstName}</p>
-                <p><strong>Email:</strong> ${validated.email}</p>
-                <p><strong>Role:</strong> ${validated.role}</p>
-                <p><strong>Challenge:</strong> ${validated.challenge || "Not provided"}</p>
-              `,
+              html: adminNotificationEmail({
+                firstName: validated.firstName,
+                email: validated.email,
+                role: validated.role,
+                challenge: validated.challenge,
+              }),
             }),
           });
         }

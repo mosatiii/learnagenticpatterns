@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import crypto from "crypto";
 import { forgotPasswordSchema } from "@/lib/validations";
 import { query } from "@/lib/db";
+import { rateLimit, getClientIp } from "@/lib/rate-limit";
+import { passwordResetEmail } from "@/lib/email-templates";
 
 interface DbUser {
   id: number;
@@ -10,6 +12,15 @@ interface DbUser {
 
 export async function POST(request: Request) {
   try {
+    const ip = getClientIp(request);
+    const limiter = rateLimit(ip, { maxRequests: 3, windowMs: 15 * 60 * 1000 });
+    if (!limiter.success) {
+      return NextResponse.json(
+        { success: false, message: "Too many requests. Please try again later." },
+        { status: 429 }
+      );
+    }
+
     const body = await request.json();
     const validated = forgotPasswordSchema.parse(body);
     const email = validated.email.toLowerCase().trim();
@@ -58,14 +69,7 @@ export async function POST(request: Request) {
             from: process.env.FROM_EMAIL || "noreply@learnagenticpatterns.com",
             to: email,
             subject: "Reset your password — Learn Agentic Patterns",
-            html: `
-              <h2>Password Reset</h2>
-              <p>Hi ${user.first_name},</p>
-              <p>Click the link below to reset your password. This link expires in 1 hour.</p>
-              <p><a href="${resetUrl}" style="display:inline-block;background:#FF6B35;color:#fff;padding:12px 24px;border-radius:6px;text-decoration:none;font-weight:600;">Reset Password</a></p>
-              <p style="color:#999;font-size:12px;">If you didn't request this, just ignore this email.</p>
-              <p>— Mousa</p>
-            `,
+            html: passwordResetEmail(user.first_name, resetUrl),
           }),
         });
       } catch (emailErr) {
