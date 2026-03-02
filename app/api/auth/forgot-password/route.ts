@@ -42,7 +42,7 @@ export async function POST(request: Request) {
     );
 
     // Send reset email
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://learnagenticpatterns.com";
+    const siteUrl = process.env.SITE_URL || "https://learnagenticpatterns.com";
     const resetUrl = `${siteUrl}/reset-password?token=${token}`;
     const resendKey = process.env.RESEND_API_KEY;
 
