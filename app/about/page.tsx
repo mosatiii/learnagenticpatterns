@@ -1,8 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { GraduationCap, Award, ArrowRight } from "lucide-react";
-import { Github, Linkedin } from "lucide-react";
+import { GraduationCap, Award, ArrowRight, Github, Linkedin } from "lucide-react";
 import Link from "next/link";
 import SectionHeader from "@/components/SectionHeader";
 
