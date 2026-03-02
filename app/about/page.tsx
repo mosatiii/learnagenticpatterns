@@ -1,41 +1,10 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Briefcase, GraduationCap, Award, ExternalLink, ArrowRight } from "lucide-react";
+import { GraduationCap, Award, ArrowRight } from "lucide-react";
+import { Github, Linkedin } from "lucide-react";
 import Link from "next/link";
 import SectionHeader from "@/components/SectionHeader";
-
-const experience = [
-  {
-    role: "AI Product Manager",
-    company: "Rigoris",
-    period: "Aug 2025 – Present",
-    points: [
-      "Leading the transition of rule-based business logic into autonomous AI workflows, utilizing LLM-based agents to automate high-risk manual processes.",
-      "Managing end-to-end product hygiene, including backlog grooming, sprint planning, and cross-functional stakeholder alignment.",
-      "Converting dense industry documentation into scalable digital product flows, reducing operational friction by 40% through automated discovery.",
-    ],
-  },
-  {
-    role: "Product Delivery Lead",
-    company: "Prompted Studio",
-    period: "Apr 2025 – Aug 2025",
-    points: [
-      "Leveraged vibe-coding workflows to port a native mobile application to a high-performance React web platform, increasing accessibility and user reach.",
-      "Orchestrated the lifecycle for VoccaPen, managing cross-functional squads to ship a high-tier AI-integrated application within tight market windows.",
-    ],
-  },
-  {
-    role: "Product Manager & Co-Founder",
-    company: "Charge (Acquired)",
-    period: "Aug 2022 – Apr 2024",
-    points: [
-      "Scaled platform growth by 70% in DAUs through aggressive experimentation and rigorous feature prioritization during a critical pre-acquisition phase.",
-      "Reduced bounce rates by 35% through SQL-backed user behavior analysis and UX optimization.",
-      "Played a key role in the technical due diligence process leading to the company's successful acquisition.",
-    ],
-  },
-];
 
 const education = [
   {
@@ -92,7 +61,7 @@ export default function AboutPage() {
                   M
                 </span>
               </div>
-              <div className="flex gap-2">
+              <div className="flex gap-3">
                 <a
                   href="https://www.linkedin.com/in/mosatiii/"
                   target="_blank"
@@ -100,7 +69,16 @@ export default function AboutPage() {
                   className="text-text-secondary hover:text-primary transition-colors"
                   aria-label="LinkedIn"
                 >
-                  <ExternalLink size={16} />
+                  <Linkedin size={18} />
+                </a>
+                <a
+                  href="https://github.com/mosatiii"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-text-secondary hover:text-primary transition-colors"
+                  aria-label="GitHub"
+                >
+                  <Github size={18} />
                 </a>
               </div>
             </motion.div>
@@ -168,59 +146,6 @@ export default function AboutPage() {
                 something they already know deeply.
               </p>
             </motion.div>
-          </div>
-        </div>
-      </section>
-
-      {/* Experience */}
-      <section className="py-16">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <SectionHeader title="Experience" decorator="$" centered={false} />
-          <div className="space-y-6">
-            {experience.map((job, i) => (
-              <motion.div
-                key={job.company}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.1 }}
-                className="bg-surface border border-border rounded-lg p-6"
-              >
-                <div className="flex items-start gap-4">
-                  <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <Briefcase size={20} className="text-primary" />
-                  </div>
-                  <div className="flex-1">
-                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 mb-3">
-                      <div>
-                        <h3 className="font-mono text-text-primary font-bold text-sm">
-                          {job.role}
-                        </h3>
-                        <p className="text-primary font-mono text-xs">
-                          {job.company}
-                        </p>
-                      </div>
-                      <span className="text-text-secondary text-xs font-mono">
-                        {job.period}
-                      </span>
-                    </div>
-                    <ul className="space-y-2">
-                      {job.points.map((point, j) => (
-                        <li
-                          key={j}
-                          className="text-text-secondary text-sm leading-relaxed flex gap-2"
-                        >
-                          <span className="text-primary mt-1 flex-shrink-0">
-                            ›
-                          </span>
-                          {point}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
           </div>
         </div>
       </section>

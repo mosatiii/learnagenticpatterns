@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Github, Linkedin, Twitter } from "lucide-react";
+import { Github, Linkedin } from "lucide-react";
 
 const footerLinks = [
   { label: "Home", href: "/" },
@@ -9,7 +9,6 @@ const footerLinks = [
 ];
 
 const socialLinks = [
-  { icon: Twitter, href: "#", label: "Twitter" },
   { icon: Linkedin, href: "https://www.linkedin.com/in/mosatiii/", label: "LinkedIn" },
   { icon: Github, href: "https://github.com/mosatiii", label: "GitHub" },
 ];
