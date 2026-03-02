@@ -31,27 +31,47 @@ export function CourseJsonLd() {
     name: "Learn Agentic Design Patterns",
     description:
       "A free curriculum mapping 21 Agentic AI Design Patterns to Software Engineering concepts. Built for Senior Developers, Architects, and Technical Leaders.",
+    url: "https://learnagenticpatterns.com",
     provider: {
       "@type": "Organization",
       name: "Learn Agentic Patterns",
       url: "https://learnagenticpatterns.com",
     },
-    author: {
+    creator: {
       "@type": "Person",
       name: "Mousa Al-Jawaheri",
+      url: "https://www.linkedin.com/in/mosatiii/",
     },
     isAccessibleForFree: true,
+    inLanguage: "en",
     numberOfCredits: 0,
+    educationalLevel: "Advanced",
+    audience: {
+      "@type": "EducationalAudience",
+      educationalRole: "Professional",
+    },
     hasCourseInstance: {
       "@type": "CourseInstance",
       courseMode: "online",
       courseWorkload: "PT10H",
     },
-    syllabusSections: patterns.map((p) => ({
-      "@type": "Syllabus",
+    hasPart: patterns.map((p, i) => ({
+      "@type": "CreativeWork",
+      position: i + 1,
       name: `${p.name} → ${p.sweParallel}`,
       description: p.description,
+      url: `https://learnagenticpatterns.com/patterns/${p.slug}`,
     })),
+    teaches: [
+      "Agentic AI Design Patterns",
+      "Multi-Agent Systems Architecture",
+      "Prompt Chaining",
+      "Reflection Pattern",
+      "Tool Use Pattern",
+      "Planning Pattern",
+      "RAG Architecture",
+      "Model Context Protocol",
+    ],
   };
 
   return (
@@ -65,10 +85,13 @@ export function CourseJsonLd() {
 export function PatternArticleJsonLd({ pattern }: { pattern: Pattern }) {
   const schema = {
     "@context": "https://schema.org",
-    "@type": "Article",
+    "@type": "TechArticle",
     headline: `${pattern.name} → ${pattern.sweParallel}`,
     description: pattern.description,
     url: `https://learnagenticpatterns.com/patterns/${pattern.slug}`,
+    image: `https://learnagenticpatterns.com/patterns/${pattern.slug}/opengraph-image`,
+    datePublished: "2025-01-15T00:00:00Z",
+    dateModified: "2026-03-01T00:00:00Z",
     author: {
       "@type": "Person",
       name: "Mousa Al-Jawaheri",
@@ -78,13 +101,21 @@ export function PatternArticleJsonLd({ pattern }: { pattern: Pattern }) {
       "@type": "Organization",
       name: "Learn Agentic Patterns",
       url: "https://learnagenticpatterns.com",
+      logo: {
+        "@type": "ImageObject",
+        url: "https://learnagenticpatterns.com/icon",
+      },
     },
+    inLanguage: "en",
     isAccessibleForFree: true,
     isPartOf: {
       "@type": "Course",
       name: "Learn Agentic Design Patterns",
       url: "https://learnagenticpatterns.com",
     },
+    keywords: `${pattern.name}, ${pattern.sweParallel}, agentic AI, design patterns, LLM`,
+    articleSection: "Agentic Design Patterns",
+    wordCount: pattern.description.length + pattern.agenticDefinition.length,
   };
 
   return (

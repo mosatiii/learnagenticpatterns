@@ -21,6 +21,21 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title,
     description,
+    keywords: [
+      pattern.name,
+      pattern.sweParallel,
+      "agentic AI",
+      "design pattern",
+      "LLM",
+      "AI architecture",
+      "senior developer",
+    ],
+    authors: [
+      {
+        name: "Mousa Al-Jawaheri",
+        url: "https://www.linkedin.com/in/mosatiii/",
+      },
+    ],
     alternates: {
       canonical: `https://learnagenticpatterns.com/patterns/${pattern.slug}`,
     },
@@ -30,6 +45,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       url: `https://learnagenticpatterns.com/patterns/${pattern.slug}`,
       siteName: "Learn Agentic Patterns",
       type: "article",
+      publishedTime: "2025-01-15T00:00:00Z",
+      modifiedTime: "2026-03-01T00:00:00Z",
+      authors: ["Mousa Al-Jawaheri"],
+      section: "Agentic Design Patterns",
+      tags: [pattern.name, pattern.sweParallel, "Agentic AI", "Design Patterns"],
     },
     twitter: {
       card: "summary_large_image",
