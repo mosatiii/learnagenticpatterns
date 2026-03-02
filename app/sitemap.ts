@@ -44,6 +44,18 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "monthly",
       priority: 0.5,
     },
+    {
+      url: `${baseUrl}/practice`,
+      lastModified: LAST_CONTENT_UPDATE,
+      changeFrequency: "weekly",
+      priority: 0.9,
+    },
+    {
+      url: "https://practice.learnagenticpatterns.com",
+      lastModified: LAST_CONTENT_UPDATE,
+      changeFrequency: "weekly",
+      priority: 0.9,
+    },
     ...patternPages,
   ];
 }
