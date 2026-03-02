@@ -12,13 +12,16 @@ import {
   CheckCircle2,
   ChevronRight,
   Home,
+  Lock,
 } from "lucide-react";
 import Link from "next/link";
 import SectionHeader from "@/components/SectionHeader";
 import { patterns } from "@/data/patterns";
 import { CheatSheetJsonLd } from "@/components/JsonLd";
+import { useAuth } from "@/contexts/AuthContext";
 
-const CHEATSHEET_PDF_URL = "#"; // Replace with actual PDF URL when ready
+const CHEATSHEET_PDF_URL =
+  "/Agentic-Design-Architecture-A-Reskilling-Curriculum-for-the-AI-Native-Enterprise.pdf";
 
 // ─── Pattern mapping data for the preview table ─────────────
 const patternMappings = patterns.map((p) => ({
@@ -64,7 +67,7 @@ const faqs = [
   },
   {
     q: "Is this really free? What's the catch?",
-    a: "No catch. The PDF is a direct download with no email gate and no signup wall. We believe the best way to build trust with senior engineers is to give away genuinely useful content. If you find it valuable, share it with your team.",
+    a: "No catch. Sign up for a free account (no credit card required) and the PDF is yours instantly. We ask for sign-up so we can notify you when new patterns are added. If you find it valuable, share it with your team.",
   },
   {
     q: "How is this different from Andrew Ng's agentic patterns?",
@@ -90,6 +93,8 @@ const stagger = {
 };
 
 export default function CheatSheetPage() {
+  const { user, isLoading } = useAuth();
+
   return (
     <main className="relative z-10">
       <CheatSheetJsonLd />
@@ -124,7 +129,7 @@ export default function CheatSheetPage() {
             >
               <motion.div variants={stagger.item}>
                 <span className="inline-block font-mono text-xs text-accent border border-accent/30 rounded-full px-3 py-1 mb-6">
-                  FREE PDF — No Email Required
+                  FREE PDF — Sign up to download
                 </span>
               </motion.div>
 
@@ -150,13 +155,26 @@ export default function CheatSheetPage() {
                 variants={stagger.item}
                 className="flex flex-col sm:flex-row gap-4 mb-6"
               >
-                <a
-                  href={CHEATSHEET_PDF_URL}
-                  className="inline-flex items-center justify-center gap-2 bg-accent hover:bg-accent/90 text-white font-sans font-semibold text-base px-8 py-3.5 rounded-md transition-all hover:shadow-lg hover:shadow-accent/20"
-                >
-                  <Download size={18} />
-                  Get the Free Cheat Sheet
-                </a>
+                {!isLoading && (
+                  user ? (
+                    <a
+                      href={CHEATSHEET_PDF_URL}
+                      download
+                      className="inline-flex items-center justify-center gap-2 bg-accent hover:bg-accent/90 text-white font-sans font-semibold text-base px-8 py-3.5 rounded-md transition-all hover:shadow-lg hover:shadow-accent/20"
+                    >
+                      <Download size={18} />
+                      Download PDF
+                    </a>
+                  ) : (
+                    <Link
+                      href="/signup"
+                      className="inline-flex items-center justify-center gap-2 bg-accent hover:bg-accent/90 text-white font-sans font-semibold text-base px-8 py-3.5 rounded-md transition-all hover:shadow-lg hover:shadow-accent/20"
+                    >
+                      <Lock size={16} />
+                      Sign Up Free to Download
+                    </Link>
+                  )
+                )}
                 <Link
                   href="/#curriculum"
                   className="inline-flex items-center justify-center gap-2 border border-border hover:border-primary/50 text-text-secondary hover:text-primary font-sans font-medium text-base px-8 py-3.5 rounded-md transition-all"
@@ -170,7 +188,10 @@ export default function CheatSheetPage() {
                 variants={stagger.item}
                 className="text-text-secondary/60 text-sm font-mono"
               >
-                No email gate · Direct download · Share with your team
+                {user
+                  ? "Your PDF is ready · Share it with your team"
+                  : "Free sign-up · No credit card · Instant download"
+                }
               </motion.p>
             </motion.div>
 
@@ -294,13 +315,24 @@ export default function CheatSheetPage() {
             ))}
           </div>
           <div className="text-center mt-8">
-            <a
-              href={CHEATSHEET_PDF_URL}
-              className="inline-flex items-center gap-2 bg-accent hover:bg-accent/90 text-white font-sans font-semibold text-base px-8 py-3.5 rounded-md transition-all hover:shadow-lg hover:shadow-accent/20"
-            >
-              <Download size={18} />
-              Download the Full PDF
-            </a>
+            {user ? (
+              <a
+                href={CHEATSHEET_PDF_URL}
+                download
+                className="inline-flex items-center gap-2 bg-accent hover:bg-accent/90 text-white font-sans font-semibold text-base px-8 py-3.5 rounded-md transition-all hover:shadow-lg hover:shadow-accent/20"
+              >
+                <Download size={18} />
+                Download the Full PDF
+              </a>
+            ) : (
+              <Link
+                href="/signup"
+                className="inline-flex items-center gap-2 bg-accent hover:bg-accent/90 text-white font-sans font-semibold text-base px-8 py-3.5 rounded-md transition-all hover:shadow-lg hover:shadow-accent/20"
+              >
+                <Lock size={16} />
+                Sign Up Free to Download
+              </Link>
+            )}
           </div>
         </div>
       </section>
@@ -415,23 +447,37 @@ export default function CheatSheetPage() {
             decorator="↓"
           />
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-8">
-            <a
-              href={CHEATSHEET_PDF_URL}
-              className="inline-flex items-center gap-2 bg-accent hover:bg-accent/90 text-white font-sans font-semibold text-base px-8 py-3.5 rounded-md transition-all hover:shadow-lg hover:shadow-accent/20"
-            >
-              <Download size={18} />
-              Download Free PDF
-            </a>
+            {user ? (
+              <a
+                href={CHEATSHEET_PDF_URL}
+                download
+                className="inline-flex items-center gap-2 bg-accent hover:bg-accent/90 text-white font-sans font-semibold text-base px-8 py-3.5 rounded-md transition-all hover:shadow-lg hover:shadow-accent/20"
+              >
+                <Download size={18} />
+                Download Free PDF
+              </a>
+            ) : (
+              <Link
+                href="/signup"
+                className="inline-flex items-center gap-2 bg-accent hover:bg-accent/90 text-white font-sans font-semibold text-base px-8 py-3.5 rounded-md transition-all hover:shadow-lg hover:shadow-accent/20"
+              >
+                <Lock size={16} />
+                Sign Up Free to Download
+              </Link>
+            )}
             <Link
-              href="/signup"
+              href="/#curriculum"
               className="inline-flex items-center gap-2 border border-border hover:border-primary/50 text-text-secondary hover:text-primary font-sans font-medium text-base px-8 py-3.5 rounded-md transition-all"
             >
-              Unlock All 21 Pattern Deep-Dives
+              Explore All 21 Pattern Deep-Dives
               <ArrowRight size={18} />
             </Link>
           </div>
           <p className="text-text-secondary/60 text-xs font-mono mt-6">
-            No email required · Direct download · Share with your team
+            {user
+              ? "Your PDF is ready · Share it with your team"
+              : "Free sign-up · No credit card · Instant access"
+            }
           </p>
         </div>
       </section>
