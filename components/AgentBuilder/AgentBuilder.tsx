@@ -7,6 +7,7 @@ import { getGameConfig } from "@/data/games";
 import type { BlockDefinition, SimulationEvent } from "@/data/games";
 import { runSimulation, calculateScore } from "@/lib/game/simulation-engine";
 import type { Score } from "@/lib/game/simulation-engine";
+import { useAuth } from "@/contexts/AuthContext";
 import BlockPalette from "./BlockPalette";
 import BuildCanvas from "./BuildCanvas";
 import ScoreCard from "./ScoreCard";
@@ -95,6 +96,8 @@ export default function AgentBuilder({ patternSlug }: AgentBuilderProps) {
   const config = getGameConfig(patternSlug);
   const [state, dispatch] = useReducer(gameReducer, initialState);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const scoreSavedRef = useRef(false);
+  const { saveGameScore } = useAuth();
 
   // Cleanup simulation timer on unmount
   useEffect(() => {
@@ -102,6 +105,21 @@ export default function AgentBuilder({ patternSlug }: AgentBuilderProps) {
       if (timerRef.current) clearTimeout(timerRef.current);
     };
   }, []);
+
+  // Persist score to backend once when game completes
+  useEffect(() => {
+    if (state.phase !== "complete" || !state.score || scoreSavedRef.current) return;
+    scoreSavedRef.current = true;
+    saveGameScore({
+      patternSlug,
+      scoreTotal: state.score.total,
+      scoreMax: state.score.maxTotal,
+      architecture: state.score.architecture,
+      resilience: state.score.resilience,
+      efficiency: state.score.efficiency,
+      passed: state.score.passed,
+    });
+  }, [state.phase, state.score, patternSlug, saveGameScore]);
 
   // Step through simulation events with staggered delays
   useEffect(() => {
@@ -144,6 +162,7 @@ export default function AgentBuilder({ patternSlug }: AgentBuilderProps) {
 
   const handleReset = useCallback(() => {
     if (timerRef.current) clearTimeout(timerRef.current);
+    scoreSavedRef.current = false;
     dispatch({ type: "RESET" });
   }, []);
 

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { ArrowRight, AlertTriangle, Eye, Target, Quote, Lock, BookOpen } from "lucide-react";
+import { ArrowRight, AlertTriangle, Eye, Target, Quote, Lock, BookOpen, Trophy, Medal, Gamepad2 } from "lucide-react";
 import Link from "next/link";
 import SectionHeader from "@/components/SectionHeader";
 import PatternCard from "@/components/PatternCard";
@@ -11,6 +11,7 @@ import MaturityLevel from "@/components/MaturityLevel";
 import ProgressCircle from "@/components/ProgressCircle";
 import { patterns } from "@/data/patterns";
 import { useAuth } from "@/contexts/AuthContext";
+import type { PatternScore, LeaderboardEntry } from "@/contexts/AuthContext";
 import { CourseJsonLd } from "@/components/JsonLd";
 
 // ─── Stagger animation helpers ─────────────────────────────
@@ -135,9 +136,189 @@ const faqs = [
   },
 ];
 
+// ─── Game Stats Section (Dashboard) ─────────────────────────
+function GameStats({
+  scores,
+  totalAttempts,
+  avgPercent,
+  leaderboard,
+  userRank,
+  firstName,
+}: {
+  scores: PatternScore[];
+  totalAttempts: number;
+  avgPercent: number;
+  leaderboard: LeaderboardEntry[];
+  userRank: number | null;
+  firstName: string;
+}) {
+  if (totalAttempts === 0) {
+    return (
+      <section className="py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <SectionHeader
+            title="Agent Builder Scores"
+            subtitle="Play the Build game on any pattern page to see your scores here."
+            decorator="▶"
+          />
+          <div className="bg-surface border border-border rounded-xl p-10 text-center">
+            <Gamepad2 size={48} className="text-text-secondary/30 mx-auto mb-4" />
+            <p className="text-text-secondary font-mono text-sm">
+              No games played yet. Head to any pattern and try the <span className="text-accent font-bold">Build</span> tab!
+            </p>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  const patternLookup = new Map(patterns.map((p) => [p.slug, p]));
+
+  return (
+    <section className="py-16">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <SectionHeader
+          title="Agent Builder Scores"
+          subtitle={`${totalAttempts} game${totalAttempts === 1 ? "" : "s"} played across ${scores.length} pattern${scores.length === 1 ? "" : "s"}.`}
+          decorator="▶"
+        />
+
+        {/* Stats summary row */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+          {[
+            { label: "Avg Score", value: `${avgPercent}%`, accent: avgPercent >= 60 },
+            { label: "Patterns Played", value: `${scores.length}/21`, accent: false },
+            { label: "Total Attempts", value: String(totalAttempts), accent: false },
+            { label: "Your Rank", value: userRank ? `#${userRank}` : "—", accent: userRank === 1 },
+          ].map((stat, i) => (
+            <motion.div
+              key={stat.label}
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.08 }}
+              className={`bg-surface border rounded-lg p-4 text-center ${
+                stat.accent ? "border-success/30" : "border-border"
+              }`}
+            >
+              <p className={`font-mono text-2xl font-bold ${stat.accent ? "text-success" : "text-text-primary"}`}>
+                {stat.value}
+              </p>
+              <p className="text-text-secondary text-xs font-mono mt-1">{stat.label}</p>
+            </motion.div>
+          ))}
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Per-pattern best scores */}
+          <div className="lg:col-span-2 bg-surface border border-border rounded-xl p-5">
+            <h3 className="font-mono text-sm text-text-secondary mb-4 flex items-center gap-2">
+              <Trophy size={14} className="text-primary" />
+              Best Scores by Pattern
+            </h3>
+            <div className="space-y-2">
+              {scores.map((s, i) => {
+                const percent = Math.round((s.score_total / s.score_max) * 100);
+                const pattern = patternLookup.get(s.pattern_slug);
+                const name = pattern
+                  ? `${String(pattern.number).padStart(2, "0")}. ${pattern.name}`
+                  : s.pattern_slug;
+
+                return (
+                  <motion.div
+                    key={s.pattern_slug}
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: i * 0.04 }}
+                  >
+                    <Link
+                      href={`/patterns/${s.pattern_slug}`}
+                      className="flex items-center gap-3 p-3 rounded-lg hover:bg-code-bg transition-colors group"
+                    >
+                      <span className={`font-mono text-lg font-bold w-12 text-right ${
+                        percent === 100 ? "text-success" : percent >= 60 ? "text-primary" : "text-red-400"
+                      }`}>
+                        {percent}%
+                      </span>
+                      <div className="flex-1 min-w-0">
+                        <div className="h-2 bg-code-bg rounded-full overflow-hidden">
+                          <motion.div
+                            className={`h-full rounded-full ${
+                              percent === 100 ? "bg-success" : percent >= 60 ? "bg-primary" : "bg-red-400"
+                            }`}
+                            initial={{ width: 0 }}
+                            animate={{ width: `${percent}%` }}
+                            transition={{ duration: 0.6, delay: i * 0.04 }}
+                          />
+                        </div>
+                        <p className="text-text-secondary text-xs font-mono mt-1 truncate group-hover:text-primary transition-colors">
+                          {name}
+                        </p>
+                      </div>
+                      {s.passed && <span className="text-success text-xs font-mono">PASS</span>}
+                    </Link>
+                  </motion.div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Leaderboard */}
+          <div className="bg-surface border border-border rounded-xl p-5">
+            <h3 className="font-mono text-sm text-text-secondary mb-4 flex items-center gap-2">
+              <Medal size={14} className="text-accent" />
+              Leaderboard
+            </h3>
+            <div className="space-y-1">
+              {leaderboard.map((entry, i) => {
+                const isYou = entry.first_name === firstName;
+                return (
+                  <motion.div
+                    key={`${entry.first_name}-${i}`}
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: i * 0.04 }}
+                    className={`flex items-center gap-3 px-3 py-2 rounded-lg ${
+                      isYou ? "bg-primary/10 border border-primary/20" : ""
+                    }`}
+                  >
+                    <span className={`font-mono text-sm font-bold w-6 text-right ${
+                      i === 0 ? "text-yellow-400" : i === 1 ? "text-gray-300" : i === 2 ? "text-amber-600" : "text-text-secondary"
+                    }`}>
+                      {i + 1}
+                    </span>
+                    <span className={`text-sm flex-1 truncate ${isYou ? "text-primary font-bold" : "text-text-primary"}`}>
+                      {entry.first_name}{isYou ? " (you)" : ""}
+                    </span>
+                    <span className="font-mono text-xs text-text-secondary">
+                      {entry.games_played} game{entry.games_played === 1 ? "" : "s"}
+                    </span>
+                    <span className={`font-mono text-sm font-bold ${
+                      entry.avg_percent >= 80 ? "text-success" : entry.avg_percent >= 60 ? "text-primary" : "text-red-400"
+                    }`}>
+                      {entry.avg_percent}%
+                    </span>
+                  </motion.div>
+                );
+              })}
+              {leaderboard.length === 0 && (
+                <p className="text-text-secondary/50 text-xs font-mono text-center py-6">
+                  No players yet. Be the first!
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 // ─── Main Page Component ────────────────────────────────────
 export default function HomePage() {
-  const { user, readSlugs, isLoading } = useAuth();
+  const {
+    user, readSlugs, isLoading,
+    gameScores, totalAttempts, avgPercent, leaderboard, userRank,
+  } = useAuth();
 
   // Find the next unread pattern for "Continue learning" CTA
   const nextUnread = patterns.find((p) => !readSlugs.includes(p.slug));
@@ -212,6 +393,16 @@ export default function HomePage() {
             </motion.div>
           </div>
         </section>
+
+        {/* Game scores */}
+        <GameStats
+          scores={gameScores}
+          totalAttempts={totalAttempts}
+          avgPercent={avgPercent}
+          leaderboard={leaderboard}
+          userRank={userRank}
+          firstName={user.firstName}
+        />
 
         {/* Curriculum grid */}
         <section id="curriculum" className="py-16 bg-surface/30">

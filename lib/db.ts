@@ -37,6 +37,19 @@ async function ensureTables() {
       used            BOOLEAN DEFAULT FALSE,
       created_at      TIMESTAMPTZ DEFAULT NOW()
     );
+
+    CREATE TABLE IF NOT EXISTS game_scores (
+      id              SERIAL PRIMARY KEY,
+      user_id         INTEGER REFERENCES users(id) ON DELETE CASCADE,
+      pattern_slug    TEXT NOT NULL,
+      score_total     INTEGER NOT NULL,
+      score_max       INTEGER NOT NULL,
+      architecture    INTEGER NOT NULL DEFAULT 0,
+      resilience      INTEGER NOT NULL DEFAULT 0,
+      efficiency      INTEGER NOT NULL DEFAULT 0,
+      passed          BOOLEAN NOT NULL DEFAULT FALSE,
+      played_at       TIMESTAMPTZ DEFAULT NOW()
+    );
   `);
 
   // Add password_hash column if upgrading from the old schema

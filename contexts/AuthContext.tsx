@@ -19,6 +19,23 @@ interface StoredAuth {
   expiresAt: number;
 }
 
+export interface PatternScore {
+  pattern_slug: string;
+  score_total: number;
+  score_max: number;
+  architecture: number;
+  resilience: number;
+  efficiency: number;
+  passed: boolean;
+  played_at: string;
+}
+
+export interface LeaderboardEntry {
+  first_name: string;
+  avg_percent: number;
+  games_played: number;
+}
+
 interface AuthContextValue {
   user: AuthUser | null;
   isLoading: boolean;
@@ -34,6 +51,20 @@ interface AuthContextValue {
   logout: () => void;
   markRead: (slug: string) => void;
   progressPercent: number;
+  gameScores: PatternScore[];
+  totalAttempts: number;
+  avgPercent: number;
+  leaderboard: LeaderboardEntry[];
+  userRank: number | null;
+  saveGameScore: (data: {
+    patternSlug: string;
+    scoreTotal: number;
+    scoreMax: number;
+    architecture: number;
+    resilience: number;
+    efficiency: number;
+    passed: boolean;
+  }) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -42,6 +73,11 @@ export function AuthProvider({ children, totalPatterns }: { children: ReactNode;
   const [user, setUser] = useState<AuthUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [readSlugs, setReadSlugs] = useState<string[]>([]);
+  const [gameScores, setGameScores] = useState<PatternScore[]>([]);
+  const [totalAttempts, setTotalAttempts] = useState(0);
+  const [avgPercent, setAvgPercent] = useState(0);
+  const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
+  const [userRank, setUserRank] = useState<number | null>(null);
 
   const progressPercent = totalPatterns > 0
     ? Math.round((readSlugs.length / totalPatterns) * 100)
@@ -72,6 +108,22 @@ export function AuthProvider({ children, totalPatterns }: { children: ReactNode;
     }
   }, []);
 
+  const fetchGameScores = useCallback(async (email: string) => {
+    try {
+      const res = await fetch(`/api/game-scores?email=${encodeURIComponent(email)}`);
+      if (res.ok) {
+        const data = await res.json();
+        setGameScores(data.scores || []);
+        setTotalAttempts(data.totalAttempts || 0);
+        setAvgPercent(data.avgPercent || 0);
+        setLeaderboard(data.leaderboard || []);
+        setUserRank(data.userRank ?? null);
+      }
+    } catch {
+      // Game scores are non-critical
+    }
+  }, []);
+
   // On mount: check localStorage and verify with DB
   useEffect(() => {
     async function init() {
@@ -97,7 +149,10 @@ export function AuthProvider({ children, totalPatterns }: { children: ReactNode;
           const data = await res.json();
           setUser(data.user);
           saveToStorage(stored.email, data.user.firstName);
-          await fetchProgress(stored.email);
+          await Promise.all([
+            fetchProgress(stored.email),
+            fetchGameScores(stored.email),
+          ]);
         } else {
           clearStorage();
         }
@@ -108,7 +163,7 @@ export function AuthProvider({ children, totalPatterns }: { children: ReactNode;
       }
     }
     init();
-  }, [fetchProgress]);
+  }, [fetchProgress, fetchGameScores]);
 
   const signup = async (formData: {
     firstName: string;
@@ -128,7 +183,10 @@ export function AuthProvider({ children, totalPatterns }: { children: ReactNode;
 
     setUser(data.user);
     saveToStorage(data.user.email, data.user.firstName);
-    await fetchProgress(data.user.email);
+    await Promise.all([
+      fetchProgress(data.user.email),
+      fetchGameScores(data.user.email),
+    ]);
 
     if (typeof window !== "undefined" && POSTHOG_KEY) {
       posthog.capture("user_signed_up", { role: formData.role });
@@ -147,7 +205,10 @@ export function AuthProvider({ children, totalPatterns }: { children: ReactNode;
 
     setUser(data.user);
     saveToStorage(data.user.email, data.user.firstName);
-    await fetchProgress(data.user.email);
+    await Promise.all([
+      fetchProgress(data.user.email),
+      fetchGameScores(data.user.email),
+    ]);
 
     if (typeof window !== "undefined" && POSTHOG_KEY) {
       posthog.capture("user_logged_in");
@@ -158,10 +219,40 @@ export function AuthProvider({ children, totalPatterns }: { children: ReactNode;
     clearStorage();
     setUser(null);
     setReadSlugs([]);
+    setGameScores([]);
+    setTotalAttempts(0);
+    setAvgPercent(0);
+    setLeaderboard([]);
+    setUserRank(null);
     if (typeof window !== "undefined" && POSTHOG_KEY) {
       posthog.reset();
     }
   };
+
+  const saveGameScore = useCallback(
+    async (scoreData: {
+      patternSlug: string;
+      scoreTotal: number;
+      scoreMax: number;
+      architecture: number;
+      resilience: number;
+      efficiency: number;
+      passed: boolean;
+    }) => {
+      if (!user) return;
+      try {
+        await fetch("/api/game-scores", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: user.email, ...scoreData }),
+        });
+        await fetchGameScores(user.email);
+      } catch {
+        // Score saving is non-critical
+      }
+    },
+    [user, fetchGameScores],
+  );
 
   const markRead = useCallback(
     (slug: string) => {
@@ -191,7 +282,10 @@ export function AuthProvider({ children, totalPatterns }: { children: ReactNode;
 
   return (
     <AuthContext.Provider
-      value={{ user, isLoading, readSlugs, signup, login, logout, markRead, progressPercent }}
+      value={{
+        user, isLoading, readSlugs, signup, login, logout, markRead, progressPercent,
+        gameScores, totalAttempts, avgPercent, leaderboard, userRank, saveGameScore,
+      }}
     >
       {children}
     </AuthContext.Provider>
