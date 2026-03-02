@@ -25,6 +25,8 @@ import Link from "next/link";
 import SectionHeader from "@/components/SectionHeader";
 import { useAuth } from "@/contexts/AuthContext";
 
+const MAIN = "https://learnagenticpatterns.com";
+
 // ─── Animation helpers ─────────────────────────────────────
 const stagger = {
   container: { transition: { staggerChildren: 0.12 } },
@@ -373,8 +375,8 @@ function GameCard({
   isSignedIn: boolean;
 }) {
   const href = isSignedIn
-    ? `/patterns/${game.slug}#build`
-    : "/signup";
+    ? `${MAIN}/patterns/${game.slug}#build`
+    : `${MAIN}/signup`;
 
   return (
     <motion.div
@@ -383,7 +385,7 @@ function GameCard({
       viewport={{ once: true }}
       transition={{ duration: 0.4, delay: index * 0.04 }}
     >
-      <Link
+      <a
         href={href}
         className={`group block bg-surface border rounded-lg p-5 transition-all h-full ${
           game.isUnlocked
@@ -427,7 +429,7 @@ function GameCard({
             </span>
           )}
         </div>
-      </Link>
+      </a>
     </motion.div>
   );
 }
@@ -525,13 +527,13 @@ export default function PracticePage() {
               >
                 {!isLoading && !isSignedIn ? (
                   <>
-                    <Link
-                      href="/signup"
+                    <a
+                      href={`${MAIN}/signup`}
                       className="inline-flex items-center justify-center gap-2 bg-accent hover:bg-accent/90 text-white font-sans font-semibold text-base px-8 py-3.5 rounded-md transition-all hover:shadow-lg hover:shadow-accent/20"
                     >
                       Sign Up Free — Start Building
                       <ArrowRight size={18} />
-                    </Link>
+                    </a>
                     <Link
                       href="#exercises"
                       className="inline-flex items-center justify-center gap-2 border border-border hover:border-primary/50 text-text-secondary hover:text-primary font-sans font-medium text-base px-8 py-3.5 rounded-md transition-all"
@@ -540,13 +542,13 @@ export default function PracticePage() {
                     </Link>
                   </>
                 ) : !isLoading ? (
-                  <Link
-                    href="/patterns/prompt-chaining#build"
+                  <a
+                    href={`${MAIN}/patterns/prompt-chaining#build`}
                     className="inline-flex items-center justify-center gap-2 bg-accent hover:bg-accent/90 text-white font-sans font-semibold text-base px-8 py-3.5 rounded-md transition-all hover:shadow-lg hover:shadow-accent/20"
                   >
                     Start Your First Exercise
                     <ArrowRight size={18} />
-                  </Link>
+                  </a>
                 ) : null}
               </motion.div>
 
@@ -825,28 +827,28 @@ export default function PracticePage() {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-8">
             {!isLoading && !isSignedIn ? (
               <>
-                <Link
-                  href="/signup"
+                <a
+                  href={`${MAIN}/signup`}
                   className="inline-flex items-center gap-2 bg-accent hover:bg-accent/90 text-white font-sans font-semibold text-base px-8 py-3.5 rounded-md transition-all hover:shadow-lg hover:shadow-accent/20"
                 >
                   Create Free Account
                   <ArrowRight size={18} />
-                </Link>
-                <Link
-                  href="/login"
+                </a>
+                <a
+                  href={`${MAIN}/login`}
                   className="inline-flex items-center gap-2 border border-border hover:border-primary/50 text-text-secondary hover:text-primary font-sans font-medium text-base px-8 py-3.5 rounded-md transition-all"
                 >
                   Already have an account? Log in
-                </Link>
+                </a>
               </>
             ) : !isLoading ? (
-              <Link
-                href="/patterns/prompt-chaining#build"
+              <a
+                href={`${MAIN}/patterns/prompt-chaining#build`}
                 className="inline-flex items-center gap-2 bg-accent hover:bg-accent/90 text-white font-sans font-semibold text-base px-8 py-3.5 rounded-md transition-all hover:shadow-lg hover:shadow-accent/20"
               >
                 Start Building Now
                 <ArrowRight size={18} />
-              </Link>
+              </a>
             ) : null}
           </div>
           <p className="text-text-secondary/60 text-xs font-mono mt-6">
@@ -883,13 +885,13 @@ export default function PracticePage() {
               yourself. 21 exercises. Zero theory walls. All practice.
             </p>
             {!isLoading && !isSignedIn && (
-              <Link
-                href="/signup"
+              <a
+                href={`${MAIN}/signup`}
                 className="inline-flex items-center gap-2 bg-accent hover:bg-accent/90 text-white font-sans font-semibold text-base px-10 py-4 rounded-md transition-all hover:shadow-lg hover:shadow-accent/20"
               >
                 Sign Up Free — Start Building
                 <ArrowRight size={18} />
-              </Link>
+              </a>
             )}
           </motion.div>
         </div>
