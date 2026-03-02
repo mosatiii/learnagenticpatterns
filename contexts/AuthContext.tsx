@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from "react";
+import posthog from "posthog-js";
 
 const STORAGE_KEY = "lap_auth";
 const NINETY_DAYS_MS = 90 * 24 * 60 * 60 * 1000;
@@ -121,6 +122,10 @@ export function AuthProvider({ children, totalPatterns }: { children: ReactNode;
     setUser(data.user);
     saveToStorage(data.user.email, data.user.firstName);
     await fetchProgress(data.user.email);
+
+    if (typeof window !== "undefined" && process.env.NEXT_PUBLIC_POSTHOG_KEY) {
+      posthog.capture("user_signed_up", { role: formData.role });
+    }
   };
 
   const verify = async (email: string): Promise<boolean> => {
@@ -148,9 +153,20 @@ export function AuthProvider({ children, totalPatterns }: { children: ReactNode;
   const markRead = useCallback(
     (slug: string) => {
       if (!user) return;
-      // Optimistic update
-      setReadSlugs((prev) => (prev.includes(slug) ? prev : [...prev, slug]));
-      // Fire and forget
+      setReadSlugs((prev) => {
+        if (prev.includes(slug)) return prev;
+        const updated = [...prev, slug];
+
+        if (typeof window !== "undefined" && process.env.NEXT_PUBLIC_POSTHOG_KEY) {
+          posthog.capture("pattern_read", {
+            pattern: slug,
+            totalRead: updated.length,
+            percentComplete: Math.round((updated.length / 21) * 100),
+          });
+        }
+
+        return updated;
+      });
       fetch("/api/progress", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
