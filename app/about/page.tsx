@@ -121,12 +121,11 @@ export default function AboutPage() {
                 architectures.
               </p>
               <p>
-                As a Product Manager, I&apos;ve co-founded a startup that was
-                successfully acquired, scaled platforms by 70% in DAUs, and led
-                the transition of rule-based business logic into autonomous AI
-                workflows. I&apos;ve shipped AI-integrated products, managed
-                cross-functional squads, and driven &ldquo;Service-to-Product&rdquo;
-                transformations.
+                As a Product Manager, I&apos;ve scaled platforms by 70% in DAUs
+                and led the transition of rule-based business logic into
+                autonomous AI workflows. I&apos;ve shipped AI-integrated products,
+                managed cross-functional squads, and driven
+                &ldquo;Service-to-Product&rdquo; transformations.
               </p>
               <p>
                 When I saw senior engineers, people who&apos;ve built production
