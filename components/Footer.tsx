@@ -1,5 +1,10 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { Github, Linkedin } from "lucide-react";
+
+const MAIN_DOMAIN = "https://learnagenticpatterns.com";
 
 const footerLinks = [
   { label: "Home", href: "/" },
@@ -18,6 +23,9 @@ const socialLinks = [
 ];
 
 export default function Footer() {
+  const pathname = usePathname();
+  const isPractice = pathname === "/practice" || pathname.startsWith("/practice/");
+
   return (
     <footer className="border-t border-border bg-surface/50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -45,15 +53,34 @@ export default function Footer() {
           <div>
             <h4 className="font-mono text-sm text-primary mb-4">{">"} Navigation</h4>
             <div className="space-y-2">
-              {footerLinks.map((link) => (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className="block text-sm text-text-secondary hover:text-primary transition-colors"
-                >
-                  {link.label}
-                </Link>
-              ))}
+              {footerLinks.map((link) => {
+                const href = isPractice && !link.href.startsWith("/practice")
+                  ? `${MAIN_DOMAIN}${link.href}`
+                  : link.href;
+                const isExternal = href.startsWith("http");
+
+                if (isExternal) {
+                  return (
+                    <a
+                      key={link.label}
+                      href={href}
+                      className="block text-sm text-text-secondary hover:text-primary transition-colors"
+                    >
+                      {link.label}
+                    </a>
+                  );
+                }
+
+                return (
+                  <Link
+                    key={link.label}
+                    href={href}
+                    className="block text-sm text-text-secondary hover:text-primary transition-colors"
+                  >
+                    {link.label}
+                  </Link>
+                );
+              })}
             </div>
           </div>
 
