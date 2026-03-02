@@ -115,7 +115,7 @@ const faqs = [
   },
   {
     q: "Is this about a specific framework?",
-    a: "No. Patterns are framework-agnostic. We use pseudocode and real examples from LangChain, LangGraph, CrewAI, and AutoGen to illustrate — but the concepts apply universally.",
+    a: "No. Patterns are framework-agnostic. We use pseudocode and real examples from LangChain, LangGraph, CrewAI, and AutoGen to illustrate, but the concepts apply universally.",
   },
   {
     q: "Is this free?",
@@ -123,11 +123,11 @@ const faqs = [
   },
   {
     q: "How is this different from other AI courses?",
-    a: "Most courses teach you to use AI tools. This curriculum teaches you to architect AI systems — treating agents as engineering constructs with well-defined design patterns.",
+    a: "Most courses teach you to use AI tools. This curriculum teaches you to architect AI systems, treating agents as engineering constructs with well-defined design patterns.",
   },
   {
     q: "Is this really free?",
-    a: "Yes — 7 patterns are open right now with no sign-up. Sign up for free (no credit card) to unlock all 21 patterns, code examples, and architecture diagrams.",
+    a: "Yes! 7 patterns are open right now with no sign-up. Sign up for free (no credit card) to unlock all 21 patterns, code examples, and architecture diagrams.",
   },
   {
     q: "Who is Antonio Gullí?",
@@ -195,7 +195,7 @@ export default function HomePage() {
                     className="inline-flex items-center gap-3 bg-accent hover:bg-accent/90 text-white font-sans font-semibold text-base px-8 py-3.5 rounded-md transition-all hover:shadow-lg hover:shadow-accent/20"
                   >
                     <BookOpen size={18} />
-                    Continue: Pattern {String(nextUnread.number).padStart(2, "0")} — {nextUnread.name}
+                    Continue: Pattern {String(nextUnread.number).padStart(2, "0")} · {nextUnread.name}
                     <ArrowRight size={18} />
                   </Link>
                 )}
@@ -234,7 +234,7 @@ export default function HomePage() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <SectionHeader
               title="Where Does Your System Sit?"
-              subtitle="Five levels of agent autonomy — from zero-shot responses to fully autonomous multi-agent systems."
+              subtitle="Five levels of agent autonomy, from zero-shot responses to fully autonomous multi-agent systems."
               decorator="L0→L4"
             />
             <MaturityLevel />
@@ -257,7 +257,7 @@ export default function HomePage() {
                 intelligent systems of the next decade.&rdquo;
               </blockquote>
               <cite className="text-primary font-mono text-sm not-italic">
-                — Mousa
+                Mousa
               </cite>
             </motion.div>
           </div>
@@ -310,7 +310,7 @@ export default function HomePage() {
                   href="#curriculum"
                   className="inline-flex items-center justify-center gap-2 bg-accent hover:bg-accent/90 text-white font-sans font-semibold text-base px-8 py-3.5 rounded-md transition-all hover:shadow-lg hover:shadow-accent/20"
                 >
-                  Start Learning — Free
+                  Start Learning Free
                   <ArrowRight size={18} />
                 </Link>
                 <Link
@@ -405,7 +405,7 @@ export default function HomePage() {
             </span>
             <span className="inline-flex items-center gap-2 font-mono text-sm border border-accent/30 text-accent rounded-full px-4 py-1.5">
               <Lock size={12} />
-              14 more — free with sign-up
+              14 more · free with sign-up
             </span>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -421,7 +421,7 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <SectionHeader
             title="Where Does Your System Sit?"
-            subtitle="Five levels of agent autonomy — from zero-shot responses to fully autonomous multi-agent systems."
+            subtitle="Five levels of agent autonomy, from zero-shot responses to fully autonomous multi-agent systems."
             decorator="L0→L4"
           />
           <MaturityLevel />
@@ -457,7 +457,7 @@ export default function HomePage() {
                   I&apos;ve co-founded a startup that got acquired, led AI product
                   transitions at Rigoris, and shipped AI-integrated platforms. When I
                   saw senior engineers dismiss Agentic AI because the vocabulary felt
-                  alien — I knew the gap wasn&apos;t skill. It was framing. Every
+                  alien, I knew the gap wasn&apos;t skill. It was framing. Every
                   pattern has a name you already know.
                 </p>
               </div>
@@ -501,7 +501,7 @@ export default function HomePage() {
       <section id="signup" className="py-24 bg-code-bg">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <SectionHeader
-            title="Sign Up Free — Unlock All 21 Patterns"
+            title="Sign Up Free: Unlock All 21 Patterns"
             subtitle="Get instant access to the full curriculum, code examples, and architecture diagrams. No credit card. No catch."
             decorator="→"
           />
@@ -542,7 +542,7 @@ export default function HomePage() {
               intelligent systems of the next decade.&rdquo;
             </blockquote>
             <cite className="text-primary font-mono text-sm not-italic">
-              — Mousa
+              Mousa
             </cite>
           </motion.div>
         </div>

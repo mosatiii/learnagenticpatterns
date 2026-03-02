@@ -78,7 +78,7 @@ export default function Footer() {
               Want to build your own AI agents?
             </p>
             <p className="text-text-secondary text-xs mt-1">
-              We help teams ship AI-powered products — fast.
+              We help teams ship AI-powered products, fast.
             </p>
           </div>
           <a

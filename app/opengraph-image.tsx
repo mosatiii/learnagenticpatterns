@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
 
 export const runtime = "edge";
-export const alt = "Learn Agentic Patterns — 21 Design Patterns for Senior Developers";
+export const alt = "Learn Agentic Patterns: 21 Design Patterns for Senior Developers";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 

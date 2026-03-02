@@ -80,7 +80,7 @@ export function welcomeEmail(firstName: string): string {
       You're in. All 21 patterns are unlocked.
     </p>
     <p style="color:${TEXT_SECONDARY};font-size:15px;line-height:1.6;margin:0 0 8px 0;">
-      You now have full access to all 21 Agentic Design Patterns — each one mapped to a
+      You now have full access to all 21 Agentic Design Patterns, each one mapped to a
       Software Engineering concept you already know.
     </p>
     <p style="color:${TEXT_SECONDARY};font-size:15px;line-height:1.6;margin:0 0 4px 0;">
@@ -106,7 +106,7 @@ export function welcomeEmail(firstName: string): string {
     </table>
     ${button("Start Learning", "https://learnagenticpatterns.com/#curriculum")}
     <p style="color:${TEXT_SECONDARY};font-size:14px;margin:0;">
-      — Mousa
+      Mousa
     </p>
   `);
 }
@@ -161,7 +161,7 @@ export function passwordResetEmail(firstName: string, resetUrl: string): string 
       If you didn't request this, you can safely ignore this email. Your password won't change.
     </p>
     <p style="color:${TEXT_SECONDARY};font-size:14px;margin:0;">
-      — Mousa
+      Mousa
     </p>
   `);
 }

@@ -71,7 +71,7 @@ export default function PatternCard({ pattern, index }: PatternCardProps) {
         </p>
       ) : (
         <p className="text-text-secondary/60 text-sm leading-relaxed italic">
-          Sign up free to access this pattern — no credit card required.
+          Sign up free to access this pattern. No credit card required.
         </p>
       )}
 

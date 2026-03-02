@@ -67,14 +67,14 @@ export default function PatternDetailPage() {
           <div className="text-center py-12">
             <Lock className="w-16 h-16 text-text-secondary/40 mx-auto mb-6" />
             <h1 className="font-mono text-3xl text-text-primary font-bold mb-4">
-              {formatPatternNumber(pattern.number)} — {pattern.name}
+              {formatPatternNumber(pattern.number)} · {pattern.name}
             </h1>
             <p className="text-text-secondary text-lg mb-2">
               ≈ {pattern.sweParallelFull}
             </p>
             <p className="text-text-secondary mb-10 max-w-lg mx-auto">
               This pattern is available for free. Sign up to unlock all 21
-              patterns — no credit card, no catch.
+              patterns. No credit card, no catch.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <Link
@@ -332,7 +332,7 @@ export default function PatternDetailPage() {
                       Next Pattern
                     </span>
                     <h4 className="font-mono text-text-primary font-bold mt-1 group-hover:text-primary transition-colors">
-                      {formatPatternNumber(nextPattern.number)} —{" "}
+                      {formatPatternNumber(nextPattern.number)} ·{" "}
                       {nextPattern.name}
                     </h4>
                   </div>

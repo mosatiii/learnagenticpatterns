@@ -117,7 +117,7 @@ export default function AboutPage() {
                 <span className="text-primary font-mono">
                   autonomous workflows
                 </span>{" "}
-                — modernizing legacy B2B and SaaS industries with AI-native
+                to modernize legacy B2B and SaaS industries with AI-native
                 architectures.
               </p>
               <p>
@@ -129,8 +129,8 @@ export default function AboutPage() {
                 transformations.
               </p>
               <p>
-                When I saw senior engineers — people who&apos;ve built production
-                systems at scale — struggle with Agentic AI because the vocabulary
+                When I saw senior engineers, people who&apos;ve built production
+                systems at scale, struggle with Agentic AI because the vocabulary
                 felt alien, I knew the gap wasn&apos;t skill. It was framing.{" "}
                 <span className="text-primary font-mono">Prompt Chaining</span> is{" "}
                 <span className="text-text-primary">Pipe &amp; Filter</span>.{" "}
@@ -141,7 +141,7 @@ export default function AboutPage() {
               </p>
               <p>
                 This curriculum is my attempt to give senior developers the mental
-                model that makes agentic AI click — by mapping every new concept to
+                model that makes agentic AI click by mapping every new concept to
                 something they already know deeply.
               </p>
             </motion.div>
@@ -205,10 +205,10 @@ export default function AboutPage() {
                 </h3>
                 <div className="flex flex-wrap gap-3">
                   <span className="inline-block font-mono text-xs text-primary border border-primary/30 rounded-full px-3 py-1">
-                    CSPO® — Scrum Alliance, 2025
+                    CSPO® · Scrum Alliance, 2025
                   </span>
                   <span className="inline-block font-mono text-xs text-primary border border-primary/30 rounded-full px-3 py-1">
-                    PMC™ — BrainStation Toronto, 2024
+                    PMC™ · BrainStation Toronto, 2024
                   </span>
                 </div>
               </div>
@@ -240,7 +240,7 @@ export default function AboutPage() {
               </p>
               <p className="text-text-secondary text-sm leading-relaxed">
                 Building autonomous multi-agent workflows for real-world use cases
-                — from AI code reviewers that catch bugs before humans do, to
+                from AI code reviewers that catch bugs before humans do, to
                 content generation pipelines and intelligent lead qualification
                 systems. Shipped by{" "}
                 <a
@@ -295,12 +295,12 @@ export default function AboutPage() {
             <p>
               No hype. No buzzwords. No &ldquo;just use this framework.&rdquo;
               Instead: a systematic, pattern-by-pattern curriculum that treats AI
-              agents as engineering constructs — with architectures, trade-offs,
+              agents as engineering constructs with architectures, trade-offs,
               and production considerations, just like every other system
               you&apos;ve built.
             </p>
             <p>
-              By the end, you won&apos;t just understand agentic AI — you&apos;ll
+              By the end, you won&apos;t just understand agentic AI. You&apos;ll
               be able to architect it.
             </p>
           </motion.div>
@@ -336,7 +336,7 @@ export default function AboutPage() {
               Their work provided the foundational taxonomy of agentic patterns
               and the engineering rigor needed to evaluate AI systems. This
               curriculum extends that foundation by creating explicit bridges
-              between each pattern and its Software Engineering parallel — making
+              between each pattern and its Software Engineering parallel, making
               the concepts immediately accessible to developers who think in
               architectural terms.
             </p>
@@ -348,7 +348,7 @@ export default function AboutPage() {
       <section className="py-24 bg-code-bg">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <SectionHeader
-            title="Sign Up Free — Unlock All 21 Patterns"
+            title="Sign Up Free: Unlock All 21 Patterns"
             subtitle="No credit card. No catch. Instant access to every pattern, code example, and architecture diagram."
             decorator="→"
           />
