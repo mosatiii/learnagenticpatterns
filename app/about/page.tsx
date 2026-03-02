@@ -233,15 +233,25 @@ export default function AboutPage() {
               className="bg-surface border border-border rounded-lg p-6 hover:border-primary/30 transition-all"
             >
               <h3 className="font-mono text-primary text-sm font-bold mb-2">
-                Ping &amp; Pong
+                Multi-Agent Systems
               </h3>
               <p className="font-mono text-text-primary text-xs mb-3">
-                Autonomous Bug-Fixing System
+                AI-Powered Code Review, Writing &amp; Lead Generation
               </p>
               <p className="text-text-secondary text-sm leading-relaxed">
-                Designed and built a multi-agent harness to automate software
-                debugging. Implemented Agentic Design Patterns to allow LLM agents
-                to navigate codebases and propose PRs.
+                Building autonomous multi-agent workflows for real-world use cases
+                — from AI code reviewers that catch bugs before humans do, to
+                content generation pipelines and intelligent lead qualification
+                systems. Shipped by{" "}
+                <a
+                  href="https://www.prompted.software/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-primary hover:underline"
+                >
+                  Prompted Studio
+                </a>
+                .
               </p>
             </motion.div>
             <motion.div
