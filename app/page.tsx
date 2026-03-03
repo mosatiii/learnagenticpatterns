@@ -132,11 +132,11 @@ const faqs = [
   },
   {
     q: "Is this really free?",
-    a: "Yes! 7 patterns are open right now with no sign-up. Sign up for free (no credit card) to unlock all 21 patterns, code examples, architecture diagrams, and 21 interactive agent-building exercises.",
+    a: "Yes. All 21 pattern breakdowns, code examples, architecture diagrams, and interactive building exercises are free. 7 patterns are fully open with no account required. Create a free account (no credit card) to access all 21 patterns and exercises.",
   },
   {
-    q: "How is this different from other AI courses?",
-    a: "Most courses teach you to use AI tools. This curriculum teaches you to architect AI systems, treating agents as engineering constructs with well-defined design patterns. We also have 21 interactive exercises where you build agent architectures hands-on.",
+    q: "How is this different from LangChain docs, Anthropic guides, or DeepLearning.AI?",
+    a: "LangChain teaches you how to use LangChain. Anthropic teaches you how to use Claude. DeepLearning.AI teaches AI fundamentals. This curriculum teaches the architecture layer between them — the 21 design patterns that determine which approach to use and why. It's framework-agnostic: once you understand why Prompt Chaining solves different problems than Routing or Parallelization, you can implement in any framework. Plus, 21 interactive exercises let you build and simulate agent architectures hands-on.",
   },
   {
     q: "Who is Antonio Gullí?",
@@ -775,10 +775,10 @@ export default function HomePage() {
               className="grid grid-cols-2 gap-4"
             >
               {[
-                { value: "21", label: "Patterns Documented" },
-                { value: "5", label: "Levels of Autonomy Mapped" },
-                { value: "MBET", label: "University of Waterloo" },
-                { value: "CSPO", label: "Scrum Alliance Certified" },
+                { value: "21", label: "Patterns with Full Breakdowns" },
+                { value: "21", label: "Interactive Building Exercises" },
+                { value: "8+", label: "In-Depth Blog Articles" },
+                { value: "∞", label: "Free · No Credit Card" },
               ].map((stat) => (
                 <div
                   key={stat.label}

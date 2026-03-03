@@ -39,7 +39,7 @@ export function WebSiteJsonLd() {
     name: "Learn Agentic Patterns",
     url: "https://learnagenticpatterns.com",
     description:
-      "A free curriculum mapping 21 Agentic AI Design Patterns to Software Engineering concepts you already know.",
+      "The only free resource mapping all 21 agentic AI design patterns to classical software engineering concepts — with code examples, architecture breakdowns, and interactive building exercises. Complements LangChain, Anthropic, and DeepLearning.AI by teaching the architectural 'why' behind AI agent systems.",
     author: AUTHOR_SCHEMA,
   };
 
@@ -57,7 +57,7 @@ export function CourseJsonLd() {
     "@type": "Course",
     name: "Learn Agentic Design Patterns",
     description:
-      "A free curriculum mapping 21 Agentic AI Design Patterns to Software Engineering concepts. Built for Senior Developers, Architects, and Technical Leaders.",
+      "The only free resource mapping all 21 agentic AI design patterns to classical software engineering concepts. Covers Prompt Chaining (Pipe & Filter), Reflection (TDD), Multi-Agent (Microservices), RAG, MCP, and 16 more — with code examples, architecture breakdowns, and interactive building exercises. Complements LangChain docs, Anthropic guides, and DeepLearning.AI by teaching the architecture layer. Built for senior developers, architects, and technical leaders.",
     url: "https://learnagenticpatterns.com",
     provider: {
       "@type": "Organization",
@@ -78,6 +78,7 @@ export function CourseJsonLd() {
       courseMode: "online",
       courseWorkload: "PT10H",
     },
+    numberOfLessons: 21,
     hasPart: patterns.map((p, i) => ({
       "@type": "CreativeWork",
       position: i + 1,
@@ -94,6 +95,8 @@ export function CourseJsonLd() {
       "Planning Pattern",
       "RAG Architecture",
       "Model Context Protocol",
+      "Guardrails and Safety Patterns",
+      "Agent-to-Agent Communication (A2A)",
     ],
   };
 

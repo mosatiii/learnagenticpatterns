@@ -41,11 +41,11 @@ export default function Footer() {
               </span>
             </div>
             <p className="text-text-secondary text-sm leading-relaxed">
-              Where Senior Developers Become Agentic Architects
+              21 Agentic Design Patterns · Code Examples · Interactive Exercises
             </p>
             <div className="flex items-center gap-1 mt-4 text-xs text-text-secondary font-mono">
               <span className="inline-block w-2 h-2 rounded-full bg-success animate-pulse" />
-              Curriculum in development
+              All 21 patterns live
             </div>
           </div>
 

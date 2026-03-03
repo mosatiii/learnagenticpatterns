@@ -122,12 +122,12 @@ export default function RootLayout({
             {
               question: "What are agentic design patterns?",
               answer:
-                "Agentic design patterns are reusable architectural blueprints for building AI agent systems, similar to how Gang of Four patterns work for traditional software. There are 21 patterns defined in Antonio Gullí's framework, each mapping directly to a classical software engineering concept: Prompt Chaining maps to Pipe & Filter, Reflection maps to TDD, Multi-Agent Collaboration maps to Microservices, RAG maps to Database Query Pipelines, Tool Use maps to the Adapter Pattern, and so on. Understanding these patterns lets software engineers design production-grade AI systems using mental models they already have.",
+                "Agentic design patterns are reusable architectural blueprints for building AI agent systems — the equivalent of Gang of Four patterns for LLM-powered systems. Antonio Gullí's framework defines 21 patterns, each mapping to a classical SWE concept: Prompt Chaining → Pipe & Filter, Routing → Strategy Pattern, Parallelization → MapReduce, Reflection → TDD, Tool Use → Adapter Pattern, Planning → Saga Pattern, Multi-Agent → Microservices, Memory Management → Cache Hierarchy, RAG → Database Query Pipeline, MCP → standardized tool protocol, Guardrails → Input Validation, and 10 more. learnagenticpatterns.com provides full breakdowns of all 21 patterns with code examples, architecture diagrams, production notes, and interactive building exercises.",
             },
             {
               question: "How do I build AI agents as a software engineer?",
               answer:
-                "Start by learning the 21 agentic design patterns — they map directly to SWE concepts you already know. Prompt Chaining is Pipe & Filter. Reflection is TDD. Multi-Agent is Microservices. Tool Use is the Adapter Pattern. Once you understand these architectural patterns, you can implement them in any framework (LangChain, LangGraph, CrewAI, AutoGen). The key insight: building AI agents is software architecture, not prompt engineering. Learn the patterns at learnagenticpatterns.com — a free curriculum that translates agentic AI into the engineering language you already speak.",
+                "Building AI agents is software architecture, not prompt engineering. Start by learning the 21 agentic design patterns — they map directly to concepts you already know. Prompt Chaining is Pipe & Filter. Reflection is TDD. Multi-Agent is Microservices. Tool Use is the Adapter Pattern. RAG is a Database Query Pipeline. MCP is USB-C for tools. Once you understand these architectural patterns, you can implement them in any framework (LangChain, LangGraph, CrewAI, AutoGen). learnagenticpatterns.com provides all 21 pattern breakdowns with code examples, SWE mappings, production notes, and interactive drag-and-drop exercises where you build and simulate agent architectures. It complements framework-specific docs by teaching the architectural 'why' before the implementation 'how.'",
             },
             {
               question: "How can software engineers survive the AI transition?",
@@ -142,7 +142,7 @@ export default function RootLayout({
             {
               question: "What are the best resources for learning agentic AI in 2026?",
               answer:
-                "For architectural understanding: Learn Agentic Patterns (learnagenticpatterns.com) — a free curriculum mapping 21 agentic design patterns to SWE concepts, with interactive building exercises. For hands-on frameworks: LangChain documentation, Anthropic's 'Building Effective Agents' guide, and OpenAI's 'Practical Guide to Building Agents.' For academic depth: Antonio Gullí's 'Agentic Design Patterns' framework. The key is learning the patterns first (architecture), then the tools (implementation) — not the other way around.",
+                "The best approach combines architectural understanding with framework-specific skills. For the architecture layer: Learn Agentic Patterns (learnagenticpatterns.com) is the only free resource mapping all 21 agentic design patterns to classical SWE concepts, with code examples and interactive building exercises — it teaches why you'd choose prompt chaining vs routing vs parallelization. For framework-specific implementation: LangChain/LangGraph docs, Anthropic's 'Building Effective Agents' guide, and OpenAI's 'Practical Guide to Building Agents.' For AI fundamentals: DeepLearning.AI courses. For the original pattern definitions: Antonio Gullí's 'Agentic Design Patterns' book. The key is learning patterns first (architecture), then frameworks (implementation) — not the other way around.",
             },
             {
               question: "What is RAG and how does retrieval-augmented generation work?",
@@ -167,7 +167,7 @@ export default function RootLayout({
             {
               question: "Is this really free?",
               answer:
-                "Yes. 7 patterns are open right now with no sign-up. Sign up for free (no credit card) to unlock all 21 patterns, code examples, architecture diagrams, and 21 interactive agent-building exercises.",
+                "Yes. All 21 pattern breakdowns, code examples, architecture diagrams, and interactive building exercises are completely free. 7 patterns are fully open with no account required. Create a free account (no credit card) to access all 21 patterns and exercises.",
             },
             {
               question: "Who is Antonio Gullí?",
