@@ -47,10 +47,7 @@ export default function robots(): MetadataRoute.Robots {
         disallow: DISALLOWED_PATHS,
       },
     ],
-    sitemap: [
-      "https://learnagenticpatterns.com/sitemap.xml",
-      "https://practice.learnagenticpatterns.com/sitemap.xml",
-    ],
+    sitemap: "https://learnagenticpatterns.com/sitemap.xml",
     host: "https://learnagenticpatterns.com",
   };
 }

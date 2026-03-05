@@ -50,7 +50,7 @@ Each of the 21 patterns includes: agentic definition, SWE parallel mapping, simi
 ### 21 Interactive Exercises
 Each pattern has a drag-and-drop exercise where users build the agent architecture, run a simulation, and get scored on correctness, resilience, and efficiency. Example: in the Prompt Chaining exercise, if you skip the Validation Gate, the simulation shows "Hallucinated entities propagated — no validation gate caught the error."
 
-- [Practice Page](https://learnagenticpatterns.com/practice): All 21 exercises listed
+- [Practice Page](https://practice.learnagenticpatterns.com): All 21 exercises listed (subdomain)
 
 ### Blog (concise, one-concept-per-post articles)
 - [What Is an AI Agent (and Why It's Not a Chatbot)](https://learnagenticpatterns.com/blog/what-is-an-ai-agent)

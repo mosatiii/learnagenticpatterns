@@ -10,7 +10,6 @@ const footerLinks = [
   { label: "Home", href: "/" },
   { label: "Curriculum", href: "/#curriculum" },
   { label: "Blog", href: "/blog" },
-  { label: "Practice", href: "/practice" },
   { label: "Free Cheat Sheet", href: "/agentic-ai-design-patterns-cheatsheet" },
   { label: "Career Guide", href: "/guide/from-software-engineer-to-agentic-architect" },
   { label: "About", href: "/about" },

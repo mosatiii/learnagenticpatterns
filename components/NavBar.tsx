@@ -14,7 +14,6 @@ const mainNavLinks = [
   { label: "Home", href: "/" },
   { label: "Curriculum", href: "/#curriculum" },
   { label: "Blog", href: "/blog" },
-  { label: "Practice", href: "/practice" },
   { label: "Assessment", href: "/assessment" },
   { label: "About", href: "/about" },
 ];

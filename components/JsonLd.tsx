@@ -69,7 +69,6 @@ export function WebSiteJsonLd() {
     founder: AUTHOR_SCHEMA,
     sameAs: [
       "https://learnagenticpatterns.com",
-      "https://practice.learnagenticpatterns.com",
     ],
     knowsAbout: [
       "Agentic AI Design Patterns",

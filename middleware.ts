@@ -4,20 +4,25 @@ const PRACTICE_HOSTNAME = "practice.learnagenticpatterns.com";
 
 export function middleware(request: NextRequest) {
   const hostname = request.headers.get("host") ?? "";
+  const isPracticeSubdomain =
+    hostname === PRACTICE_HOSTNAME || hostname.startsWith("practice.");
+
+  // Redirect main domain /practice → subdomain
+  if (!isPracticeSubdomain && request.nextUrl.pathname.startsWith("/practice")) {
+    return NextResponse.redirect(
+      `https://${PRACTICE_HOSTNAME}${request.nextUrl.pathname.replace("/practice", "") || "/"}`
+    );
+  }
 
   // Rewrite practice.learnagenticpatterns.com → /practice routes
-  if (hostname === PRACTICE_HOSTNAME || hostname.startsWith("practice.")) {
+  if (isPracticeSubdomain) {
     const url = request.nextUrl.clone();
 
-    // If visiting the root of the subdomain, serve the /practice page
     if (url.pathname === "/") {
       url.pathname = "/practice";
       return NextResponse.rewrite(url);
     }
 
-    // For any other path on the subdomain, prepend /practice
-    // e.g. practice.learnagenticpatterns.com/about → /practice/about
-    // But let API routes, _next, and static assets pass through
     if (
       !url.pathname.startsWith("/practice") &&
       !url.pathname.startsWith("/api") &&
@@ -36,7 +41,6 @@ export function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    // Match all paths except static files and Next.js internals
     "/((?!_next/static|_next/image|favicon.ico).*)",
   ],
 };
