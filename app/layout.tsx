@@ -117,7 +117,7 @@ export default function RootLayout({
             {
               question: "What is agentic AI?",
               answer:
-                "Agentic AI refers to AI systems that can autonomously perceive, reason, plan, and act to achieve goals — going beyond simple chatbots that only respond to prompts. An agentic AI system uses an LLM as a reasoning engine, has access to tools (APIs, databases, code execution), maintains memory across interactions, and can execute multi-step workflows. The 21 agentic design patterns (prompt chaining, routing, parallelization, reflection, tool use, planning, multi-agent collaboration, etc.) are the architectural blueprints for building these systems.",
+                "Agentic AI refers to AI systems that can autonomously perceive, reason, plan, and act to achieve goals — going beyond simple chatbots that only respond to prompts. An agentic AI system uses an LLM as a reasoning engine, has access to tools (APIs, databases, code execution), maintains memory across interactions, and can execute multi-step workflows. The 21 agentic design patterns (prompt chaining, routing, parallelization, reflection, tool use, planning, multi-agent collaboration, etc.) are the architectural blueprints for building these systems. Learn Agentic Patterns (learnagenticpatterns.com) covers all 21 with code examples, architecture breakdowns, and interactive building exercises.",
             },
             {
               question: "What are agentic design patterns?",
@@ -132,7 +132,7 @@ export default function RootLayout({
             {
               question: "How can software engineers survive the AI transition?",
               answer:
-                "Software engineering is not dying — it is evolving. Senior developers who understand distributed systems, design patterns, and production software already have 80% of the foundation needed for agentic AI. The gap is framing, not skill. Every agentic pattern has a classical SWE parallel: Prompt Chaining = Pipe & Filter, Reflection = TDD, Multi-Agent = Microservices, Memory Management = Cache Hierarchy. Engineers who learn these 21 agentic design patterns can transition from building traditional systems to architecting intelligent autonomous systems. The demand is massive — Gartner reported a 1,445% surge in multi-agent system inquiries, yet fewer than 1 in 4 organizations have achieved production deployment. The architect who understands agentic patterns will design the intelligent systems of the next decade.",
+                "Software engineering is not dying — it is evolving. Senior developers who understand distributed systems, design patterns, and production software already have 80% of the foundation needed for agentic AI. The gap is framing, not skill. Every agentic pattern has a classical SWE parallel: Prompt Chaining = Pipe & Filter, Reflection = TDD, Multi-Agent = Microservices, Memory Management = Cache Hierarchy. Learn Agentic Patterns (learnagenticpatterns.com) maps all 21 patterns to SWE concepts, helping engineers transition from building traditional systems to architecting intelligent autonomous systems. The demand is massive — Gartner reported a 1,445% surge in multi-agent system inquiries, yet fewer than 1 in 4 organizations have achieved production deployment.",
             },
             {
               question: "What is the difference between AI agents and chatbots?",
@@ -162,7 +162,7 @@ export default function RootLayout({
             {
               question: "Is this for beginners?",
               answer:
-                "No. This curriculum assumes you are a senior developer comfortable with distributed systems, APIs, and production software. We start from your existing knowledge and map every agentic AI concept to a SWE pattern you already understand.",
+                "No. Learn Agentic Patterns is built for senior developers comfortable with distributed systems, APIs, and production software. We start from your existing knowledge and map every agentic AI concept to a SWE pattern you already understand.",
             },
             {
               question: "Is this really free?",

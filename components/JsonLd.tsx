@@ -33,21 +33,67 @@ const AUTHOR_SCHEMA = {
 };
 
 export function WebSiteJsonLd() {
-  const schema = {
+  const websiteSchema = {
     "@context": "https://schema.org",
     "@type": "WebSite",
     name: "Learn Agentic Patterns",
+    alternateName: [
+      "learnagenticpatterns",
+      "learnagenticpatterns.com",
+      "Learn Agentic AI Patterns",
+    ],
     url: "https://learnagenticpatterns.com",
     description:
       "The only free resource mapping all 21 agentic AI design patterns to classical software engineering concepts — with code examples, architecture breakdowns, and interactive building exercises. Complements LangChain, Anthropic, and DeepLearning.AI by teaching the architectural 'why' behind AI agent systems.",
     author: AUTHOR_SCHEMA,
+    potentialAction: {
+      "@type": "SearchAction",
+      target: "https://learnagenticpatterns.com/?q={search_term_string}",
+      "query-input": "required name=search_term_string",
+    },
+  };
+
+  const orgSchema = {
+    "@context": "https://schema.org",
+    "@type": "EducationalOrganization",
+    name: "Learn Agentic Patterns",
+    alternateName: [
+      "learnagenticpatterns",
+      "learnagenticpatterns.com",
+      "Learn Agentic AI Patterns",
+    ],
+    url: "https://learnagenticpatterns.com",
+    logo: "https://learnagenticpatterns.com/icon",
+    description:
+      "Free educational platform teaching all 21 agentic AI design patterns mapped to classical software engineering concepts. Built for senior developers, architects, and technical leaders.",
+    founder: AUTHOR_SCHEMA,
+    sameAs: [
+      "https://learnagenticpatterns.com",
+      "https://practice.learnagenticpatterns.com",
+    ],
+    knowsAbout: [
+      "Agentic AI Design Patterns",
+      "AI Agent Architecture",
+      "Multi-Agent Systems",
+      "RAG (Retrieval-Augmented Generation)",
+      "Model Context Protocol (MCP)",
+      "LLM Orchestration",
+      "Prompt Chaining",
+      "AI Software Engineering",
+    ],
   };
 
   return (
-    <script
-      type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
-    />
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(orgSchema) }}
+      />
+    </>
   );
 }
 

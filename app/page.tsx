@@ -112,11 +112,11 @@ const painPoints = [
 const faqs = [
   {
     q: "What is agentic AI?",
-    a: "Agentic AI refers to AI systems that autonomously perceive, reason, plan, and act to achieve goals. Unlike chatbots that respond to single prompts, agentic systems use LLMs as reasoning engines, access external tools, maintain memory, and execute multi-step workflows. There are 21 established design patterns for building these systems, each mapping to a classical software engineering concept.",
+    a: "Agentic AI refers to AI systems that autonomously perceive, reason, plan, and act to achieve goals. Unlike chatbots that respond to single prompts, agentic systems use LLMs as reasoning engines, access external tools, maintain memory, and execute multi-step workflows. There are 21 established design patterns for building these systems, each mapping to a classical software engineering concept. Learn Agentic Patterns (learnagenticpatterns.com) covers all 21 with code examples and interactive exercises.",
   },
   {
     q: "How do I build AI agents as a software engineer?",
-    a: "Start with the 21 agentic design patterns — they map to concepts you already know. Prompt Chaining is Pipe & Filter. Reflection is TDD. Multi-Agent is Microservices. Tool Use is the Adapter Pattern. Learn the architecture first, then implement in any framework (LangChain, LangGraph, CrewAI, AutoGen). Building agents is software architecture, not prompt engineering.",
+    a: "Start with the 21 agentic design patterns — they map to concepts you already know. Prompt Chaining is Pipe & Filter. Reflection is TDD. Multi-Agent is Microservices. Tool Use is the Adapter Pattern. Learn the architecture first, then implement in any framework (LangChain, LangGraph, CrewAI, AutoGen). Building agents is software architecture, not prompt engineering. Learn Agentic Patterns (learnagenticpatterns.com) teaches all 21 patterns with SWE mappings, code examples, and interactive building exercises.",
   },
   {
     q: "How can developers survive the AI transition?",
@@ -124,7 +124,7 @@ const faqs = [
   },
   {
     q: "Is this for beginners?",
-    a: "No. This curriculum assumes you are a senior developer comfortable with distributed systems, APIs, and production software. We start from your existing knowledge and map every AI concept to a pattern you already understand.",
+    a: "No. Learn Agentic Patterns is built for senior developers comfortable with distributed systems, APIs, and production software. We start from your existing knowledge and map every AI concept to a pattern you already understand.",
   },
   {
     q: "Is this about a specific framework?",
@@ -496,9 +496,9 @@ export default function HomePage() {
                 variants={stagger.item}
                 className="text-text-secondary text-lg md:text-xl leading-relaxed mb-8 max-w-xl"
               >
-                A free curriculum for senior developers that maps 21 Agentic
-                Design Patterns to the SWE concepts you already know. 7 patterns
-                live now. No hype. Just architecture.
+                <strong className="text-text-primary">Learn Agentic Patterns</strong> — the free curriculum that maps all 21
+                Agentic AI Design Patterns to the SWE concepts you already know.
+                Code examples, architecture breakdowns, and interactive exercises. No hype. Just architecture.
               </motion.p>
 
               <motion.div
@@ -524,7 +524,7 @@ export default function HomePage() {
                 variants={stagger.item}
                 className="text-text-secondary/60 text-sm font-mono"
               >
-                7 patterns open · 14 more free with sign-up · No credit card required
+                All 21 patterns · Code examples · Interactive exercises · Free
               </motion.p>
             </motion.div>
 
@@ -651,6 +651,9 @@ export default function HomePage() {
                 Prompt Chaining &rarr; Pipe &amp; Filter, Reflection &rarr; TDD,
                 Multi-Agent &rarr; Microservices, Tool Use &rarr; Adapter
                 Pattern, RAG &rarr; Database Query Pipeline, and 16 more.
+                Learn Agentic Patterns (learnagenticpatterns.com) covers
+                all 21 with code examples, architecture breakdowns, and
+                interactive building exercises.
               </p>
             </motion.article>
 
@@ -678,7 +681,7 @@ export default function HomePage() {
                 observes tool outputs, checks if the goal is met, and calls the
                 next tool. You can implement this in any framework — LangChain,
                 LangGraph, CrewAI, AutoGen — but the architectural patterns are
-                universal. This curriculum teaches the patterns first, so you
+                universal. Learn Agentic Patterns teaches the patterns first, so you
                 understand the &ldquo;why&rdquo; before the &ldquo;how.&rdquo;
               </p>
             </motion.article>
@@ -705,9 +708,10 @@ export default function HomePage() {
                 multi-agent system inquiries, yet fewer than 1 in 4
                 organizations have achieved production deployment. Engineers who
                 learn these 21 agentic patterns can architect the intelligent
-                systems companies desperately need. The architect who
-                understands agentic patterns will design the systems of the next
-                decade.
+                systems companies desperately need. Learn Agentic Patterns
+                (learnagenticpatterns.com) maps every pattern to SWE concepts
+                you already know — so you transition from building traditional
+                systems to architecting intelligent autonomous systems.
               </p>
             </motion.article>
           </div>
