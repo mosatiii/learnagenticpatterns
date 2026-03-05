@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { ArrowRight, AlertTriangle, Eye, Target, Quote, Lock, BookOpen, Trophy, Medal, Gamepad2, Briefcase } from "lucide-react";
+import { ArrowRight, AlertTriangle, Eye, Target, Quote, Lock, BookOpen, Trophy, Medal, Gamepad2, Briefcase, Code2 } from "lucide-react";
 import Link from "next/link";
 import SectionHeader from "@/components/SectionHeader";
 import PatternCard from "@/components/PatternCard";
@@ -96,17 +96,17 @@ const painPoints = [
   {
     icon: <AlertTriangle className="text-accent" size={24} />,
     title: "The vocabulary is foreign",
-    body: "Prompts, embeddings, agents... but what's the architecture?",
+    body: "Prompts, embeddings, agents, RAG, MCP... whether you're building it or buying it, you need to understand the architecture.",
   },
   {
     icon: <Eye className="text-accent" size={24} />,
     title: "The patterns are invisible",
-    body: "Everyone shows demos. Nobody explains the design decisions.",
+    body: "Everyone shows demos. Nobody explains the design decisions that determine cost, quality, and reliability.",
   },
   {
     icon: <Target className="text-accent" size={24} />,
     title: "The stakes are real",
-    body: "Your team is asking about AI. You need clarity, not tutorials.",
+    body: "Your team is asking about AI. Whether you're shipping code or shipping products, you need clarity — not hype.",
   },
 ];
 
@@ -126,15 +126,23 @@ const faqs = [
   },
   {
     q: "Is this for beginners?",
-    a: "No. Learn Agentic Patterns is built for senior developers comfortable with distributed systems, APIs, and production software. We start from your existing knowledge and map every AI concept to a pattern you already understand.",
+    a: "No. The Developer Track is built for senior developers comfortable with distributed systems, APIs, and production software. The Product Manager Track is built for PMs who own or influence AI product decisions. Both tracks start from your existing knowledge — we don't teach coding basics or product management basics.",
+  },
+  {
+    q: "Is there a track for Product Managers?",
+    a: "Yes. The PM Track has 10 decision-focused modules (zero code required) that reframe the 21 engineering patterns through a product lens. You'll learn tradeoff frameworks (cost vs. quality vs. latency), key product decisions for each pattern, questions to ask your engineering team, and practice with two interactive games: Ship or Skip (pick the right architecture for a scenario) and Budget Builder (allocate token budgets across model tiers).",
+  },
+  {
+    q: "Do I need to code to use the PM track?",
+    a: "No. The Product Manager track is entirely code-free. It explains what each agentic pattern does, why it matters for your product, what tradeoffs it introduces, and what questions you should be asking your engineering team. The interactive games test product judgment, not coding skill.",
   },
   {
     q: "Is this about a specific framework?",
-    a: "No. Patterns are framework-agnostic. We use pseudocode and real examples from LangChain, LangGraph, CrewAI, and AutoGen to illustrate, but the concepts apply universally.",
+    a: "No. Patterns are framework-agnostic. We use pseudocode and real examples from LangChain, LangGraph, CrewAI, and AutoGen to illustrate, but the concepts apply universally. The PM track doesn't involve any framework at all.",
   },
   {
     q: "Is this really free?",
-    a: "Yes. All 21 pattern breakdowns, code examples, architecture diagrams, and interactive building exercises are free. 7 patterns are fully open with no account required. Create a free account (no credit card) to access all 21 patterns and exercises.",
+    a: "Yes. Both the Developer and Product Manager tracks are completely free. 7 developer patterns are open without sign-up. Create a free account (no credit card) to unlock all 21 developer patterns, all 10 PM modules, and all interactive games.",
   },
   {
     q: "How is this different from LangChain docs, Anthropic guides, or DeepLearning.AI?",
@@ -586,12 +594,27 @@ export default function HomePage() {
           {
             question: "Is this for beginners?",
             answer:
-              "No. Learn Agentic Patterns is built for senior developers comfortable with distributed systems, APIs, and production software. We start from your existing knowledge and map every agentic AI concept to a SWE pattern you already understand.",
+              "No. The Developer Track is for senior developers comfortable with distributed systems, APIs, and production software. The Product Manager Track is for PMs who own or influence AI product decisions. Both tracks build on existing professional knowledge.",
+          },
+          {
+            question: "Is there a track for Product Managers?",
+            answer:
+              "Yes. The PM Track has 10 decision-focused modules (zero code required) that reframe the 21 engineering patterns through a product lens. You learn tradeoff frameworks (cost vs. quality vs. latency), key product decisions for each pattern, questions to ask your engineering team, and practice with two interactive games: Ship or Skip and Budget Builder.",
+          },
+          {
+            question: "Do Product Managers need to code to use this?",
+            answer:
+              "No. The Product Manager track is entirely code-free. It explains what each agentic pattern does, why it matters for your product, what tradeoffs it introduces, and what questions you should ask your engineering team. Interactive games test product judgment, not coding skill.",
+          },
+          {
+            question: "How can Product Managers make smart AI product decisions?",
+            answer:
+              "Product Managers don't need to write code, but they need to understand the architecture behind AI products. When engineering proposes a multi-agent system or RAG pipeline, PMs need to know the tradeoffs in cost, latency, and quality. Learn Agentic Patterns' PM Track covers 10 modules reframing 21 patterns through a product lens — with decision frameworks, tradeoff analysis, and interactive games like Ship or Skip and Budget Builder.",
           },
           {
             question: "Is this really free?",
             answer:
-              "Yes. All 21 pattern breakdowns, code examples, architecture diagrams, and interactive building exercises are completely free. 7 patterns are fully open with no account required. Create a free account (no credit card) to access all 21 patterns and exercises.",
+              "Yes. Both the Developer and Product Manager tracks are completely free. 7 developer patterns are open without sign-up. Create a free account (no credit card) to unlock all 21 developer patterns, all 10 PM modules, and all interactive games.",
           },
           {
             question: "Who is Antonio Gullí?",
@@ -620,16 +643,18 @@ export default function HomePage() {
                 className="font-mono text-4xl md:text-5xl lg:text-6xl font-bold text-text-primary leading-tight mb-6"
               >
                 Stop Fearing Agentic AI.{" "}
-                <span className="text-gradient">Start Building It.</span>
+                <span className="text-gradient">Start Leading It.</span>
               </motion.h1>
 
               <motion.p
                 variants={stagger.item}
                 className="text-text-secondary text-lg md:text-xl leading-relaxed mb-8 max-w-xl"
               >
-                <strong className="text-text-primary">Learn Agentic Patterns</strong> — the free curriculum that maps all 21
-                Agentic AI Design Patterns to the SWE concepts you already know.
-                Code examples, architecture breakdowns, and interactive exercises. No hype. Just architecture.
+                <strong className="text-text-primary">Learn Agentic Patterns</strong> — the free curriculum that teaches
+                the 21 Agentic AI Design Patterns.{" "}
+                <span className="text-primary">Developers</span> get code examples, SWE mappings, and build exercises.{" "}
+                <span className="text-accent">Product Managers</span> get decision frameworks, tradeoff analysis, and product games.
+                Two tracks. One complete mental model.
               </motion.p>
 
               <motion.div
@@ -637,7 +662,7 @@ export default function HomePage() {
                 className="flex flex-col sm:flex-row gap-4 mb-6"
               >
                 <Link
-                  href="#curriculum"
+                  href="#tracks"
                   className="inline-flex items-center justify-center gap-2 bg-accent hover:bg-accent/90 text-white font-sans font-semibold text-base px-8 py-3.5 rounded-md transition-all hover:shadow-lg hover:shadow-accent/20"
                 >
                   Start Learning Free
@@ -647,7 +672,7 @@ export default function HomePage() {
                   href="/signup"
                   className="inline-flex items-center justify-center gap-2 border border-border hover:border-primary/50 text-text-secondary hover:text-primary font-sans font-medium text-base px-8 py-3.5 rounded-md transition-all"
                 >
-                  Sign Up to Unlock All 21 →
+                  Sign Up to Unlock Everything →
                 </Link>
               </motion.div>
 
@@ -655,7 +680,7 @@ export default function HomePage() {
                 variants={stagger.item}
                 className="text-text-secondary/60 text-sm font-mono"
               >
-                All 21 patterns · Code examples · Interactive exercises · Free
+                Developers + Product Managers · Two tracks · Interactive games · Free
               </motion.p>
             </motion.div>
 
@@ -675,7 +700,7 @@ export default function HomePage() {
       <section className="py-24 bg-surface/30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <SectionHeader
-            title="You've shipped distributed systems. You've scaled microservices. But Agentic AI feels different."
+            title="You've shipped products. You've built systems. But Agentic AI feels different."
             decorator="--"
           />
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12">
@@ -720,8 +745,89 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* TWO TRACKS */}
+      <section id="tracks" className="py-24 bg-surface/30">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+          <SectionHeader
+            title="Two Tracks. One Curriculum. Pick Your Path."
+            subtitle="Whether you build the system or define the product, there's a track designed for how you think."
+            decorator="⟨⟩"
+          />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-12">
+            {/* Developer Track */}
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              className="bg-surface border border-primary/30 rounded-xl p-8 hover:border-primary/50 transition-all"
+            >
+              <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
+                <Code2 size={24} className="text-primary" />
+              </div>
+              <h3 className="font-mono text-xl text-text-primary font-bold mb-2">
+                Developer Track
+              </h3>
+              <p className="text-text-secondary text-sm leading-relaxed mb-6">
+                21 agentic design patterns mapped to SWE concepts you already know.
+                Code examples, architecture breakdowns, and hands-on build exercises
+                where you assemble agent pipelines.
+              </p>
+              <ul className="space-y-2 mb-6">
+                {["21 patterns with code (Python pseudocode)", "SWE mapping for each pattern", "Drag-and-drop Build games", "Leaderboard & progress tracking"].map((item) => (
+                  <li key={item} className="flex items-center gap-2 text-text-secondary text-sm">
+                    <span className="text-primary font-mono text-xs">✓</span>
+                    {item}
+                  </li>
+                ))}
+              </ul>
+              <Link
+                href="#curriculum"
+                className="inline-flex items-center gap-2 text-primary font-mono text-sm hover:underline"
+              >
+                Preview the 21 patterns →
+              </Link>
+            </motion.div>
+
+            {/* PM Track */}
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.1 }}
+              className="bg-surface border border-accent/30 rounded-xl p-8 hover:border-accent/50 transition-all"
+            >
+              <div className="w-12 h-12 rounded-lg bg-accent/10 flex items-center justify-center mb-4">
+                <Briefcase size={24} className="text-accent" />
+              </div>
+              <h3 className="font-mono text-xl text-text-primary font-bold mb-2">
+                Product Manager Track
+              </h3>
+              <p className="text-text-secondary text-sm leading-relaxed mb-6">
+                10 decision-focused modules built from the same 21 patterns — reframed
+                for product thinking. No code. Just the tradeoffs, questions, and
+                frameworks you need to ship agentic features.
+              </p>
+              <ul className="space-y-2 mb-6">
+                {["10 modules (zero code required)", "Key decisions & tradeoff frameworks", "\"Ship or Skip\" scenario game", "\"Budget Builder\" allocation game"].map((item) => (
+                  <li key={item} className="flex items-center gap-2 text-text-secondary text-sm">
+                    <span className="text-accent font-mono text-xs">✓</span>
+                    {item}
+                  </li>
+                ))}
+              </ul>
+              <Link
+                href="/signup"
+                className="inline-flex items-center gap-2 text-accent font-mono text-sm hover:underline"
+              >
+                Sign up to unlock PM track →
+              </Link>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
       {/* CURRICULUM */}
-      <section id="curriculum" className="py-24 bg-surface/30">
+      <section id="curriculum" className="py-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <SectionHeader
             title="21 Patterns. 5 Levels of Autonomy. One Complete Mental Model."
@@ -750,8 +856,8 @@ export default function HomePage() {
       <section className="py-24">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <SectionHeader
-            title="Agentic AI, Explained for Engineers"
-            subtitle="Direct answers to the questions every developer is asking right now."
+            title="Agentic AI, Explained for Engineers & Product Leaders"
+            subtitle="Direct answers to the questions developers and product managers are asking right now."
             decorator="?"
           />
 
@@ -845,6 +951,38 @@ export default function HomePage() {
                 systems to architecting intelligent autonomous systems.
               </p>
             </motion.article>
+
+            {/* How PMs Can Lead AI Product Decisions */}
+            <motion.article
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="bg-surface border border-accent/20 rounded-lg p-6 md:p-8"
+            >
+              <span className="inline-block font-mono text-[10px] text-accent border border-accent/30 rounded-full px-2 py-0.5 mb-3 uppercase tracking-wider">
+                For Product Managers
+              </span>
+              <h3 className="font-mono text-lg md:text-xl text-accent font-bold mb-3">
+                How Can Product Managers Make Smart AI Product Decisions?
+              </h3>
+              <p className="text-text-secondary leading-relaxed mb-4">
+                You don&apos;t need to write code to lead AI products — but you do need
+                to understand the architecture behind them. When your engineering
+                team proposes a &ldquo;multi-agent system&rdquo; or a &ldquo;RAG
+                pipeline,&rdquo; you need to know what tradeoffs they&apos;re making
+                in cost, latency, and quality, and what questions to ask before
+                greenlighting the build.
+              </p>
+              <p className="text-text-secondary leading-relaxed">
+                The PM track on Learn Agentic Patterns covers 10 product-focused
+                modules — each reframing the 21 engineering patterns through a
+                product lens. You&apos;ll learn why single-agent architectures fail
+                at scale, when to invest in RAG vs. fine-tuning, how to budget
+                token costs across model tiers, and what &ldquo;production-ready
+                AI&rdquo; actually requires. Interactive games like Ship or Skip
+                and Budget Builder let you practice making real product decisions.
+              </p>
+            </motion.article>
           </div>
         </div>
       </section>
@@ -910,9 +1048,9 @@ export default function HomePage() {
               className="grid grid-cols-2 gap-4"
             >
               {[
-                { value: "21", label: "Patterns with Full Breakdowns" },
-                { value: "21", label: "Interactive Building Exercises" },
-                { value: "8+", label: "In-Depth Blog Articles" },
+                { value: "21", label: "Developer Patterns" },
+                { value: "10", label: "Product Manager Modules" },
+                { value: "4", label: "Interactive Games" },
                 { value: "∞", label: "Free · No Credit Card" },
               ].map((stat) => (
                 <div
@@ -934,8 +1072,8 @@ export default function HomePage() {
       <section id="signup" className="py-24 bg-code-bg">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <SectionHeader
-            title="Sign Up Free: Unlock All 21 Patterns"
-            subtitle="Get instant access to the full curriculum, code examples, and architecture diagrams. No credit card. No catch."
+            title="Sign Up Free: Unlock Your Track"
+            subtitle="Developers unlock all 21 patterns + build games. Product Managers unlock 10 modules + decision games. No credit card. No catch."
             decorator="→"
           />
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-8">
@@ -970,9 +1108,9 @@ export default function HomePage() {
           >
             <Quote className="w-12 h-12 text-primary/30 mx-auto mb-6" />
             <blockquote className="font-mono text-xl md:text-2xl lg:text-3xl text-text-primary leading-relaxed mb-6">
-              &ldquo;Software Engineering is not dying. It is evolving. The
-              architect who understands agentic patterns will design the
-              intelligent systems of the next decade.&rdquo;
+              &ldquo;The engineers and product leaders who understand agentic
+              patterns will build and define the intelligent systems of the next
+              decade.&rdquo;
             </blockquote>
             <cite className="text-primary font-mono text-sm not-italic">
               Mousa

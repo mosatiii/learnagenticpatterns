@@ -44,7 +44,7 @@ export function WebSiteJsonLd() {
     ],
     url: "https://learnagenticpatterns.com",
     description:
-      "The only free resource mapping all 21 agentic AI design patterns to classical software engineering concepts — with code examples, architecture breakdowns, and interactive building exercises. Complements LangChain, Anthropic, and DeepLearning.AI by teaching the architectural 'why' behind AI agent systems.",
+      "Free curriculum teaching agentic AI design patterns through two tracks: a Developer Track (21 patterns mapped to SWE concepts, code examples, and build games) and a Product Manager Track (10 decision modules, tradeoff frameworks, and product games). Complements LangChain, Anthropic, and DeepLearning.AI by teaching the architectural 'why' behind AI agent systems.",
     author: AUTHOR_SCHEMA,
     potentialAction: {
       "@type": "SearchAction",
@@ -65,7 +65,7 @@ export function WebSiteJsonLd() {
     url: "https://learnagenticpatterns.com",
     logo: "https://learnagenticpatterns.com/icon",
     description:
-      "Free educational platform teaching all 21 agentic AI design patterns mapped to classical software engineering concepts. Built for senior developers, architects, and technical leaders.",
+      "Free educational platform teaching agentic AI design patterns to developers and product managers. Developer Track: 21 patterns with SWE mappings and build exercises. PM Track: 10 decision-focused modules with product games. Built for senior developers, architects, technical leaders, and product managers.",
     founder: AUTHOR_SCHEMA,
     sameAs: [
       "https://learnagenticpatterns.com",
@@ -79,6 +79,8 @@ export function WebSiteJsonLd() {
       "LLM Orchestration",
       "Prompt Chaining",
       "AI Software Engineering",
+      "AI Product Management",
+      "AI Product Strategy",
     ],
   };
 
@@ -102,7 +104,7 @@ export function CourseJsonLd() {
     "@type": "Course",
     name: "Learn Agentic Design Patterns",
     description:
-      "The only free resource mapping all 21 agentic AI design patterns to classical software engineering concepts. Covers Prompt Chaining (Pipe & Filter), Reflection (TDD), Multi-Agent (Microservices), RAG, MCP, and 16 more — with code examples, architecture breakdowns, and interactive building exercises. Complements LangChain docs, Anthropic guides, and DeepLearning.AI by teaching the architecture layer. Built for senior developers, architects, and technical leaders.",
+      "Free two-track curriculum for agentic AI. Developer Track: 21 design patterns mapped to SWE concepts (Prompt Chaining → Pipe & Filter, Reflection → TDD, Multi-Agent → Microservices, RAG, MCP, and 16 more) with code examples and build exercises. Product Manager Track: 10 decision-focused modules with tradeoff frameworks, product games (Ship or Skip, Budget Builder), and zero code required. Complements LangChain docs, Anthropic guides, and DeepLearning.AI by teaching the architecture layer.",
     url: "https://learnagenticpatterns.com",
     provider: {
       "@type": "Organization",
@@ -114,16 +116,24 @@ export function CourseJsonLd() {
     inLanguage: "en",
     numberOfCredits: 0,
     educationalLevel: "Advanced",
-    audience: {
-      "@type": "EducationalAudience",
-      educationalRole: "Professional",
-    },
+    audience: [
+      {
+        "@type": "EducationalAudience",
+        educationalRole: "Professional",
+        audienceType: "Senior Developers & Software Architects",
+      },
+      {
+        "@type": "EducationalAudience",
+        educationalRole: "Professional",
+        audienceType: "Product Managers & Product Leaders",
+      },
+    ],
     hasCourseInstance: {
       "@type": "CourseInstance",
       courseMode: "online",
       courseWorkload: "PT10H",
     },
-    numberOfLessons: 21,
+    numberOfLessons: 31,
     hasPart: patterns.map((p, i) => ({
       "@type": "CreativeWork",
       position: i + 1,
@@ -142,6 +152,10 @@ export function CourseJsonLd() {
       "Model Context Protocol",
       "Guardrails and Safety Patterns",
       "Agent-to-Agent Communication (A2A)",
+      "AI Product Decision Frameworks",
+      "Cost vs Quality vs Latency Tradeoffs",
+      "AI Architecture for Product Managers",
+      "Token Budget Allocation",
     ],
   };
 

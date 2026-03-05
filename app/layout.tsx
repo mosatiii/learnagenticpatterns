@@ -15,11 +15,11 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://learnagenticpatterns.com"),
   title: {
     default:
-      "Learn Agentic Patterns — 21 AI Design Patterns Mapped to SWE (Free)",
+      "Learn Agentic Patterns — AI Design Patterns for Developers & Product Managers (Free)",
     template: "%s | Learn Agentic Patterns",
   },
   description:
-    "Free curriculum: 21 agentic AI design patterns mapped to SWE concepts you already know. Code examples, architecture breakdowns, and interactive exercises.",
+    "Free curriculum: 21 agentic AI design patterns for developers (code + architecture) and 10 product modules for PMs (decisions + tradeoffs). Two tracks, interactive games, zero hype.",
   keywords: [
     "agentic AI",
     "what is agentic AI",
@@ -51,6 +51,16 @@ export const metadata: Metadata = {
     "agentic AI for software engineers",
     "AI agent architecture",
     "agentic workflow",
+    "AI for product managers",
+    "agentic AI for PMs",
+    "product manager AI decisions",
+    "AI product strategy",
+    "AI product management",
+    "agentic AI tradeoffs",
+    "AI cost vs quality tradeoff",
+    "how to evaluate AI architecture",
+    "product manager AI literacy",
+    "non-technical AI curriculum",
   ],
   authors: [
     {
@@ -64,9 +74,9 @@ export const metadata: Metadata = {
     canonical: "https://learnagenticpatterns.com",
   },
   openGraph: {
-    title: "Learn Agentic Patterns — 21 AI Design Patterns Mapped to SWE (Free)",
+    title: "Learn Agentic Patterns — AI Design Patterns for Developers & Product Managers (Free)",
     description:
-      "Free curriculum: 21 agentic AI patterns mapped to SWE concepts. Prompt Chaining → Pipe & Filter. Reflection → TDD. Multi-Agent → Microservices. Code + exercises.",
+      "Free curriculum: 21 patterns for developers (code + architecture) and 10 modules for product managers (decisions + tradeoffs). Two tracks, interactive games, zero hype.",
     url: "https://learnagenticpatterns.com",
     siteName: "Learn Agentic Patterns",
     type: "website",
@@ -76,15 +86,15 @@ export const metadata: Metadata = {
         url: "/opengraph-image",
         width: 1200,
         height: 630,
-        alt: "Learn Agentic Patterns: 21 AI Design Patterns Mapped to Software Engineering Concepts",
+        alt: "Learn Agentic Patterns: AI Design Patterns for Developers & Product Managers",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Learn Agentic Patterns — 21 AI Design Patterns Mapped to SWE (Free)",
+    title: "Learn Agentic Patterns — AI Design Patterns for Developers & Product Managers (Free)",
     description:
-      "Free curriculum: 21 agentic AI patterns mapped to SWE concepts. Prompt Chaining → Pipe & Filter. Reflection → TDD. Multi-Agent → Microservices. Code + exercises.",
+      "Free curriculum: 21 patterns for developers (code + architecture) and 10 modules for product managers (decisions + tradeoffs). Two tracks, interactive games, zero hype.",
     images: ["/opengraph-image"],
   },
   robots: {
