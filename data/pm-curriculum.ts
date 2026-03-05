@@ -1,3 +1,9 @@
+export interface PMModuleSection {
+  heading: string;
+  body: string;
+  bullets?: string[];
+}
+
 export interface PMModule {
   id: string;
   slug: string;
@@ -9,7 +15,11 @@ export interface PMModule {
   keyDecisions: string[];
   questionsForEngineering: string[];
   relatedPatterns: string[];
-  icon: "layers" | "compass" | "zap" | "shield-check" | "plug" | "users" | "brain" | "bar-chart" | "git-branch" | "search";
+  icon: "layers" | "compass" | "zap" | "shield-check" | "plug" | "users" | "brain" | "bar-chart" | "git-branch" | "search" | "terminal";
+  /** If true, this module is accessible without sign-up */
+  isFree?: boolean;
+  /** Optional long-form sections for deep-dive modules */
+  sections?: PMModuleSection[];
 }
 
 export const pmModules: PMModule[] = [
@@ -262,6 +272,194 @@ export const pmModules: PMModule[] = [
       "What are the risks of moving too fast vs. too slow?",
     ],
     relatedPatterns: ["Exploration & Discovery"],
+  },
+  {
+    id: "pm-ai-coding-tools",
+    slug: "ai-coding-tools-landscape",
+    number: 11,
+    title: "The AI Coding Tools Landscape",
+    subtitle: "Every tool your engineering team is using (or asking to use) — and what it means for your product",
+    icon: "terminal",
+    isFree: true,
+    description:
+      "AI coding tools have gone from autocomplete to fully autonomous agents that can build features, fix bugs, and ship PRs. Your engineering team is already using them — or asking to. As a PM, you need to understand what these tools can actually do, how they differ, what they cost, and how they change your team's velocity, quality, and workflow. This module covers every major tool in the landscape as of early 2026.",
+    whyItMatters:
+      "These tools directly impact your roadmap. A developer with Cursor or Claude Code can build a feature in hours that used to take days. But they also introduce new risks: AI-generated code can have subtle bugs, security vulnerabilities, or architectural drift. The tool your team picks affects hiring, onboarding, code review processes, and your entire SDLC. Understanding the landscape helps you make informed decisions about tooling budgets, productivity expectations, and quality gates.",
+    keyDecisions: [
+      "Which AI coding tools should your team standardize on (or should you let developers choose)?",
+      "What's the ROI of paying $20-100/seat/month for AI coding tools vs. free tiers?",
+      "How do you measure the actual productivity gains (not just lines of code)?",
+      "Should AI-generated code go through different review processes than human-written code?",
+      "What's your policy on AI tools accessing proprietary code and data (security/IP)?",
+      "How do you adjust sprint velocity estimates when AI tools accelerate development?",
+      "What guardrails do you need around autonomous agent modes (auto-merge, auto-deploy)?",
+    ],
+    questionsForEngineering: [
+      "Which tools are developers already using informally? What do they like/dislike?",
+      "What's the measured impact on PR throughput since adopting AI coding tools?",
+      "Are we seeing more bugs in AI-assisted code vs. human-written code?",
+      "What data leaves our environment when using these tools? (security review)",
+      "Do we need enterprise agreements for SOC 2 / HIPAA compliance?",
+      "How are these tools handling our monorepo / multi-service architecture?",
+      "What's the token cost per developer per month for our usage patterns?",
+    ],
+    relatedPatterns: [
+      "Tool Use",
+      "Multi-Agent Collaboration",
+      "Human-in-the-Loop",
+      "Reflection",
+      "Planning",
+    ],
+    sections: [
+      {
+        heading: "The Shift: From Autocomplete to Autonomous Agents",
+        body: "In 2023, AI coding tools were glorified autocomplete — they predicted the next line of code. By 2026, they've become autonomous agents that can understand an entire codebase, plan multi-file changes, run tests, fix their own mistakes, and submit pull requests. This is the single biggest change in software development tooling since the IDE itself. Understanding this shift is critical because it changes how fast your team can ship, what's possible in a sprint, and what role code review plays.",
+        bullets: [
+          "2022-2023: Autocomplete era — tools like Copilot suggested the next line or function body",
+          "2024: Chat era — developers described problems in natural language and got code blocks back",
+          "2025: Agent era — tools started reading entire codebases, running commands, and iterating autonomously",
+          "2026: Multi-agent era — tools dispatch multiple specialized agents in parallel across your codebase",
+        ],
+      },
+      {
+        heading: "Claude Code (Anthropic)",
+        body: "Claude Code is Anthropic's agentic coding tool. It runs in your terminal, VS Code, a desktop app, or the browser. Unlike tab-completion tools, Claude Code operates through an agentic loop: it gathers context from your codebase, takes action (edits files, runs commands, searches the web), and verifies results — repeating until the task is done. It's powered by Claude Sonnet for routine tasks and Claude Opus for complex architectural decisions.",
+        bullets: [
+          "Agentic loop: gather context → take action → verify results → repeat",
+          "Can read files, edit code, run shell commands, execute tests, and search the web",
+          "Supports regex search, file pattern matching, and codebase-wide exploration",
+          "Available via terminal (npm/Homebrew/native install), VS Code, desktop app, and browser",
+          "Requires Anthropic API key or Claude subscription (Pro/Team/Enterprise)",
+          "You stay in the loop — can interrupt and redirect at any point",
+          "Input pricing: ~$3/M tokens (Sonnet), ~$15/M tokens (Opus)",
+          "Strength: deep reasoning on complex architecture, strong at multi-file refactoring",
+        ],
+      },
+      {
+        heading: "OpenAI Codex (GPT-5.3-Codex)",
+        body: "OpenAI released GPT-5.3-Codex (codenamed 'Garlic') in February 2026. It's a specialized coding model that prioritizes 'cognitive density' — 6x more reasoning capability per byte through what OpenAI calls Enhanced Pre-Training Efficiency (EPTE). The headline numbers: 400K-token context window (holds entire codebases in memory) and 128K-token output capacity (can generate complete applications in one pass). It's 25% faster than its predecessor and significantly cheaper per token than competitors.",
+        bullets: [
+          "400,000-token context window — can hold entire codebases in memory",
+          "128,000-token output capacity — can generate complete applications in one pass",
+          "Native agentic capabilities: autonomous multi-file refactoring, dependency analysis, test execution",
+          "Can navigate files, call APIs, and run tests without external orchestration",
+          "Input pricing: $1.25/M tokens — significantly cheaper than Claude's $3-5/M tokens",
+          "New features (March 2026): configurable memories, sub-agent thread forking, multimodal tool outputs",
+          "Notably, GPT-5.3-Codex contributed to its own development (data pipelines, training infra)",
+          "Strength: raw speed, large context window, cost efficiency at scale",
+        ],
+      },
+      {
+        heading: "Cursor (Cursor 2.0)",
+        body: "Cursor is the IDE that put agentic coding on the map. Version 2.0 (released late 2025) introduced a multi-agent architecture that fundamentally changes the coding workflow. Instead of chatting with one AI about your code, you orchestrate multiple specialized agents working on different parts of your codebase simultaneously. Cursor's proprietary Composer model is 4x faster than comparable models, completing most tasks in under 30 seconds.",
+        bullets: [
+          "Multi-agent orchestration: dispatch a Database Schema agent, UI Components agent, and API Routes agent in parallel",
+          "Shadow Virtual File System (SVFS): agents write to isolated virtual trees, merged before developer approval",
+          "Composer model: multi-file edits reduced from ~42s to ~9s, 500K token context window",
+          "Self-healing test success rate: improved from 55% to 89%",
+          "Built-in browser tool: agents can test web apps visually without leaving the IDE",
+          "Agent capabilities: build features, refactor, fix bugs, write tests, run terminal commands",
+          "Pricing: Pro ($20/mo), Max ($50/mo, multi-agent dispatch), Enterprise ($100/seat, unlimited agents + SOC2)",
+          "Strength: best-in-class IDE experience, multi-agent parallel execution, strong for full-stack development",
+        ],
+      },
+      {
+        heading: "GitHub Copilot (Agent Mode + Workspace)",
+        body: "GitHub Copilot is the most widely adopted AI coding tool, integrated directly into GitHub's ecosystem. Its Agent Mode turns Copilot from a code-completion tool into a real-time collaborator that plans and executes multi-step coding tasks from natural language. The new Agents Tab (January 2026) embeds agent sessions directly into repositories alongside code, PRs, and issues. Copilot Workspace adds explicit stepwise reasoning — generating editable specs, plans, and PR-ready diffs with human review at every stage.",
+        bullets: [
+          "Agent Mode: multi-step coding from natural language, self-healing (recognizes and fixes its own errors)",
+          "Agents Tab: agent sessions live inside your GitHub repository, alongside code and PRs",
+          "Can run commands, analyze runtime errors, and suggest architectural improvements",
+          "Copilot Workspace: generates editable specs → explicit plans → PR-ready diffs",
+          "Human review required before merge — emphasis on developer control",
+          "Supports VS Code, JetBrains, Neovim, Visual Studio, Xcode, and CLI",
+          "Pricing: Individual ($10/mo), Business ($19/seat/mo), Enterprise ($39/seat/mo)",
+          "Strength: deepest GitHub integration, widest IDE support, largest existing user base, enterprise trust",
+        ],
+      },
+      {
+        heading: "Google Gemini Code Assist",
+        body: "Google's entry in the agentic coding space is Gemini Code Assist, powered by Gemini 3 Pro and Gemini 3 Flash. Its agent mode (currently in preview) pairs developers with AI agents that handle the full development lifecycle — from reading design documents and issues, through multi-file code generation, to integrating external tools via Model Context Protocol (MCP). The distinguishing factor is deep integration with Google Cloud services.",
+        bullets: [
+          "Agent mode: generates code from design docs, issues, and TODO comments",
+          "Human-in-the-Loop (HiTL): you comment on, edit, and approve plans during execution",
+          "MCP server integration: extend agent capabilities with external tools",
+          "Powered by Gemini 3 Pro and Gemini 3 Flash models",
+          "Available in VS Code and IntelliJ (expanding to more IDEs)",
+          "Deep Google Cloud integration: Pub/Sub, Cloud Functions, BigQuery",
+          "Pricing: Free tier available, Enterprise via Google Cloud subscription",
+          "Strength: best for Google Cloud-heavy teams, MCP-native, strong multi-modal understanding",
+        ],
+      },
+      {
+        heading: "Windsurf (by Codeium)",
+        body: "Windsurf is a purpose-built AI IDE from Codeium, centered around 'Cascade' — its agentic AI system. Cascade's differentiator is what Codeium calls 'Flow Awareness': it tracks everything you do in the editor (edits, terminal commands, clipboard, file views) and uses that context to infer your intent without you repeating yourself. It's designed to feel like a pair programmer who's been watching over your shoulder all day.",
+        bullets: [
+          "Cascade Flow Awareness: tracks all edits, terminal commands, clipboard, and viewing patterns in real time",
+          "Deep codebase knowledge: maintains semantic understanding of every file, function, and folder",
+          "Multiple modes: Code (build features), Plan (architect before coding), Ask (read-only exploration)",
+          "Built-in browser, web search, one-click deployment, and live previews inside the IDE",
+          "Tool calling (up to 20 tools per prompt), MCP server integration, voice input",
+          "Named checkpoints and reverts — undo any AI change instantly",
+          "Supports GPT-5.4, Claude Sonnet 4.6, Gemini 3.1 Pro, and other models",
+          "Strength: most context-aware IDE, excellent for long coding sessions, strong flow-state preservation",
+        ],
+      },
+      {
+        heading: "Amazon Q Developer",
+        body: "Amazon Q Developer is AWS's full-lifecycle AI coding assistant. While other tools focus on code generation, Amazon Q covers the entire SDLC — from writing code to transforming legacy applications, scanning for security vulnerabilities, generating tests and documentation, and even optimizing SQL queries in AWS services. It's the clear choice for teams deeply invested in the AWS ecosystem.",
+        bullets: [
+          "Supports 25+ programming languages with industry-leading multiline acceptance rates",
+          "Agentic coding: natural language → production-ready features with step-by-step instructions",
+          "Code Transformation: automatically upgrades legacy apps (e.g., Java 8 → Java 21) with dependency refactoring",
+          "Security scanning: OWASP Top 10 vulnerability detection with automatic code remediation",
+          "Generates code reviews, unit tests, and documentation automatically",
+          "Deep AWS integration: CDK, Lambda, Glue, Redshift, and console troubleshooting",
+          "Enterprise: data isolation (customer content not used for training), existing IAM governance",
+          "Strength: best for AWS-heavy teams, strongest legacy migration tooling, full SDLC coverage",
+        ],
+      },
+      {
+        heading: "How to Compare: The PM Decision Framework",
+        body: "When your engineering team asks to adopt (or switch) AI coding tools, here's what matters. Don't get distracted by benchmark scores — focus on how each tool fits your team's workflow, security requirements, and budget.",
+        bullets: [
+          "Context window size: How much of your codebase can the tool 'see' at once? Larger = better for monorepos",
+          "Agentic autonomy: Can it plan → execute → verify → iterate autonomously, or does it need hand-holding?",
+          "IDE integration: Does it work where your team already lives (VS Code, JetBrains, terminal)?",
+          "Security & compliance: Where does your code go? SOC 2? HIPAA? Can you self-host?",
+          "Cost per seat: $0 (free tiers) to $100/seat/month — what's the actual productivity ROI?",
+          "Model flexibility: Can your team choose which LLM powers the tool, or is it locked to one provider?",
+          "Ecosystem fit: AWS team → Amazon Q. Google Cloud → Gemini. GitHub-heavy → Copilot. Model-agnostic → Cursor/Windsurf",
+          "Multi-agent support: Can it run parallel agents on different parts of the codebase? (Cursor leads here)",
+        ],
+      },
+      {
+        heading: "What This Means for Your Roadmap",
+        body: "AI coding tools don't just make developers faster — they change what's possible in a sprint. Features that took a week might take two days. But this doesn't mean you can 3x your commitments. AI-assisted code still needs review, testing, and architectural oversight. The productivity gains are real but uneven: boilerplate and CRUD tasks see 5-10x speedups, while novel architecture and complex business logic see more modest 1.5-2x improvements.",
+        bullets: [
+          "Expect 2-4x throughput on well-defined, boilerplate-heavy tasks (CRUD, tests, docs)",
+          "Expect 1.5-2x on novel features requiring architectural decisions",
+          "AI-generated code needs more code review attention, not less — subtle bugs are harder to spot",
+          "Budget $20-100/developer/month for AI tooling — it pays for itself in days",
+          "Adjust sprint planning: higher velocity but allocate time for AI code review",
+          "New hiring signal: ability to effectively prompt and direct AI coding agents matters",
+          "Consider: do you need a dedicated 'AI tooling' owner on the team?",
+        ],
+      },
+      {
+        heading: "The Risks You Need to Manage",
+        body: "AI coding tools introduce real risks that PMs need to think about proactively, not after something goes wrong.",
+        bullets: [
+          "IP & data leakage: some tools send code to external APIs — ensure your security team has reviewed data flows",
+          "Architectural drift: AI agents optimize for speed, not consistency — code may diverge from your team's patterns",
+          "Over-reliance: developers who depend too heavily on AI lose deep understanding of the codebase",
+          "License contamination: AI-generated code can inadvertently reproduce copyrighted or GPL-licensed code",
+          "Security vulnerabilities: AI doesn't inherently understand your threat model — generated code needs security review",
+          "Cost creep: token-based pricing can spike unpredictably with heavy agentic usage",
+          "Mitigation: enforce linters, architecture decision records (ADRs), regular security scans, and token budget alerts",
+        ],
+      },
+    ],
   },
 ];
 

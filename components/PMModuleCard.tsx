@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ArrowRight, Layers, Compass, Zap, ShieldCheck, Plug, Users, Brain, BarChart3, GitBranch, Search } from "lucide-react";
+import { ArrowRight, Layers, Compass, Zap, ShieldCheck, Plug, Users, Brain, BarChart3, GitBranch, Search, Terminal } from "lucide-react";
 import Link from "next/link";
 import type { PMModule } from "@/data/pm-curriculum";
 
@@ -16,6 +16,7 @@ const iconMap = {
   "bar-chart": BarChart3,
   "git-branch": GitBranch,
   search: Search,
+  terminal: Terminal,
 } as const;
 
 interface PMModuleCardProps {
@@ -44,10 +45,17 @@ export default function PMModuleCard({ module, index }: PMModuleCardProps) {
               <Icon size={14} className="text-primary" />
             </div>
           </div>
-          <ArrowRight
-            size={14}
-            className="text-text-secondary group-hover:text-primary transition-colors"
-          />
+          <div className="flex items-center gap-2">
+            {module.isFree && (
+              <span className="font-mono text-[10px] text-accent border border-accent/30 bg-accent/5 rounded-full px-2 py-0.5 uppercase tracking-wider">
+                Free
+              </span>
+            )}
+            <ArrowRight
+              size={14}
+              className="text-text-secondary group-hover:text-primary transition-colors"
+            />
+          </div>
         </div>
 
         <h3 className="font-mono text-text-primary font-bold text-lg mb-2 group-hover:text-primary transition-colors">

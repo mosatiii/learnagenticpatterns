@@ -19,7 +19,7 @@ export const metadata: Metadata = {
     template: "%s | Learn Agentic Patterns",
   },
   description:
-    "Free curriculum: 21 agentic AI design patterns for developers (code + architecture) and 10 product modules for PMs (decisions + tradeoffs). Two tracks, interactive games, zero hype.",
+    "Free curriculum: 21 agentic AI design patterns for developers (code + architecture) and 11 product modules for PMs (decisions + tradeoffs + AI tools landscape). Two tracks, interactive games, zero hype.",
   keywords: [
     "agentic AI",
     "what is agentic AI",
@@ -61,6 +61,15 @@ export const metadata: Metadata = {
     "how to evaluate AI architecture",
     "product manager AI literacy",
     "non-technical AI curriculum",
+    "Claude Code",
+    "OpenAI Codex",
+    "Cursor AI",
+    "GitHub Copilot agent",
+    "Gemini Code Assist",
+    "Windsurf Cascade",
+    "Amazon Q Developer",
+    "AI coding tools comparison 2026",
+    "agentic coding tools",
   ],
   authors: [
     {
@@ -76,7 +85,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Learn Agentic Patterns — AI Design Patterns for Developers & Product Managers (Free)",
     description:
-      "Free curriculum: 21 patterns for developers (code + architecture) and 10 modules for product managers (decisions + tradeoffs). Two tracks, interactive games, zero hype.",
+      "Free curriculum: 21 patterns for developers (code + architecture) and 11 modules for product managers (decisions + tradeoffs + AI tools deep-dive). Two tracks, interactive games, zero hype.",
     url: "https://learnagenticpatterns.com",
     siteName: "Learn Agentic Patterns",
     type: "website",
@@ -94,7 +103,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Learn Agentic Patterns — AI Design Patterns for Developers & Product Managers (Free)",
     description:
-      "Free curriculum: 21 patterns for developers (code + architecture) and 10 modules for product managers (decisions + tradeoffs). Two tracks, interactive games, zero hype.",
+      "Free curriculum: 21 patterns for developers (code + architecture) and 11 modules for product managers (decisions + tradeoffs + AI tools deep-dive). Two tracks, interactive games, zero hype.",
     images: ["/opengraph-image"],
   },
   robots: {

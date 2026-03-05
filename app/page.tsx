@@ -379,8 +379,8 @@ export default function HomePage() {
 
                 {isProductManager ? (
                   <p className="text-text-secondary text-lg mb-8 max-w-lg">
-                    10 modules covering everything you need to make smart product
-                    decisions about agentic AI — no code required. Expand any
+                    11 modules covering everything you need to make smart product
+                    decisions about agentic AI — no code required. Click any
                     module below to dive in.
                   </p>
                 ) : readSlugs.length === 0 ? (
@@ -435,7 +435,7 @@ export default function HomePage() {
                 {isProductManager ? (
                   <div className="w-44 h-44 rounded-full bg-surface border-2 border-primary/30 flex flex-col items-center justify-center">
                     <Briefcase size={36} className="text-primary mb-2" />
-                    <span className="font-mono text-3xl text-primary font-bold">10</span>
+                    <span className="font-mono text-3xl text-primary font-bold">11</span>
                     <span className="font-mono text-xs text-text-secondary">Modules</span>
                   </div>
                 ) : (
@@ -464,7 +464,7 @@ export default function HomePage() {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
               <SectionHeader
                 title="Your PM Curriculum"
-                subtitle="10 modules unlocked. Click any module to dive in and play the decision games."
+                subtitle="11 modules unlocked. Click any module to dive in and play the decision games."
                 decorator="PM"
               />
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -803,12 +803,12 @@ export default function HomePage() {
                 Product Manager Track
               </h3>
               <p className="text-text-secondary text-sm leading-relaxed mb-6">
-                10 decision-focused modules built from the same 21 patterns — reframed
+                11 decision-focused modules built from the same 21 patterns — reframed
                 for product thinking. No code. Just the tradeoffs, questions, and
                 frameworks you need to ship agentic features.
               </p>
               <ul className="space-y-2 mb-6">
-                {["10 modules (zero code required)", "Key decisions & tradeoff frameworks", "\"Ship or Skip\" scenario game", "\"Budget Builder\" allocation game"].map((item) => (
+                {["11 modules (zero code required)", "Key decisions & tradeoff frameworks", "\"Ship or Skip\" scenario game", "\"Budget Builder\" allocation game"].map((item) => (
                   <li key={item} className="flex items-center gap-2 text-text-secondary text-sm">
                     <span className="text-accent font-mono text-xs">✓</span>
                     {item}
@@ -1049,7 +1049,7 @@ export default function HomePage() {
             >
               {[
                 { value: "21", label: "Developer Patterns" },
-                { value: "10", label: "Product Manager Modules" },
+                { value: "11", label: "Product Manager Modules" },
                 { value: "4", label: "Interactive Games" },
                 { value: "∞", label: "Free · No Credit Card" },
               ].map((stat) => (
@@ -1073,7 +1073,7 @@ export default function HomePage() {
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <SectionHeader
             title="Sign Up Free: Unlock Your Track"
-            subtitle="Developers unlock all 21 patterns + build games. Product Managers unlock 10 modules + decision games. No credit card. No catch."
+            subtitle="Developers unlock all 21 patterns + build games. Product Managers unlock 11 modules + decision games. No credit card. No catch."
             decorator="→"
           />
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-8">

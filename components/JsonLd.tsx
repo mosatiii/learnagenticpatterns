@@ -104,7 +104,7 @@ export function CourseJsonLd() {
     "@type": "Course",
     name: "Learn Agentic Design Patterns",
     description:
-      "Free two-track curriculum for agentic AI. Developer Track: 21 design patterns mapped to SWE concepts (Prompt Chaining → Pipe & Filter, Reflection → TDD, Multi-Agent → Microservices, RAG, MCP, and 16 more) with code examples and build exercises. Product Manager Track: 10 decision-focused modules with tradeoff frameworks, product games (Ship or Skip, Budget Builder), and zero code required. Complements LangChain docs, Anthropic guides, and DeepLearning.AI by teaching the architecture layer.",
+      "Free two-track curriculum for agentic AI. Developer Track: 21 design patterns mapped to SWE concepts (Prompt Chaining → Pipe & Filter, Reflection → TDD, Multi-Agent → Microservices, RAG, MCP, and 16 more) with code examples and build exercises. Product Manager Track: 11 decision-focused modules (including a deep-dive on AI coding tools: Claude Code, OpenAI Codex, Cursor, Copilot, Gemini, Windsurf, Amazon Q) with tradeoff frameworks, product games (Ship or Skip, Budget Builder), and zero code required.",
     url: "https://learnagenticpatterns.com",
     provider: {
       "@type": "Organization",
@@ -133,7 +133,7 @@ export function CourseJsonLd() {
       courseMode: "online",
       courseWorkload: "PT10H",
     },
-    numberOfLessons: 31,
+    numberOfLessons: 32,
     hasPart: patterns.map((p, i) => ({
       "@type": "CreativeWork",
       position: i + 1,

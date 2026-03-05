@@ -6,7 +6,7 @@ import { motion } from "framer-motion";
 import {
   ArrowRight, ChevronRight, Home,
   Layers, Compass, Zap, ShieldCheck, Plug, Users,
-  Brain, BarChart3, GitBranch, Search,
+  Brain, BarChart3, GitBranch, Search, Terminal,
   ListChecks, MessageCircleQuestion,
 } from "lucide-react";
 import Link from "next/link";
@@ -25,6 +25,7 @@ const iconMap = {
   "bar-chart": BarChart3,
   "git-branch": GitBranch,
   search: Search,
+  terminal: Terminal,
 } as const;
 
 const tabs = [
@@ -53,7 +54,7 @@ export default function PMModulePage() {
     );
   }
 
-  if (!user) {
+  if (!user && !mod.isFree) {
     return (
       <main className="relative z-10 pt-24 min-h-screen flex items-center justify-center">
         <div className="text-center max-w-md mx-auto px-4">
@@ -186,6 +187,38 @@ export default function PMModulePage() {
                     </p>
                   </div>
 
+                  {/* Long-form sections (for deep-dive modules) */}
+                  {mod.sections?.map((section, sIdx) => (
+                    <motion.div
+                      key={sIdx}
+                      initial={{ opacity: 0, y: 15 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true, margin: "-40px" }}
+                      transition={{ duration: 0.35, delay: sIdx * 0.03 }}
+                      className="bg-surface border border-border rounded-lg p-6"
+                    >
+                      <h3 className="font-mono text-primary text-sm font-bold mb-3">
+                        {">"} {section.heading}
+                      </h3>
+                      <p className="text-text-secondary leading-relaxed mb-4">
+                        {section.body}
+                      </p>
+                      {section.bullets && section.bullets.length > 0 && (
+                        <ul className="space-y-2">
+                          {section.bullets.map((bullet, bIdx) => (
+                            <li
+                              key={bIdx}
+                              className="flex items-start gap-3 text-text-secondary text-sm leading-relaxed"
+                            >
+                              <span className="font-mono text-primary/60 text-xs mt-0.5 flex-shrink-0">•</span>
+                              {bullet}
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </motion.div>
+                  ))}
+
                   {/* Related engineering patterns */}
                   <div className="bg-surface border border-border rounded-lg p-6">
                     <h3 className="font-mono text-text-secondary text-sm font-bold mb-3">
@@ -252,9 +285,30 @@ export default function PMModulePage() {
               </div>
             </div>
 
+            {/* Sign-up CTA for unauthenticated users on free modules */}
+            {!user && mod.isFree && (
+              <div className="mt-12 pt-8 border-t border-border">
+                <div className="bg-accent/5 border border-accent/20 rounded-lg p-6 text-center">
+                  <h4 className="font-mono text-text-primary font-bold text-lg mb-2">
+                    Want the full PM curriculum?
+                  </h4>
+                  <p className="text-text-secondary text-sm mb-4 max-w-md mx-auto">
+                    This module is free. Sign up to unlock all {pmModules.length} modules, interactive
+                    decision games, and the Developer track with 21 engineering patterns.
+                  </p>
+                  <Link
+                    href="/signup"
+                    className="inline-flex items-center gap-2 bg-accent hover:bg-accent/90 text-white font-sans font-semibold px-8 py-3.5 rounded-md transition-all hover:shadow-lg hover:shadow-accent/20"
+                  >
+                    Sign Up Free <ArrowRight size={18} />
+                  </Link>
+                </div>
+              </div>
+            )}
+
             {/* Next module CTA */}
             {nextModule && (
-              <div className="mt-12 pt-8 border-t border-border">
+              <div className={`${!user && mod.isFree ? "mt-6" : "mt-12"} pt-8 border-t border-border`}>
                 <Link
                   href={`/pm/${nextModule.slug}`}
                   className="flex items-center justify-between bg-surface border border-border rounded-lg p-6 hover:border-primary/30 transition-all group"
