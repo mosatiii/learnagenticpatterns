@@ -16,11 +16,11 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://learnagenticpatterns.com"),
   title: {
     default:
-      "Learn Agentic Patterns | 21 AI Design Patterns for Senior Developers",
+      "Learn Agentic Patterns — 21 AI Design Patterns Mapped to SWE (Free)",
     template: "%s | Learn Agentic Patterns",
   },
   description:
-    "What is agentic AI? How do you build AI agents? Learn the 21 agentic design patterns that map to software engineering concepts you already know — prompt chaining (Pipe & Filter), reflection (TDD), multi-agent (Microservices), RAG, MCP, and more. Free curriculum with interactive building exercises. Built for senior developers, architects, and technical leaders.",
+    "Free curriculum: 21 agentic AI design patterns mapped to SWE concepts you already know. Code examples, architecture breakdowns, and interactive exercises.",
   keywords: [
     "agentic AI",
     "what is agentic AI",
@@ -65,9 +65,9 @@ export const metadata: Metadata = {
     canonical: "https://learnagenticpatterns.com",
   },
   openGraph: {
-    title: "Learn Agentic Patterns | 21 AI Design Patterns for Senior Developers",
+    title: "Learn Agentic Patterns — 21 AI Design Patterns Mapped to SWE (Free)",
     description:
-      "What is agentic AI? How do you build AI agents? 21 design patterns mapped to SWE concepts you already know. Free curriculum with hands-on exercises.",
+      "Free curriculum: 21 agentic AI patterns mapped to SWE concepts. Prompt Chaining → Pipe & Filter. Reflection → TDD. Multi-Agent → Microservices. Code + exercises.",
     url: "https://learnagenticpatterns.com",
     siteName: "Learn Agentic Patterns",
     type: "website",
@@ -77,15 +77,15 @@ export const metadata: Metadata = {
         url: "/opengraph-image",
         width: 1200,
         height: 630,
-        alt: "Learn Agentic Patterns: 21 Design Patterns for Senior Developers",
+        alt: "Learn Agentic Patterns: 21 AI Design Patterns Mapped to Software Engineering Concepts",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Learn Agentic Patterns | 21 AI Design Patterns for Senior Developers",
+    title: "Learn Agentic Patterns — 21 AI Design Patterns Mapped to SWE (Free)",
     description:
-      "How to build AI agents as a software engineer. 21 agentic design patterns mapped to SWE concepts. Free curriculum + interactive exercises.",
+      "Free curriculum: 21 agentic AI patterns mapped to SWE concepts. Prompt Chaining → Pipe & Filter. Reflection → TDD. Multi-Agent → Microservices. Code + exercises.",
     images: ["/opengraph-image"],
   },
   robots: {

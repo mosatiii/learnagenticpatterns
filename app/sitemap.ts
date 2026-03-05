@@ -2,7 +2,7 @@ import { MetadataRoute } from "next";
 import { patterns } from "@/data/patterns";
 import { getAllBlogPosts } from "@/data/blog";
 
-const LAST_CONTENT_UPDATE = new Date("2026-03-01");
+const LAST_CONTENT_UPDATE = new Date("2026-03-05");
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = "https://learnagenticpatterns.com";
@@ -10,7 +10,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const patternPages = patterns.map((p) => ({
     url: `${baseUrl}/patterns/${p.slug}`,
     lastModified: LAST_CONTENT_UPDATE,
-    changeFrequency: "weekly" as const,
+    changeFrequency: "daily" as const,
     priority: 0.9,
   }));
 
@@ -25,13 +25,13 @@ export default function sitemap(): MetadataRoute.Sitemap {
     {
       url: baseUrl,
       lastModified: LAST_CONTENT_UPDATE,
-      changeFrequency: "weekly",
+      changeFrequency: "daily",
       priority: 1,
     },
     {
       url: `${baseUrl}/blog`,
       lastModified: LAST_CONTENT_UPDATE,
-      changeFrequency: "weekly",
+      changeFrequency: "daily",
       priority: 0.9,
     },
     {

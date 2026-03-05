@@ -15,20 +15,23 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     };
   }
 
-  const title = `${pattern.name} → ${pattern.sweParallel} | Learn Agentic Patterns`;
-  const description = `${pattern.description} Mapped to the ${pattern.sweParallelFull} pattern from Software Engineering.`;
+  const title = `${pattern.name} → ${pattern.sweParallel} (Free Guide)`;
+  const shortDesc = `What is ${pattern.name} in agentic AI? It maps to ${pattern.sweParallel} in SWE. Free breakdown with code examples, architecture diagram, and interactive exercise.`;
 
   return {
     title,
-    description,
+    description: shortDesc,
     keywords: [
       pattern.name,
+      `what is ${pattern.name.toLowerCase()}`,
+      `${pattern.name.toLowerCase()} pattern`,
+      `${pattern.name.toLowerCase()} agentic AI`,
       pattern.sweParallel,
       "agentic AI",
       "design pattern",
       "LLM",
       "AI architecture",
-      "senior developer",
+      "build AI agents",
     ],
     authors: [
       {
@@ -41,7 +44,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     },
     openGraph: {
       title,
-      description,
+      description: shortDesc,
       url: `https://learnagenticpatterns.com/patterns/${pattern.slug}`,
       siteName: "Learn Agentic Patterns",
       type: "article",
@@ -53,8 +56,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     },
     twitter: {
       card: "summary_large_image",
-      title: `${pattern.name} → ${pattern.sweParallel}`,
-      description,
+      title: `${pattern.name} → ${pattern.sweParallel} | Free Guide`,
+      description: shortDesc,
     },
   };
 }

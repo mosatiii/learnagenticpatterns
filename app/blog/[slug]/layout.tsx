@@ -31,6 +31,8 @@ export async function generateMetadata({
       "software engineering",
       "build AI agents",
       "LLM patterns",
+      "agentic design patterns",
+      "learn agentic patterns",
     ],
     alternates: { canonical: url },
     openGraph: {
