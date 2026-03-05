@@ -837,17 +837,29 @@ export default function HomePage() {
           <div className="flex flex-wrap items-center justify-center gap-4 mb-10">
             <span className="inline-flex items-center gap-2 font-mono text-sm border border-primary/30 text-primary rounded-full px-4 py-1.5">
               <span className="w-2 h-2 rounded-full bg-primary" />
-              7 patterns open now
+              Previewing 5 of 21 patterns
             </span>
             <span className="inline-flex items-center gap-2 font-mono text-sm border border-accent/30 text-accent rounded-full px-4 py-1.5">
               <Lock size={12} />
-              14 more · free with sign-up
+              Sign up free to unlock all 21
             </span>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-            {patterns.map((pattern, i) => (
+            {patterns.slice(0, 5).map((pattern, i) => (
               <PatternCard key={pattern.id} pattern={pattern} index={i} />
             ))}
+          </div>
+          <div className="text-center mt-10">
+            <Link
+              href="/signup"
+              className="inline-flex items-center gap-2 bg-accent hover:bg-accent/90 text-white font-sans font-semibold text-base px-8 py-3.5 rounded-md transition-all hover:shadow-lg hover:shadow-accent/20"
+            >
+              Sign Up Free to See All 21 Patterns
+              <ArrowRight size={18} />
+            </Link>
+            <p className="text-text-secondary/60 text-xs font-mono mt-3">
+              16 more patterns · Interactive build games · 100% free
+            </p>
           </div>
         </div>
       </section>
