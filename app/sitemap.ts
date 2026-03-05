@@ -59,6 +59,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.5,
     },
     {
+      url: `${baseUrl}/assessment`,
+      lastModified: LAST_CONTENT_UPDATE,
+      changeFrequency: "weekly",
+      priority: 0.9,
+    },
+    {
       url: `${baseUrl}/practice`,
       lastModified: LAST_CONTENT_UPDATE,
       changeFrequency: "weekly",
