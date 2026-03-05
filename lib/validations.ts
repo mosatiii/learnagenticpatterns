@@ -19,6 +19,7 @@ export const signupSchema = z.object({
       "Tech Lead",
       "Software Architect",
       "CTO/VP Engineering",
+      "Product Manager",
       "Other",
     ],
     { required_error: "Please select your role" }

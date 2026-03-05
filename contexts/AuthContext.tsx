@@ -11,11 +11,13 @@ interface AuthUser {
   id: number;
   email: string;
   firstName: string;
+  role: string;
 }
 
 interface StoredAuth {
   email: string;
   firstName: string;
+  role: string;
   expiresAt: number;
 }
 
@@ -39,6 +41,7 @@ export interface LeaderboardEntry {
 interface AuthContextValue {
   user: AuthUser | null;
   isLoading: boolean;
+  isProductManager: boolean;
   readSlugs: string[];
   signup: (data: {
     firstName: string;
@@ -83,10 +86,13 @@ export function AuthProvider({ children, totalPatterns }: { children: ReactNode;
     ? Math.round((readSlugs.length / totalPatterns) * 100)
     : 0;
 
-  const saveToStorage = (email: string, firstName: string) => {
+  const isProductManager = user?.role === "Product Manager";
+
+  const saveToStorage = (email: string, firstName: string, role: string) => {
     const data: StoredAuth = {
       email,
       firstName,
+      role,
       expiresAt: Date.now() + NINETY_DAYS_MS,
     };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
@@ -148,7 +154,7 @@ export function AuthProvider({ children, totalPatterns }: { children: ReactNode;
         if (res.ok) {
           const data = await res.json();
           setUser(data.user);
-          saveToStorage(stored.email, data.user.firstName);
+          saveToStorage(stored.email, data.user.firstName, data.user.role || stored.role || "Other");
           await Promise.all([
             fetchProgress(stored.email),
             fetchGameScores(stored.email),
@@ -182,7 +188,7 @@ export function AuthProvider({ children, totalPatterns }: { children: ReactNode;
     if (!res.ok) throw new Error(data.message || "Signup failed");
 
     setUser(data.user);
-    saveToStorage(data.user.email, data.user.firstName);
+    saveToStorage(data.user.email, data.user.firstName, data.user.role || formData.role);
     await Promise.all([
       fetchProgress(data.user.email),
       fetchGameScores(data.user.email),
@@ -204,7 +210,7 @@ export function AuthProvider({ children, totalPatterns }: { children: ReactNode;
     if (!res.ok) throw new Error(data.message || "Login failed");
 
     setUser(data.user);
-    saveToStorage(data.user.email, data.user.firstName);
+    saveToStorage(data.user.email, data.user.firstName, data.user.role || "Other");
     await Promise.all([
       fetchProgress(data.user.email),
       fetchGameScores(data.user.email),
@@ -283,7 +289,7 @@ export function AuthProvider({ children, totalPatterns }: { children: ReactNode;
   return (
     <AuthContext.Provider
       value={{
-        user, isLoading, readSlugs, signup, login, logout, markRead, progressPercent,
+        user, isLoading, isProductManager, readSlugs, signup, login, logout, markRead, progressPercent,
         gameScores, totalAttempts, avgPercent, leaderboard, userRank, saveGameScore,
       }}
     >

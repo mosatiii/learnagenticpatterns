@@ -15,6 +15,7 @@ const roles = [
   "Tech Lead",
   "Software Architect",
   "CTO/VP Engineering",
+  "Product Manager",
   "Other",
 ];
 

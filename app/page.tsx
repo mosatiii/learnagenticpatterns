@@ -2,14 +2,16 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { ArrowRight, AlertTriangle, Eye, Target, Quote, Lock, BookOpen, Trophy, Medal, Gamepad2 } from "lucide-react";
+import { ArrowRight, AlertTriangle, Eye, Target, Quote, Lock, BookOpen, Trophy, Medal, Gamepad2, Briefcase } from "lucide-react";
 import Link from "next/link";
 import SectionHeader from "@/components/SectionHeader";
 import PatternCard from "@/components/PatternCard";
+import PMModuleCard from "@/components/PMModuleCard";
 import MappingTable from "@/components/MappingTable";
 import MaturityLevel from "@/components/MaturityLevel";
 import ProgressCircle from "@/components/ProgressCircle";
 import { patterns } from "@/data/patterns";
+import { pmModules } from "@/data/pm-curriculum";
 import { useAuth } from "@/contexts/AuthContext";
 import type { PatternScore, LeaderboardEntry } from "@/contexts/AuthContext";
 import { CourseJsonLd, FAQPageJsonLd } from "@/components/JsonLd";
@@ -324,7 +326,7 @@ function GameStats({
 // ─── Main Page Component ────────────────────────────────────
 export default function HomePage() {
   const {
-    user, readSlugs, isLoading,
+    user, readSlugs, isLoading, isProductManager,
     gameScores, totalAttempts, avgPercent, leaderboard, userRank,
   } = useAuth();
 
@@ -348,17 +350,32 @@ export default function HomePage() {
               animate={{ opacity: 1, y: 0 }}
               className="flex flex-col lg:flex-row items-center gap-12"
             >
-              {/* Left: Greeting + next pattern */}
+              {/* Left: Greeting + next action */}
               <div className="flex-1">
                 <span className="inline-block font-mono text-xs text-primary border border-primary/30 rounded-full px-3 py-1 mb-4">
-                  Welcome back
+                  {isProductManager ? "Product Manager Track" : "Welcome back"}
                 </span>
                 <h1 className="font-mono text-3xl md:text-4xl lg:text-5xl font-bold text-text-primary leading-tight mb-4">
-                  Keep going,{" "}
-                  <span className="text-gradient">{user.firstName}.</span>
+                  {isProductManager ? (
+                    <>
+                      Your AI playbook,{" "}
+                      <span className="text-gradient">{user.firstName}.</span>
+                    </>
+                  ) : (
+                    <>
+                      Keep going,{" "}
+                      <span className="text-gradient">{user.firstName}.</span>
+                    </>
+                  )}
                 </h1>
 
-                {readSlugs.length === 0 ? (
+                {isProductManager ? (
+                  <p className="text-text-secondary text-lg mb-8 max-w-lg">
+                    10 modules covering everything you need to make smart product
+                    decisions about agentic AI — no code required. Expand any
+                    module below to dive in.
+                  </p>
+                ) : readSlugs.length === 0 ? (
                   <p className="text-text-secondary text-lg mb-8 max-w-lg">
                     You have all 21 patterns unlocked. Pick one below and start
                     building your agentic architecture mental model.
@@ -378,57 +395,98 @@ export default function HomePage() {
                   </p>
                 )}
 
-                {nextUnread && (
-                  <Link
-                    href={`/patterns/${nextUnread.slug}`}
+                {isProductManager ? (
+                  <a
+                    href="#pm-curriculum"
                     className="inline-flex items-center gap-3 bg-accent hover:bg-accent/90 text-white font-sans font-semibold text-base px-8 py-3.5 rounded-md transition-all hover:shadow-lg hover:shadow-accent/20"
                   >
-                    <BookOpen size={18} />
-                    Continue: Pattern {String(nextUnread.number).padStart(2, "0")} · {nextUnread.name}
+                    <Briefcase size={18} />
+                    Start Module 01
                     <ArrowRight size={18} />
-                  </Link>
+                  </a>
+                ) : (
+                  nextUnread && (
+                    <Link
+                      href={`/patterns/${nextUnread.slug}`}
+                      className="inline-flex items-center gap-3 bg-accent hover:bg-accent/90 text-white font-sans font-semibold text-base px-8 py-3.5 rounded-md transition-all hover:shadow-lg hover:shadow-accent/20"
+                    >
+                      <BookOpen size={18} />
+                      Continue: Pattern {String(nextUnread.number).padStart(2, "0")} · {nextUnread.name}
+                      <ArrowRight size={18} />
+                    </Link>
+                  )
                 )}
               </div>
 
-              {/* Right: Progress circle */}
+              {/* Right: Progress circle (developers only) or PM stats */}
               <motion.div
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: 0.2 }}
               >
-                <ProgressCircle size={180} strokeWidth={12} />
+                {isProductManager ? (
+                  <div className="w-44 h-44 rounded-full bg-surface border-2 border-primary/30 flex flex-col items-center justify-center">
+                    <Briefcase size={36} className="text-primary mb-2" />
+                    <span className="font-mono text-3xl text-primary font-bold">10</span>
+                    <span className="font-mono text-xs text-text-secondary">Modules</span>
+                  </div>
+                ) : (
+                  <ProgressCircle size={180} strokeWidth={12} />
+                )}
               </motion.div>
             </motion.div>
           </div>
         </section>
 
-        {/* Game scores */}
-        <GameStats
-          scores={gameScores}
-          totalAttempts={totalAttempts}
-          avgPercent={avgPercent}
-          leaderboard={leaderboard}
-          userRank={userRank}
-          firstName={user.firstName}
-        />
+        {/* Game scores — developers only */}
+        {!isProductManager && (
+          <GameStats
+            scores={gameScores}
+            totalAttempts={totalAttempts}
+            avgPercent={avgPercent}
+            leaderboard={leaderboard}
+            userRank={userRank}
+            firstName={user.firstName}
+          />
+        )}
 
-        {/* Curriculum grid */}
-        <section id="curriculum" className="py-16 bg-surface/30">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <SectionHeader
-              title="Your Curriculum"
-              subtitle="All 21 patterns unlocked. Patterns you've read are marked with a checkmark."
-              decorator="$"
-            />
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-              {patterns.map((pattern, i) => (
-                <PatternCard key={pattern.id} pattern={pattern} index={i} />
-              ))}
+        {/* ─── PM Curriculum ─── */}
+        {isProductManager && (
+          <section id="pm-curriculum" className="py-16 bg-surface/30">
+            <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+              <SectionHeader
+                title="Agentic AI for Product Managers"
+                subtitle="10 modules. Zero code. Every decision framework you need to ship agentic features with confidence."
+                decorator="PM"
+              />
+              <div className="space-y-4">
+                {pmModules.map((mod, i) => (
+                  <PMModuleCard key={mod.id} module={mod} index={i} />
+                ))}
+              </div>
             </div>
-          </div>
-        </section>
+          </section>
+        )}
 
-        {/* Maturity Model — educational, keep for everyone */}
+        {/* ─── Developer Curriculum ─── */}
+        {!isProductManager && (
+          <section id="curriculum" className="py-16 bg-surface/30">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <SectionHeader
+                title="Your Curriculum"
+                subtitle="All 21 patterns unlocked. Patterns you've read are marked with a checkmark."
+                decorator="$"
+              />
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                {patterns.map((pattern, i) => (
+                  <PatternCard key={pattern.id} pattern={pattern} index={i} />
+                ))}
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* Maturity Model — useful for both PMs and developers */}
         <section className="py-24">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <SectionHeader
@@ -451,9 +509,18 @@ export default function HomePage() {
             >
               <Quote className="w-12 h-12 text-primary/30 mx-auto mb-6" />
               <blockquote className="font-mono text-xl md:text-2xl lg:text-3xl text-text-primary leading-relaxed mb-6">
-                &ldquo;Software Engineering is not dying. It is evolving. The
-                architect who understands agentic patterns will design the
-                intelligent systems of the next decade.&rdquo;
+                {isProductManager ? (
+                  <>
+                    &ldquo;The Product Manager who understands agentic patterns
+                    will define the intelligent products of the next decade.&rdquo;
+                  </>
+                ) : (
+                  <>
+                    &ldquo;Software Engineering is not dying. It is evolving. The
+                    architect who understands agentic patterns will design the
+                    intelligent systems of the next decade.&rdquo;
+                  </>
+                )}
               </blockquote>
               <cite className="text-primary font-mono text-sm not-italic">
                 Mousa
