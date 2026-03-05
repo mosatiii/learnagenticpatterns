@@ -1,12 +1,14 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 import { buildSystemPrompt, buildUserMessage } from "@/lib/assessment-prompt";
 import { assessmentReportEmail } from "@/lib/email-templates";
 
-const GEMINI_PROXY_URL = process.env.GEMINI_PROXY_URL || "";
-const GEMINI_API_SECRET = process.env.GEMINI_API_SECRET || "";
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY || "";
 const RESEND_API_KEY = process.env.RESEND_API_KEY || "";
 const FROM_EMAIL = process.env.FROM_EMAIL || "noreply@learnagenticpatterns.com";
+
+const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
 
 const assessmentSchema = z.object({
   role: z.enum(["product-manager", "developer", "designer", "writer"]),
@@ -31,27 +33,23 @@ export async function POST(request: Request) {
     const systemPrompt = buildSystemPrompt(role);
     const userMessage = buildUserMessage(role, answers);
 
-    // Call Railway Gemini proxy
-    const geminiRes = await fetch(`${GEMINI_PROXY_URL}/assess`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-api-secret": GEMINI_API_SECRET,
+    // Call Gemini directly
+    const model = genAI.getGenerativeModel({
+      model: "gemini-2.5-pro-preview-05-06",
+      generationConfig: {
+        responseMimeType: "application/json",
+        temperature: 0.7,
+        maxOutputTokens: 4096,
       },
-      body: JSON.stringify({ systemPrompt, userMessage }),
     });
 
-    if (!geminiRes.ok) {
-      const errBody = await geminiRes.text();
-      console.error("Gemini proxy error:", geminiRes.status, errBody);
-      return NextResponse.json(
-        { success: false, error: "Assessment generation failed. Please try again." },
-        { status: 502 }
-      );
-    }
+    const geminiRes = await model.generateContent({
+      systemInstruction: systemPrompt,
+      contents: [{ role: "user", parts: [{ text: userMessage }] }],
+    });
 
-    const geminiData = await geminiRes.json();
-    const result = geminiData.result;
+    const text = geminiRes.response.text();
+    const result = JSON.parse(text);
 
     // Send email if provided
     if (email && RESEND_API_KEY && RESEND_API_KEY !== "your_resend_key") {
@@ -71,7 +69,6 @@ export async function POST(request: Request) {
         });
       } catch (emailErr) {
         console.error("Email send failed:", emailErr);
-        // Don't fail the request — the assessment still succeeded
       }
     }
 
