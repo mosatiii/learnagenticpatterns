@@ -7,6 +7,7 @@ import Link from "next/link";
 import SectionHeader from "@/components/SectionHeader";
 import PatternCard from "@/components/PatternCard";
 import PMModuleCard from "@/components/PMModuleCard";
+import PMGameSection from "@/components/PMGames/PMGameSection";
 import MappingTable from "@/components/MappingTable";
 import MaturityLevel from "@/components/MaturityLevel";
 import ProgressCircle from "@/components/ProgressCircle";
@@ -464,6 +465,20 @@ export default function HomePage() {
                   <PMModuleCard key={mod.id} module={mod} index={i} />
                 ))}
               </div>
+            </div>
+          </section>
+        )}
+
+        {/* ─── PM Games ─── */}
+        {isProductManager && (
+          <section id="pm-games" className="py-16">
+            <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+              <SectionHeader
+                title="Test Your Product Instincts"
+                subtitle="Two games that challenge how you think about agentic AI product decisions."
+                decorator="▶"
+              />
+              <PMGameSection />
             </div>
           </section>
         )}
