@@ -264,3 +264,7 @@ export const pmModules: PMModule[] = [
     relatedPatterns: ["Exploration & Discovery"],
   },
 ];
+
+export function getPMModuleBySlug(slug: string): PMModule | undefined {
+  return pmModules.find((m) => m.slug === slug);
+}
