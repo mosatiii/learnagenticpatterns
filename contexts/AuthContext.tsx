@@ -7,6 +7,30 @@ import { pmModules } from "@/data/pm-curriculum";
 
 const STORAGE_KEY = "lap_auth";
 const TOKEN_KEY = "lap_token";
+const COOKIE_NAME = "lap_token_shared";
+const TOKEN_MAX_AGE = 14 * 24 * 60 * 60; // 14 days, matches JWT TTL
+
+/** Set a cookie readable across all *.learnagenticpatterns.com subdomains. */
+function setSharedCookie(token: string) {
+  if (typeof document === "undefined") return;
+  const isLocalhost = window.location.hostname === "localhost";
+  const domain = isLocalhost ? "" : "; domain=.learnagenticpatterns.com";
+  const secure = isLocalhost ? "" : "; secure";
+  document.cookie = `${COOKIE_NAME}=${token}${domain}; path=/; max-age=${TOKEN_MAX_AGE}; samesite=lax${secure}`;
+}
+
+function clearSharedCookie() {
+  if (typeof document === "undefined") return;
+  const isLocalhost = window.location.hostname === "localhost";
+  const domain = isLocalhost ? "" : "; domain=.learnagenticpatterns.com";
+  document.cookie = `${COOKIE_NAME}=; path=/; max-age=0${domain}`;
+}
+
+function getSharedCookie(): string | null {
+  if (typeof document === "undefined") return null;
+  const match = document.cookie.match(new RegExp(`(?:^|; )${COOKIE_NAME}=([^;]*)`));
+  return match ? match[1] : null;
+}
 
 interface AuthUser {
   id: number;
@@ -100,11 +124,13 @@ export function AuthProvider({ children, totalPatterns }: { children: ReactNode;
     localStorage.setItem(TOKEN_KEY, token);
     const data: StoredAuth = { email, firstName, role };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    setSharedCookie(token);
   };
 
   const clearStorage = () => {
     localStorage.removeItem(STORAGE_KEY);
     localStorage.removeItem(TOKEN_KEY);
+    clearSharedCookie();
   };
 
   /** Build headers with the JWT for authenticated API calls. */
@@ -146,7 +172,14 @@ export function AuthProvider({ children, totalPatterns }: { children: ReactNode;
   useEffect(() => {
     async function init() {
       try {
-        const token = localStorage.getItem(TOKEN_KEY);
+        let token = localStorage.getItem(TOKEN_KEY);
+
+        // Cross-subdomain: fall back to the shared cookie when
+        // localStorage is empty (e.g. first visit to practice.*)
+        if (!token) {
+          token = getSharedCookie();
+        }
+
         if (!token) { setIsLoading(false); return; }
 
         const res = await fetch("/api/auth/verify", {
@@ -156,9 +189,8 @@ export function AuthProvider({ children, totalPatterns }: { children: ReactNode;
 
         if (res.ok) {
           const data = await res.json();
-          const stored: StoredAuth = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
           setUser(data.user);
-          saveToStorage(token, data.user.email, data.user.firstName, data.user.role || stored.role || "Other");
+          saveToStorage(token, data.user.email, data.user.firstName, data.user.role || "Other");
           await Promise.all([fetchProgress(), fetchGameScores()]);
         } else {
           clearStorage();

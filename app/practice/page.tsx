@@ -99,7 +99,7 @@ export default function PracticeLanding() {
             ) : (
               <>
                 <Link
-                  href={`${MAIN}/signup`}
+                  href={`${MAIN}/signup?from=practice`}
                   className="inline-flex items-center gap-2 bg-accent hover:bg-accent/90 text-white font-mono text-sm px-6 py-3 rounded-lg transition-colors"
                 >
                   Sign Up Free
@@ -294,7 +294,7 @@ export default function PracticeLanding() {
           </Link>
         ) : (
           <Link
-            href={`${MAIN}/signup`}
+            href={`${MAIN}/signup?from=practice`}
             className="inline-flex items-center gap-2 bg-accent hover:bg-accent/90 text-white font-mono text-sm px-8 py-3 rounded-lg transition-colors"
           >
             Sign Up Free
