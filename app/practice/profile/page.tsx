@@ -16,7 +16,7 @@ export default function ProfilePage() {
         <h2 className="text-xl font-bold text-text-primary mb-2">Sign in to view your profile</h2>
         <p className="text-text-secondary mb-6">Track your progress across all challenges.</p>
         <Link
-          href="https://learnagenticpatterns.com/login"
+          href="https://learnagenticpatterns.com/login?from=practice"
           className="inline-block bg-accent hover:bg-accent/90 text-white font-mono text-sm px-6 py-2.5 rounded-lg transition-colors"
         >
           Log In

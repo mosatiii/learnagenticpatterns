@@ -71,7 +71,7 @@ export default function PMLabsPage() {
           return (
             <motion.div key={game.slug} variants={stagger.item}>
               <Link
-                href={user ? `/practice/pm/${game.slug}` : "https://learnagenticpatterns.com/signup"}
+                href={user ? `/practice/pm/${game.slug}` : "https://learnagenticpatterns.com/signup?from=practice"}
                 className="group block h-full"
               >
                 <div className="relative h-full bg-surface border border-border rounded-xl p-6 hover:border-accent/30 transition-all duration-300 hover:shadow-lg hover:shadow-accent/5">

@@ -95,7 +95,7 @@ export default function PatternChallengeGrid() {
           return (
             <motion.div key={pattern.slug} variants={stagger.item}>
               <Link
-                href={isLocked ? "https://learnagenticpatterns.com/signup" : `/practice/patterns/${pattern.slug}`}
+                href={isLocked ? "https://learnagenticpatterns.com/signup?from=practice" : `/practice/patterns/${pattern.slug}`}
                 className="group block"
               >
                 <div className={`relative bg-surface border rounded-xl p-4 transition-all duration-300 ${
