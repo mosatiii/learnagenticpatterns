@@ -16,6 +16,46 @@ export interface SimulationEvent {
   delay: number;
 }
 
+// ─── Difficulty Overrides ─────────────────────────────────────────────────────
+
+export type Difficulty = "easy" | "medium" | "hard";
+
+export interface DifficultyOverride {
+  availableBlocks?: BlockDefinition[];
+  hints?: string[];
+  extraDistractors?: BlockDefinition[];
+  scoringMultiplier?: number;
+}
+
+// ─── Debug Mode ──────────────────────────────────────────────────────────────
+
+export interface DebugBug {
+  type: "missing" | "wrong_order" | "distractor";
+  blockId: string;
+}
+
+export interface DebugChallenge {
+  brokenTopology: string[];
+  diagnosisPrompt: string;
+  bugs: DebugBug[];
+}
+
+// ─── Explain Your Design ─────────────────────────────────────────────────────
+
+export interface ExplainOption {
+  id: string;
+  label: string;
+  isCorrect: boolean;
+}
+
+export interface ExplainChallenge {
+  question: string;
+  options: ExplainOption[];
+  explanation: string;
+}
+
+// ─── Game Config ─────────────────────────────────────────────────────────────
+
 export interface GameConfig {
   patternSlug: string;
   mission: string;
@@ -31,6 +71,9 @@ export interface GameConfig {
   };
   hints: string[];
   successMessage: string;
+  difficultyOverrides?: Partial<Record<"easy" | "hard", DifficultyOverride>>;
+  debugChallenges?: DebugChallenge[];
+  explainChallenge?: ExplainChallenge;
 }
 
 // ─── Helper ──────────────────────────────────────────────────────────────────
@@ -93,6 +136,54 @@ const promptChainingGame: GameConfig = {
     "The pipeline should flow: extract → validate → analyze → respond.",
   ],
   successMessage: "Perfect pipeline! You built a textbook Prompt Chain with proper validation gates between each step.",
+  difficultyOverrides: {
+    easy: {
+      availableBlocks: [
+        { id: "extraction", label: "Extraction Agent", category: "agent", description: "Extracts entities and intent from raw input" },
+        { id: "validation-gate", label: "Validation Gate", category: "gate", description: "Checks extraction output structure before passing downstream" },
+        { id: "analysis", label: "Analysis Agent", category: "agent", description: "Analyzes sentiment and key themes" },
+        { id: "response", label: "Response Agent", category: "agent", description: "Generates a human-readable response" },
+      ],
+      hints: [
+        "Think sequentially: what must happen before analysis?",
+        "What happens if the extraction hallucinates? You need a gate.",
+        "The pipeline should flow: extract → validate → analyze → respond.",
+      ],
+      scoringMultiplier: 0.8,
+    },
+    hard: {
+      extraDistractors: [
+        { id: "cache", label: "Response Cache", category: "data", description: "Caches previous responses for reuse" },
+        { id: "parallel-split", label: "Parallel Splitter", category: "gate", description: "Splits work into parallel streams" },
+      ],
+      hints: [],
+      scoringMultiplier: 1.3,
+    },
+  },
+  debugChallenges: [
+    {
+      brokenTopology: ["extraction", "analysis", "response"],
+      diagnosisPrompt: "This pipeline sometimes produces hallucinated responses. The extraction seems fine but downstream agents act on bad data. What's missing?",
+      bugs: [{ type: "missing", blockId: "validation-gate" }],
+    },
+    {
+      brokenTopology: ["validation-gate", "extraction", "analysis", "response", "router"],
+      diagnosisPrompt: "The pipeline crashes on the first step. There's also an unnecessary component slowing things down.",
+      bugs: [
+        { type: "wrong_order", blockId: "validation-gate" },
+        { type: "distractor", blockId: "router" },
+      ],
+    },
+  ],
+  explainChallenge: {
+    question: "Why does the Validation Gate come before the Analysis Agent?",
+    options: [
+      { id: "a", label: "It makes the pipeline run faster", isCorrect: false },
+      { id: "b", label: "It catches hallucinated extractions before they propagate downstream", isCorrect: true },
+      { id: "c", label: "The LLM API requires a validation step", isCorrect: false },
+    ],
+    explanation: "The Validation Gate acts as a quality checkpoint. If the Extraction Agent hallucinates fields, the gate catches it before bad data contaminates the Analysis and Response steps. This is the Pipe & Filter pattern — each stage validates before passing downstream.",
+  },
 };
 
 const routingGame: GameConfig = {
@@ -148,6 +239,49 @@ const routingGame: GameConfig = {
     "The classifier must come first — it decides where to send requests.",
   ],
   successMessage: "Excellent routing architecture! Requests are classified semantically and dispatched to the right specialist.",
+  difficultyOverrides: {
+    easy: {
+      availableBlocks: [
+        { id: "classifier", label: "Intent Classifier", category: "agent", description: "Classifies the semantic intent of the request" },
+        { id: "billing-agent", label: "Billing Agent", category: "agent", description: "Handles billing and payment queries" },
+        { id: "technical-agent", label: "Technical Agent", category: "agent", description: "Handles technical support queries" },
+        { id: "general-agent", label: "General Agent", category: "agent", description: "Handles general inquiries and fallback" },
+      ],
+      scoringMultiplier: 0.8,
+    },
+    hard: {
+      extraDistractors: [
+        { id: "memory-store", label: "Memory Store", category: "data", description: "Stores long-term context" },
+        { id: "planner", label: "Planner", category: "distractor", description: "Creates a multi-step execution plan" },
+      ],
+      hints: [],
+      scoringMultiplier: 1.3,
+    },
+  },
+  debugChallenges: [
+    {
+      brokenTopology: ["billing-agent", "technical-agent", "general-agent"],
+      diagnosisPrompt: "Billing questions keep hitting the technical team. No request is going to the right agent. What's missing?",
+      bugs: [{ type: "missing", blockId: "classifier" }],
+    },
+    {
+      brokenTopology: ["classifier", "billing-agent", "general-agent", "reflection-loop"],
+      diagnosisPrompt: "One category of tickets is always dropped. There's also a component that doesn't belong in a routing pattern.",
+      bugs: [
+        { type: "missing", blockId: "technical-agent" },
+        { type: "distractor", blockId: "reflection-loop" },
+      ],
+    },
+  ],
+  explainChallenge: {
+    question: "Why must the Intent Classifier come before the specialist agents?",
+    options: [
+      { id: "a", label: "It's alphabetically first", isCorrect: false },
+      { id: "b", label: "It determines which specialist should handle the request", isCorrect: true },
+      { id: "c", label: "It generates the final response", isCorrect: false },
+    ],
+    explanation: "The classifier is the Strategy Pattern — it inspects the input and delegates to the right handler. Without it, requests are randomly routed, causing billing questions to hit the tech team and vice versa.",
+  },
 };
 
 const parallelizationGame: GameConfig = {
@@ -206,6 +340,51 @@ const parallelizationGame: GameConfig = {
     "Without a merger, the user gets fragmented outputs.",
   ],
   successMessage: "Perfect scatter-gather! You split the work, ran agents in parallel, and merged the results.",
+  difficultyOverrides: {
+    easy: {
+      availableBlocks: [
+        { id: "splitter", label: "Task Splitter", category: "gate", description: "Splits the input into parallel subtasks" },
+        { id: "sentiment-agent", label: "Sentiment Analyzer", category: "agent", description: "Analyzes emotional tone" },
+        { id: "entity-agent", label: "Entity Extractor", category: "agent", description: "Extracts named entities" },
+        { id: "summary-agent", label: "Summarizer", category: "agent", description: "Creates a concise summary" },
+        { id: "merger", label: "Result Merger", category: "gate", description: "Combines outputs from parallel agents into one report" },
+      ],
+      scoringMultiplier: 0.8,
+    },
+    hard: {
+      extraDistractors: [
+        { id: "validator", label: "Validation Gate", category: "gate", description: "Checks data structure before passing downstream" },
+        { id: "router", label: "Router", category: "distractor", description: "Routes requests to different handlers" },
+        { id: "cache", label: "Result Cache", category: "data", description: "Caches previous analysis results" },
+      ],
+      hints: [],
+      scoringMultiplier: 1.3,
+    },
+  },
+  debugChallenges: [
+    {
+      brokenTopology: ["sentiment-agent", "entity-agent", "summary-agent", "merger"],
+      diagnosisPrompt: "The document is processed sequentially — it takes 3x longer than expected. The merger works but something is wrong at the start.",
+      bugs: [{ type: "missing", blockId: "splitter" }],
+    },
+    {
+      brokenTopology: ["splitter", "sentiment-agent", "entity-agent", "summary-agent", "planner"],
+      diagnosisPrompt: "The parallel agents run fine but the user receives three separate outputs instead of one report. There's also a block that doesn't belong.",
+      bugs: [
+        { type: "missing", blockId: "merger" },
+        { type: "distractor", blockId: "planner" },
+      ],
+    },
+  ],
+  explainChallenge: {
+    question: "Why can the three analysis agents be in any order between the Splitter and Merger?",
+    options: [
+      { id: "a", label: "Because they all run simultaneously — order doesn't matter for parallel execution", isCorrect: true },
+      { id: "b", label: "Because the Merger sorts them automatically", isCorrect: false },
+      { id: "c", label: "Because they all do the same thing", isCorrect: false },
+    ],
+    explanation: "In a scatter-gather (MapReduce) pattern, the parallel agents are independent — none needs the output of another. They execute concurrently, so their order in the pipeline is irrelevant. The Merger collects all outputs once they're done.",
+  },
 };
 
 const reflectionGame: GameConfig = {
@@ -256,6 +435,52 @@ const reflectionGame: GameConfig = {
     "What stops the agent from looping forever? You need a safety valve.",
   ],
   successMessage: "Perfect reflection loop! Draft → Critique → Revise with a safety limit. This is TDD for AI.",
+  difficultyOverrides: {
+    easy: {
+      availableBlocks: [
+        { id: "coder", label: "Coder Agent", category: "agent", description: "Generates code from a specification" },
+        { id: "critic", label: "Critic Agent", category: "agent", description: "Reviews code for bugs, style, and correctness" },
+        { id: "feedback-loop", label: "Feedback Loop", category: "gate", description: "Passes critique back to the coder for revision" },
+        { id: "max-retries", label: "Max Retries Gate", category: "gate", description: "Stops the loop after N iterations to prevent infinite loops" },
+      ],
+      scoringMultiplier: 0.8,
+    },
+    hard: {
+      extraDistractors: [
+        { id: "classifier", label: "Intent Classifier", category: "agent", description: "Classifies request intent" },
+        { id: "cache", label: "Code Cache", category: "data", description: "Stores previously generated code" },
+      ],
+      hints: [],
+      scoringMultiplier: 1.3,
+    },
+  },
+  debugChallenges: [
+    {
+      brokenTopology: ["coder", "critic"],
+      diagnosisPrompt: "The critic finds 2 bugs but the coder never fixes them. The code ships with known issues. What's missing from the loop?",
+      bugs: [
+        { type: "missing", blockId: "feedback-loop" },
+        { type: "missing", blockId: "max-retries" },
+      ],
+    },
+    {
+      brokenTopology: ["coder", "feedback-loop", "critic", "max-retries", "memory-store"],
+      diagnosisPrompt: "The feedback loop fires before the critic runs, so the coder revises based on nothing. There's also a block that doesn't belong.",
+      bugs: [
+        { type: "wrong_order", blockId: "feedback-loop" },
+        { type: "distractor", blockId: "memory-store" },
+      ],
+    },
+  ],
+  explainChallenge: {
+    question: "Why is the Max Retries Gate essential in a reflection loop?",
+    options: [
+      { id: "a", label: "It makes the code run faster", isCorrect: false },
+      { id: "b", label: "It prevents infinite loops that burn tokens and never converge", isCorrect: true },
+      { id: "c", label: "It improves the quality of the critic's feedback", isCorrect: false },
+    ],
+    explanation: "Without a retry limit, the coder-critic loop can run indefinitely — especially when the critic keeps finding new minor issues. In production, this means runaway token costs and timeouts. The Max Retries Gate is a circuit breaker for the reflection pattern.",
+  },
 };
 
 const toolUseGame: GameConfig = {
@@ -312,6 +537,50 @@ const toolUseGame: GameConfig = {
     "A synthesizer turns raw tool outputs into a coherent answer.",
   ],
   successMessage: "Solid tool-use architecture! The agent plans, calls tools through adapters, and synthesizes results.",
+  difficultyOverrides: {
+    easy: {
+      availableBlocks: [
+        { id: "planner", label: "Query Planner", category: "agent", description: "Decides which tools to call based on the question" },
+        { id: "api-adapter", label: "API Adapter", category: "gate", description: "Translates LLM requests into structured API calls" },
+        { id: "db-adapter", label: "Database Adapter", category: "gate", description: "Translates LLM requests into SQL queries" },
+        { id: "synthesizer", label: "Synthesis Agent", category: "agent", description: "Combines tool outputs into a coherent answer" },
+      ],
+      scoringMultiplier: 0.8,
+    },
+    hard: {
+      extraDistractors: [
+        { id: "critic", label: "Critic Agent", category: "distractor", description: "Reviews output quality" },
+        { id: "coordinator", label: "Coordinator", category: "distractor", description: "Orchestrates agent workflows" },
+        { id: "feedback-loop", label: "Feedback Loop", category: "gate", description: "Passes output back for revision" },
+      ],
+      hints: [],
+      scoringMultiplier: 1.3,
+    },
+  },
+  debugChallenges: [
+    {
+      brokenTopology: ["api-adapter", "db-adapter", "synthesizer"],
+      diagnosisPrompt: "The agent calls tools randomly and often picks the wrong one. The synthesizer works fine but gets garbage data. What's missing at the front?",
+      bugs: [{ type: "missing", blockId: "planner" }],
+    },
+    {
+      brokenTopology: ["planner", "api-adapter", "db-adapter", "splitter"],
+      diagnosisPrompt: "Tool calls succeed but the user gets raw JSON dumps instead of a coherent answer. There's also an unnecessary block.",
+      bugs: [
+        { type: "missing", blockId: "synthesizer" },
+        { type: "distractor", blockId: "splitter" },
+      ],
+    },
+  ],
+  explainChallenge: {
+    question: "Why does the Query Planner come before the API and Database adapters?",
+    options: [
+      { id: "a", label: "Because it generates the final response", isCorrect: false },
+      { id: "b", label: "Because it decides which tools to call based on the question", isCorrect: true },
+      { id: "c", label: "Because it's the cheapest component to run", isCorrect: false },
+    ],
+    explanation: "The Query Planner is the brain — it analyzes the question and creates an execution plan (which tools, in what order). Without it, the agent blindly calls every tool or picks randomly, wasting resources and returning irrelevant data. This is the Adapter Pattern with a planning layer.",
+  },
 };
 
 const planningGame: GameConfig = {

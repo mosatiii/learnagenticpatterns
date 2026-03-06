@@ -1,16 +1,18 @@
 "use client";
 
-import { useReducer, useCallback, useEffect, useRef } from "react";
+import { useReducer, useCallback, useEffect, useRef, useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Play, RotateCcw, Lightbulb, Target } from "lucide-react";
+import { Play, RotateCcw, Lightbulb, Target, Timer, Bug, Wrench, Zap } from "lucide-react";
 import { getGameConfig } from "@/data/games";
-import type { BlockDefinition, SimulationEvent } from "@/data/games";
+import type { BlockDefinition, SimulationEvent, Difficulty, GameConfig } from "@/data/games";
 import { runSimulation, calculateScore } from "@/lib/game/simulation-engine";
 import type { Score } from "@/lib/game/simulation-engine";
 import { useAuth } from "@/contexts/AuthContext";
+import { trackGameEvent } from "@/lib/game/analytics";
 import BlockPalette from "./BlockPalette";
 import BuildCanvas from "./BuildCanvas";
 import ScoreCard from "./ScoreCard";
+import DebugCanvas from "./DebugCanvas";
 
 // ─── State Machine ───────────────────────────────────────────────────────────
 
@@ -38,6 +40,7 @@ type GameAction =
   | { type: "SIMULATION_TICK" }
   | { type: "SIMULATION_COMPLETE"; score: Score }
   | { type: "RESET" }
+  | { type: "INIT_NODES"; nodes: PlacedNode[] }
   | { type: "SHOW_HINT" };
 
 let instanceCounter = 0;
@@ -70,6 +73,8 @@ function gameReducer(state: GameState, action: GameAction): GameState {
       return { ...state, phase: "complete", score: action.score };
     case "RESET":
       return { ...initialState };
+    case "INIT_NODES":
+      return { ...initialState, placedNodes: action.nodes };
     case "SHOW_HINT":
       return { ...state, hintIdx: state.hintIdx + 1 };
     default:
@@ -86,6 +91,36 @@ const initialState: GameState = {
   hintIdx: -1,
 };
 
+// ─── Helpers ─────────────────────────────────────────────────────────────────
+
+function applyDifficulty(config: GameConfig, difficulty: Difficulty): GameConfig {
+  if (difficulty === "medium") return config;
+  const override = config.difficultyOverrides?.[difficulty];
+  if (!override) return config;
+
+  let blocks = override.availableBlocks ?? config.availableBlocks;
+  if (override.extraDistractors) {
+    blocks = [...blocks, ...override.extraDistractors];
+  }
+  const hints = override.hints ?? config.hints;
+  return { ...config, availableBlocks: blocks, hints };
+}
+
+function formatTimer(ms: number): string {
+  const totalSecs = ms / 1000;
+  const mins = Math.floor(totalSecs / 60);
+  const secs = totalSecs % 60;
+  return mins > 0
+    ? `${mins}:${secs.toFixed(1).padStart(4, "0")}`
+    : `${secs.toFixed(1)}s`;
+}
+
+const DIFFICULTY_OPTIONS: { id: Difficulty; label: string; color: string }[] = [
+  { id: "easy", label: "Easy", color: "text-success border-success/30 bg-success/10" },
+  { id: "medium", label: "Medium", color: "text-primary border-primary/30 bg-primary/10" },
+  { id: "hard", label: "Hard", color: "text-red-400 border-red-500/30 bg-red-500/10" },
+];
+
 // ─── Component ───────────────────────────────────────────────────────────────
 
 interface AgentBuilderProps {
@@ -93,11 +128,44 @@ interface AgentBuilderProps {
 }
 
 export default function AgentBuilder({ patternSlug }: AgentBuilderProps) {
-  const config = getGameConfig(patternSlug);
+  const rawConfig = getGameConfig(patternSlug);
   const [state, dispatch] = useReducer(gameReducer, initialState);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const scoreSavedRef = useRef(false);
+  const attemptRef = useRef(0);
+  const buildStartRef = useRef<number | null>(null);
   const { saveGameScore } = useAuth();
+
+  // ─── New feature state ─────────────────────────────────────
+  const [difficulty, setDifficulty] = useState<Difficulty>("medium");
+  const [mode, setMode] = useState<"build" | "debug">("build");
+  const [debugIdx, setDebugIdx] = useState(0);
+  const [speedRun, setSpeedRun] = useState(false);
+  const [elapsedMs, setElapsedMs] = useState(0);
+  const speedStartRef = useRef<number | null>(null);
+
+  const config = useMemo(
+    () => (rawConfig ? applyDifficulty(rawConfig, difficulty) : null),
+    [rawConfig, difficulty],
+  );
+
+  const hasDebug = (rawConfig?.debugChallenges?.length ?? 0) > 0;
+  const hasDifficulty = !!rawConfig?.difficultyOverrides;
+
+  // Track game_started on mount
+  useEffect(() => {
+    if (!config) return;
+    attemptRef.current = 1;
+    buildStartRef.current = Date.now();
+    trackGameEvent("game_started", {
+      pattern: patternSlug,
+      difficulty,
+      mode,
+      speed_run: speedRun,
+    });
+  // Only fire on mount or when pattern changes
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [patternSlug]);
 
   // Cleanup simulation timer on unmount
   useEffect(() => {
@@ -106,10 +174,38 @@ export default function AgentBuilder({ patternSlug }: AgentBuilderProps) {
     };
   }, []);
 
+  // Speed run timer interval
+  useEffect(() => {
+    if (!speedRun || state.phase !== "building" || !speedStartRef.current) return;
+    const id = setInterval(() => {
+      setElapsedMs(Date.now() - (speedStartRef.current ?? Date.now()));
+    }, 100);
+    return () => clearInterval(id);
+  }, [speedRun, state.phase]);
+
   // Persist score to backend once when game completes
   useEffect(() => {
     if (state.phase !== "complete" || !state.score || scoreSavedRef.current) return;
     scoreSavedRef.current = true;
+
+    const finalElapsed = speedStartRef.current ? Date.now() - speedStartRef.current : 0;
+    if (speedRun) setElapsedMs(finalElapsed);
+
+    const percent = Math.round((state.score.total / state.score.maxTotal) * 100);
+    trackGameEvent("game_completed", {
+      pattern: patternSlug,
+      score_percent: percent,
+      architecture: state.score.architecture,
+      resilience: state.score.resilience,
+      efficiency: state.score.efficiency,
+      passed: state.score.passed,
+      difficulty,
+      mode,
+      speed_run: speedRun,
+      elapsed_ms: finalElapsed,
+      attempt_number: attemptRef.current,
+    });
+
     saveGameScore({
       patternSlug,
       scoreTotal: state.score.total,
@@ -119,7 +215,7 @@ export default function AgentBuilder({ patternSlug }: AgentBuilderProps) {
       efficiency: state.score.efficiency,
       passed: state.score.passed,
     });
-  }, [state.phase, state.score, patternSlug, saveGameScore]);
+  }, [state.phase, state.score, patternSlug, saveGameScore, difficulty, mode, speedRun]);
 
   // Step through simulation events with staggered delays
   useEffect(() => {
@@ -141,32 +237,114 @@ export default function AgentBuilder({ patternSlug }: AgentBuilderProps) {
     }, Math.max(delay, 300));
   }, [state.phase, state.currentEventIdx, state.events, state.placedNodes, config]);
 
+  // ─── Handlers ──────────────────────────────────────────────
   const handleDrop = useCallback((blockId: string) => {
+    // Start speed run timer on first block drop
+    if (speedRun && !speedStartRef.current) {
+      speedStartRef.current = Date.now();
+    }
     dispatch({ type: "PLACE_BLOCK", blockId });
-  }, []);
+    const block = config?.availableBlocks.find((b) => b.id === blockId);
+    trackGameEvent("game_block_dropped", {
+      pattern: patternSlug,
+      block_id: blockId,
+      block_category: block?.category ?? "unknown",
+    });
+  }, [config, patternSlug, speedRun]);
 
   const handleRemove = useCallback((instanceId: string) => {
     dispatch({ type: "REMOVE_BLOCK", instanceId });
-  }, []);
+    trackGameEvent("game_block_removed", {
+      pattern: patternSlug,
+      instance_id: instanceId,
+    });
+  }, [patternSlug]);
 
   const handleReorder = useCallback((fromIdx: number, toIdx: number) => {
     dispatch({ type: "REORDER", fromIdx, toIdx });
-  }, []);
+    trackGameEvent("game_block_reordered", {
+      pattern: patternSlug,
+      from_idx: fromIdx,
+      to_idx: toIdx,
+    });
+  }, [patternSlug]);
 
   const handleRun = useCallback(() => {
     if (!config || state.placedNodes.length === 0) return;
     const placedIds = state.placedNodes.map((n) => n.blockId);
+    const buildTimeMs = buildStartRef.current ? Date.now() - buildStartRef.current : 0;
+    trackGameEvent("game_simulation_started", {
+      pattern: patternSlug,
+      placed_blocks: placedIds,
+      block_count: placedIds.length,
+      time_building_ms: buildTimeMs,
+      difficulty,
+      mode,
+    });
     const events = runSimulation(placedIds, config);
     dispatch({ type: "RUN_SIMULATION", events });
-  }, [config, state.placedNodes]);
+  }, [config, state.placedNodes, patternSlug, difficulty, mode]);
 
   const handleReset = useCallback(() => {
     if (timerRef.current) clearTimeout(timerRef.current);
+    const prevScore = state.score
+      ? Math.round((state.score.total / state.score.maxTotal) * 100)
+      : null;
+    trackGameEvent("game_retry", {
+      pattern: patternSlug,
+      previous_score: prevScore,
+      attempt_number: attemptRef.current,
+    });
+    attemptRef.current += 1;
+    buildStartRef.current = Date.now();
+    speedStartRef.current = null;
+    setElapsedMs(0);
     scoreSavedRef.current = false;
     dispatch({ type: "RESET" });
-  }, []);
+  }, [patternSlug, state.score]);
 
-  if (!config) {
+  const handleDifficultyChange = useCallback((d: Difficulty) => {
+    trackGameEvent("game_difficulty_selected", {
+      pattern: patternSlug,
+      difficulty: d,
+      previous_difficulty: difficulty,
+    });
+    setDifficulty(d);
+    speedStartRef.current = null;
+    setElapsedMs(0);
+    buildStartRef.current = Date.now();
+    scoreSavedRef.current = false;
+    dispatch({ type: "RESET" });
+  }, [patternSlug, difficulty]);
+
+  const handleModeSwitch = useCallback((m: "build" | "debug") => {
+    setMode(m);
+    speedStartRef.current = null;
+    setElapsedMs(0);
+    buildStartRef.current = Date.now();
+    scoreSavedRef.current = false;
+    dispatch({ type: "RESET" });
+    if (m === "debug") {
+      trackGameEvent("game_debug_started", {
+        pattern: patternSlug,
+        challenge_index: debugIdx,
+      });
+    }
+  }, [patternSlug, debugIdx]);
+
+  const handleSpeedRunToggle = useCallback(() => {
+    const next = !speedRun;
+    setSpeedRun(next);
+    speedStartRef.current = null;
+    setElapsedMs(0);
+    trackGameEvent("game_speedrun_toggled", {
+      pattern: patternSlug,
+      enabled: next,
+    });
+  }, [speedRun, patternSlug]);
+
+  // ─── Render guards ─────────────────────────────────────────
+  if (!config || !rawConfig) {
     return (
       <div className="text-center py-16">
         <Target size={48} className="text-text-secondary/30 mx-auto mb-4" />
@@ -180,6 +358,8 @@ export default function AgentBuilder({ patternSlug }: AgentBuilderProps) {
   // Map block IDs to their definitions for canvas rendering
   const blockMap = new Map<string, BlockDefinition>();
   config.availableBlocks.forEach((b) => blockMap.set(b.id, b));
+  // Also include blocks from raw config for debug mode
+  rawConfig.availableBlocks.forEach((b) => { if (!blockMap.has(b.id)) blockMap.set(b.id, b); });
 
   // Build the event status map for canvas node highlighting
   const nodeStatuses = new Map<string, SimulationEvent>();
@@ -196,18 +376,112 @@ export default function AgentBuilder({ patternSlug }: AgentBuilderProps) {
 
   return (
     <div className="space-y-6">
+      {/* Mode + Difficulty + Speed Run controls */}
+      {state.phase === "building" && (
+        <div className="flex flex-wrap items-center gap-2">
+          {/* Build / Debug toggle */}
+          {hasDebug && (
+            <div className="flex gap-1 mr-3">
+              <button
+                onClick={() => handleModeSwitch("build")}
+                className={`inline-flex items-center gap-1.5 font-mono text-xs px-3 py-1.5 rounded-md border transition-all ${
+                  mode === "build"
+                    ? "border-primary/40 bg-primary/10 text-primary"
+                    : "border-border text-text-secondary hover:text-text-primary"
+                }`}
+              >
+                <Wrench size={12} />
+                Build
+              </button>
+              <button
+                onClick={() => handleModeSwitch("debug")}
+                className={`inline-flex items-center gap-1.5 font-mono text-xs px-3 py-1.5 rounded-md border transition-all ${
+                  mode === "debug"
+                    ? "border-red-500/40 bg-red-500/10 text-red-400"
+                    : "border-border text-text-secondary hover:text-text-primary"
+                }`}
+              >
+                <Bug size={12} />
+                Debug
+              </button>
+            </div>
+          )}
+
+          {/* Difficulty selector */}
+          {hasDifficulty && mode === "build" && (
+            <div className="flex gap-1 mr-3">
+              {DIFFICULTY_OPTIONS.map((opt) => (
+                <button
+                  key={opt.id}
+                  onClick={() => handleDifficultyChange(opt.id)}
+                  className={`font-mono text-xs px-3 py-1.5 rounded-md border transition-all ${
+                    difficulty === opt.id
+                      ? opt.color
+                      : "border-border text-text-secondary hover:text-text-primary"
+                  }`}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+          )}
+
+          {/* Speed Run toggle */}
+          {mode === "build" && (
+            <button
+              onClick={handleSpeedRunToggle}
+              className={`inline-flex items-center gap-1.5 font-mono text-xs px-3 py-1.5 rounded-md border transition-all ml-auto ${
+                speedRun
+                  ? "border-accent/40 bg-accent/10 text-accent"
+                  : "border-border text-text-secondary hover:text-text-primary"
+              }`}
+            >
+              <Zap size={12} />
+              Speed Run
+            </button>
+          )}
+        </div>
+      )}
+
       {/* Mission briefing */}
       <div className="bg-surface border border-primary/20 rounded-lg p-5 border-glow">
         <div className="flex items-start gap-3">
-          <Target size={18} className="text-primary flex-shrink-0 mt-0.5" />
-          <div>
-            <h3 className="font-mono text-primary text-sm font-bold mb-1">
-              Mission: {config.mission}
-            </h3>
-            <p className="text-text-secondary text-sm leading-relaxed">
-              {config.missionDetail}
-            </p>
+          {mode === "debug" ? (
+            <Bug size={18} className="text-red-400 flex-shrink-0 mt-0.5" />
+          ) : (
+            <Target size={18} className="text-primary flex-shrink-0 mt-0.5" />
+          )}
+          <div className="flex-1">
+            {mode === "debug" && rawConfig.debugChallenges?.[debugIdx] ? (
+              <>
+                <h3 className="font-mono text-red-400 text-sm font-bold mb-1">
+                  Debug Challenge {debugIdx + 1}
+                </h3>
+                <p className="text-text-secondary text-sm leading-relaxed">
+                  {rawConfig.debugChallenges[debugIdx].diagnosisPrompt}
+                </p>
+              </>
+            ) : (
+              <>
+                <h3 className="font-mono text-primary text-sm font-bold mb-1">
+                  Mission: {config.mission}
+                </h3>
+                <p className="text-text-secondary text-sm leading-relaxed">
+                  {config.missionDetail}
+                </p>
+              </>
+            )}
           </div>
+
+          {/* Speed run timer */}
+          {speedRun && state.phase !== "complete" && mode === "build" && (
+            <div className="flex items-center gap-1.5 bg-accent/10 border border-accent/30 rounded-md px-3 py-1.5 flex-shrink-0">
+              <Timer size={12} className="text-accent" />
+              <span className="font-mono text-sm text-accent font-bold tabular-nums">
+                {formatTimer(elapsedMs)}
+              </span>
+            </div>
+          )}
         </div>
       </div>
 
@@ -226,6 +500,25 @@ export default function AgentBuilder({ patternSlug }: AgentBuilderProps) {
               successMessage={config.successMessage}
               blockMap={blockMap}
               onRetry={handleReset}
+              elapsedMs={speedRun ? elapsedMs : undefined}
+              patternSlug={patternSlug}
+              explainChallenge={rawConfig.explainChallenge}
+            />
+          </motion.div>
+        ) : mode === "debug" && rawConfig.debugChallenges?.[debugIdx] ? (
+          <motion.div
+            key="debug"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <DebugCanvas
+              config={rawConfig}
+              challenge={rawConfig.debugChallenges[debugIdx]}
+              patternSlug={patternSlug}
+              onComplete={(score) => {
+                dispatch({ type: "SIMULATION_COMPLETE", score });
+              }}
             />
           </motion.div>
         ) : (
@@ -248,6 +541,7 @@ export default function AgentBuilder({ patternSlug }: AgentBuilderProps) {
               blockMap={blockMap}
               nodeStatuses={nodeStatuses}
               isSimulating={state.phase === "simulating"}
+              activeEdgeIdx={state.currentEventIdx}
               onDrop={handleDrop}
               onRemove={handleRemove}
               onReorder={handleReorder}
@@ -256,8 +550,8 @@ export default function AgentBuilder({ patternSlug }: AgentBuilderProps) {
         )}
       </AnimatePresence>
 
-      {/* Controls */}
-      {state.phase !== "complete" && (
+      {/* Controls — only show in build mode when not complete */}
+      {state.phase !== "complete" && mode === "build" && (
         <div className="flex items-center gap-3 flex-wrap">
           <button
             onClick={handleRun}
@@ -277,20 +571,30 @@ export default function AgentBuilder({ patternSlug }: AgentBuilderProps) {
             Reset
           </button>
 
-          <button
-            onClick={() => dispatch({ type: "SHOW_HINT" })}
-            disabled={state.hintIdx >= config.hints.length - 1 || state.phase === "simulating"}
-            className="inline-flex items-center gap-2 text-accent hover:text-accent/80 font-mono text-sm px-4 py-2.5 rounded-md transition-colors border border-accent/20 hover:border-accent/40 disabled:opacity-40 ml-auto"
-          >
-            <Lightbulb size={14} />
-            Hint
-          </button>
+          {config.hints.length > 0 && (
+            <button
+              onClick={() => {
+                dispatch({ type: "SHOW_HINT" });
+                trackGameEvent("game_hint_used", {
+                  pattern: patternSlug,
+                  hint_index: state.hintIdx + 1,
+                  total_hints: config.hints.length,
+                  time_since_start_ms: buildStartRef.current ? Date.now() - buildStartRef.current : 0,
+                });
+              }}
+              disabled={state.hintIdx >= config.hints.length - 1 || state.phase === "simulating"}
+              className="inline-flex items-center gap-2 text-accent hover:text-accent/80 font-mono text-sm px-4 py-2.5 rounded-md transition-colors border border-accent/20 hover:border-accent/40 disabled:opacity-40 ml-auto"
+            >
+              <Lightbulb size={14} />
+              Hint
+            </button>
+          )}
         </div>
       )}
 
       {/* Hint display */}
       <AnimatePresence>
-        {currentHint && state.phase === "building" && (
+        {currentHint && state.phase === "building" && mode === "build" && (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}

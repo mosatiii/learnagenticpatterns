@@ -17,6 +17,7 @@ interface BuildCanvasProps {
   blockMap: Map<string, BlockDefinition>;
   nodeStatuses: Map<string, SimulationEvent>;
   isSimulating: boolean;
+  activeEdgeIdx?: number;
   onDrop: (blockId: string) => void;
   onRemove: (instanceId: string) => void;
   onReorder: (fromIdx: number, toIdx: number) => void;
@@ -27,6 +28,7 @@ export default function BuildCanvas({
   blockMap,
   nodeStatuses,
   isSimulating,
+  activeEdgeIdx = -1,
   onDrop,
   onRemove,
   onReorder,
@@ -112,6 +114,7 @@ export default function BuildCanvas({
             nodeStatuses={nodeStatuses}
             placedNodeIds={placedNodes.map((n) => n.blockId)}
             isSimulating={isSimulating}
+            activeEdgeIdx={activeEdgeIdx}
           />
 
           {/* Nodes */}

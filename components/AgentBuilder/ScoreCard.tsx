@@ -1,9 +1,10 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Trophy, RotateCcw, CheckCircle2, XCircle, AlertTriangle } from "lucide-react";
+import { Trophy, RotateCcw, CheckCircle2, XCircle, AlertTriangle, Zap, Timer } from "lucide-react";
 import type { Score } from "@/lib/game/simulation-engine";
-import type { BlockDefinition, SimulationEvent } from "@/data/games";
+import type { BlockDefinition, SimulationEvent, ExplainChallenge as ExplainChallengeType } from "@/data/games";
+import ExplainChallenge from "./ExplainChallenge";
 
 interface ScoreCardProps {
   score: Score;
@@ -11,6 +12,9 @@ interface ScoreCardProps {
   successMessage: string;
   blockMap: Map<string, BlockDefinition>;
   onRetry: () => void;
+  elapsedMs?: number;
+  patternSlug?: string;
+  explainChallenge?: ExplainChallengeType;
 }
 
 const SCORE_CATEGORIES = [
@@ -19,15 +23,30 @@ const SCORE_CATEGORIES = [
   { key: "efficiency" as const, label: "Efficiency", description: "No unnecessary blocks" },
 ];
 
+const SPEED_DEMON_THRESHOLD_MS = 30_000;
+
+function formatTime(ms: number): string {
+  const secs = ms / 1000;
+  const mins = Math.floor(secs / 60);
+  const remainder = secs % 60;
+  return mins > 0
+    ? `${mins}:${remainder.toFixed(1).padStart(4, "0")}`
+    : `${remainder.toFixed(1)}s`;
+}
+
 export default function ScoreCard({
   score,
   events,
   successMessage,
   blockMap,
   onRetry,
+  elapsedMs,
+  patternSlug,
+  explainChallenge,
 }: ScoreCardProps) {
   const percent = Math.round((score.total / score.maxTotal) * 100);
   const passed = score.passed;
+  const isSpeedDemon = elapsedMs != null && elapsedMs < SPEED_DEMON_THRESHOLD_MS && passed;
 
   return (
     <div className="space-y-6">
@@ -65,6 +84,27 @@ export default function ScoreCard({
         >
           {score.total} / {score.maxTotal} points
         </motion.p>
+
+        {/* Speed run time */}
+        {elapsedMs != null && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.35 }}
+            className="flex items-center justify-center gap-2 mt-2"
+          >
+            <Timer size={14} className="text-accent" />
+            <span className="font-mono text-sm text-accent">
+              {formatTime(elapsedMs)}
+            </span>
+            {isSpeedDemon && (
+              <span className="inline-flex items-center gap-1 bg-accent/20 text-accent text-xs font-mono px-2 py-0.5 rounded-full border border-accent/30">
+                <Zap size={10} />
+                Speed Demon
+              </span>
+            )}
+          </motion.div>
+        )}
 
         <motion.p
           initial={{ opacity: 0, y: 10 }}
@@ -105,6 +145,15 @@ export default function ScoreCard({
           );
         })}
       </div>
+
+      {/* Explain Your Design challenge */}
+      {explainChallenge && patternSlug && (
+        <ExplainChallenge
+          challenge={explainChallenge}
+          patternSlug={patternSlug}
+          scorePercent={percent}
+        />
+      )}
 
       {/* Simulation log */}
       <div className="bg-code-bg border border-border rounded-lg p-4">
