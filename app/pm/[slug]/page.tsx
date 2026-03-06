@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import { motion } from "framer-motion";
 import {
-  ArrowRight, ChevronRight, Home,
+  ArrowRight, ChevronRight, Home, Check,
   Layers, Compass, Zap, ShieldCheck, Plug, Users,
   Brain, BarChart3, GitBranch, Search, Terminal,
   ListChecks, MessageCircleQuestion,
@@ -39,7 +39,18 @@ export default function PMModulePage() {
   const slug = params.slug as string;
   const mod = getPMModuleBySlug(slug);
   const [activeTab, setActiveTab] = useState("learn");
-  const { user } = useAuth();
+  const { user, readSlugs, markRead } = useAuth();
+
+  useEffect(() => {
+    if (!mod || !user) return;
+    if (readSlugs.includes(mod.slug)) return;
+
+    const timer = setTimeout(() => {
+      markRead(mod.slug);
+    }, 5000);
+
+    return () => clearTimeout(timer);
+  }, [mod, user, readSlugs, markRead]);
 
   if (!mod) {
     return (
@@ -83,25 +94,32 @@ export default function PMModulePage() {
           <aside className="hidden lg:block">
             <div className="sticky top-24 space-y-1">
               <h4 className="font-mono text-xs text-primary mb-3">{">"} PM Modules</h4>
-              {pmModules.map((m) => (
-                <Link
-                  key={m.slug}
-                  href={`/pm/${m.slug}`}
-                  className={`
-                    flex items-center gap-2 px-3 py-2 rounded text-xs font-mono transition-colors
-                    ${
-                      m.slug === slug
-                        ? "bg-primary/10 text-primary border border-primary/20"
-                        : "text-text-secondary hover:text-primary hover:bg-surface"
-                    }
-                  `}
-                >
-                  <span className="w-6 text-right flex-shrink-0">
-                    {String(m.number).padStart(2, "0")}
-                  </span>
-                  <span className="truncate">{m.title}</span>
-                </Link>
-              ))}
+              {pmModules.map((m) => {
+                const isModRead = readSlugs.includes(m.slug);
+                return (
+                  <Link
+                    key={m.slug}
+                    href={`/pm/${m.slug}`}
+                    className={`
+                      flex items-center gap-2 px-3 py-2 rounded text-xs font-mono transition-colors
+                      ${
+                        m.slug === slug
+                          ? "bg-primary/10 text-primary border border-primary/20"
+                          : "text-text-secondary hover:text-primary hover:bg-surface"
+                      }
+                    `}
+                  >
+                    <span className="w-6 text-right flex-shrink-0">
+                      {isModRead ? (
+                        <Check size={12} className="text-success inline" />
+                      ) : (
+                        String(m.number).padStart(2, "0")
+                      )}
+                    </span>
+                    <span className="truncate">{m.title}</span>
+                  </Link>
+                );
+              })}
             </div>
           </aside>
 

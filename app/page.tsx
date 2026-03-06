@@ -335,11 +335,13 @@ function GameStats({
 export default function HomePage() {
   const {
     user, readSlugs, isLoading, isProductManager,
+    pmReadSlugs, pmProgressPercent,
     gameScores, totalAttempts, avgPercent, leaderboard, userRank,
   } = useAuth();
 
-  // Find the next unread pattern for "Continue learning" CTA
+  // Find the next unread pattern/module for "Continue learning" CTA
   const nextUnread = patterns.find((p) => !readSlugs.includes(p.slug));
+  const nextUnreadPM = pmModules.find((m) => !pmReadSlugs.includes(m.slug));
 
   // While auth state is loading, show nothing (prevents flash)
   if (isLoading) {
@@ -378,11 +380,26 @@ export default function HomePage() {
                 </h1>
 
                 {isProductManager ? (
-                  <p className="text-text-secondary text-lg mb-8 max-w-lg">
-                    11 modules covering everything you need to make smart product
-                    decisions about agentic AI — no code required. Click any
-                    module below to dive in.
-                  </p>
+                  pmReadSlugs.length === 0 ? (
+                    <p className="text-text-secondary text-lg mb-8 max-w-lg">
+                      11 modules covering everything you need to make smart product
+                      decisions about agentic AI — no code required. Click any
+                      module below to dive in.
+                    </p>
+                  ) : pmReadSlugs.length === pmModules.length ? (
+                    <p className="text-text-secondary text-lg mb-8 max-w-lg">
+                      You&apos;ve completed all 11 modules. Revisit any module
+                      to refresh your understanding.
+                    </p>
+                  ) : (
+                    <p className="text-text-secondary text-lg mb-8 max-w-lg">
+                      You&apos;ve completed{" "}
+                      <span className="text-primary font-mono font-bold">
+                        {pmReadSlugs.length}
+                      </span>{" "}
+                      of 11 modules. Pick up where you left off.
+                    </p>
+                  )
                 ) : readSlugs.length === 0 ? (
                   <p className="text-text-secondary text-lg mb-8 max-w-lg">
                     You have all 21 patterns unlocked. Pick one below and start
@@ -404,14 +421,27 @@ export default function HomePage() {
                 )}
 
                 {isProductManager ? (
-                  <a
-                    href="#pm-curriculum"
-                    className="inline-flex items-center gap-3 bg-accent hover:bg-accent/90 text-white font-sans font-semibold text-base px-8 py-3.5 rounded-md transition-all hover:shadow-lg hover:shadow-accent/20"
-                  >
-                    <Briefcase size={18} />
-                    Start Module 01
-                    <ArrowRight size={18} />
-                  </a>
+                  nextUnreadPM ? (
+                    <Link
+                      href={`/pm/${nextUnreadPM.slug}`}
+                      className="inline-flex items-center gap-3 bg-accent hover:bg-accent/90 text-white font-sans font-semibold text-base px-8 py-3.5 rounded-md transition-all hover:shadow-lg hover:shadow-accent/20"
+                    >
+                      <Briefcase size={18} />
+                      {pmReadSlugs.length === 0
+                        ? "Start Module 01"
+                        : `Continue: Module ${String(nextUnreadPM.number).padStart(2, "0")} · ${nextUnreadPM.title}`}
+                      <ArrowRight size={18} />
+                    </Link>
+                  ) : (
+                    <a
+                      href="#pm-curriculum"
+                      className="inline-flex items-center gap-3 bg-accent hover:bg-accent/90 text-white font-sans font-semibold text-base px-8 py-3.5 rounded-md transition-all hover:shadow-lg hover:shadow-accent/20"
+                    >
+                      <Briefcase size={18} />
+                      Review Modules
+                      <ArrowRight size={18} />
+                    </a>
+                  )
                 ) : (
                   nextUnread && (
                     <Link
@@ -433,10 +463,27 @@ export default function HomePage() {
                 transition={{ delay: 0.2 }}
               >
                 {isProductManager ? (
-                  <div className="w-44 h-44 rounded-full bg-surface border-2 border-primary/30 flex flex-col items-center justify-center">
-                    <Briefcase size={36} className="text-primary mb-2" />
-                    <span className="font-mono text-3xl text-primary font-bold">11</span>
-                    <span className="font-mono text-xs text-text-secondary">Modules</span>
+                  <div className="relative w-44 h-44">
+                    <svg viewBox="0 0 160 160" className="w-full h-full">
+                      <circle cx="80" cy="80" r="70" fill="none" stroke="currentColor"
+                        strokeWidth="6" className="text-border" />
+                      <motion.circle cx="80" cy="80" r="70" fill="none" stroke="currentColor"
+                        strokeWidth="6" strokeLinecap="round" className="text-accent"
+                        strokeDasharray={`${2 * Math.PI * 70}`}
+                        initial={{ strokeDashoffset: 2 * Math.PI * 70 }}
+                        animate={{ strokeDashoffset: 2 * Math.PI * 70 * (1 - pmProgressPercent / 100) }}
+                        transition={{ duration: 1.5, ease: "easeOut" }}
+                        transform="rotate(-90 80 80)"
+                      />
+                    </svg>
+                    <div className="absolute inset-0 flex flex-col items-center justify-center">
+                      <span className="font-mono text-3xl text-accent font-bold">
+                        {pmProgressPercent}%
+                      </span>
+                      <span className="text-text-secondary text-[10px] font-mono">
+                        {pmReadSlugs.length}/{pmModules.length}
+                      </span>
+                    </div>
                   </div>
                 ) : (
                   <ProgressCircle size={180} strokeWidth={12} />
@@ -464,7 +511,9 @@ export default function HomePage() {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
               <SectionHeader
                 title="Your PM Curriculum"
-                subtitle="11 modules unlocked. Click any module to dive in and play the decision games."
+                subtitle={pmReadSlugs.length === 0
+                  ? "11 modules unlocked. Click any module to dive in and play the decision games."
+                  : `${pmReadSlugs.length} of 11 modules completed. Modules you've read are marked with a checkmark.`}
                 decorator="PM"
               />
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">

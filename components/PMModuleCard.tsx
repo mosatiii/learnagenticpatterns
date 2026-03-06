@@ -1,9 +1,10 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ArrowRight, Layers, Compass, Zap, ShieldCheck, Plug, Users, Brain, BarChart3, GitBranch, Search, Terminal } from "lucide-react";
+import { ArrowRight, Check, Layers, Compass, Zap, ShieldCheck, Plug, Users, Brain, BarChart3, GitBranch, Search, Terminal } from "lucide-react";
 import Link from "next/link";
 import type { PMModule } from "@/data/pm-curriculum";
+import { useAuth } from "@/contexts/AuthContext";
 
 const iconMap = {
   layers: Layers,
@@ -26,6 +27,8 @@ interface PMModuleCardProps {
 
 export default function PMModuleCard({ module, index }: PMModuleCardProps) {
   const Icon = iconMap[module.icon] || Layers;
+  const { readSlugs } = useAuth();
+  const isRead = readSlugs.includes(module.slug);
 
   return (
     <Link href={`/pm/${module.slug}`} className="block">
@@ -46,6 +49,11 @@ export default function PMModuleCard({ module, index }: PMModuleCardProps) {
             </div>
           </div>
           <div className="flex items-center gap-2">
+            {isRead && (
+              <span className="w-5 h-5 rounded-full bg-success/10 border border-success/30 flex items-center justify-center">
+                <Check size={10} className="text-success" />
+              </span>
+            )}
             {module.isFree && (
               <span className="font-mono text-[10px] text-accent border border-accent/30 bg-accent/5 rounded-full px-2 py-0.5 uppercase tracking-wider">
                 Free

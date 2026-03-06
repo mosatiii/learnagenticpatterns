@@ -1,8 +1,9 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from "react";
+import { createContext, useContext, useState, useEffect, useCallback, useMemo, type ReactNode } from "react";
 import posthog from "posthog-js";
 import { POSTHOG_KEY } from "@/lib/posthog-config";
+import { pmModules } from "@/data/pm-curriculum";
 
 const STORAGE_KEY = "lap_auth";
 const NINETY_DAYS_MS = 90 * 24 * 60 * 60 * 1000;
@@ -43,6 +44,8 @@ interface AuthContextValue {
   isLoading: boolean;
   isProductManager: boolean;
   readSlugs: string[];
+  pmReadSlugs: string[];
+  pmProgressPercent: number;
   signup: (data: {
     firstName: string;
     email: string;
@@ -87,6 +90,12 @@ export function AuthProvider({ children, totalPatterns }: { children: ReactNode;
     : 0;
 
   const isProductManager = user?.role === "Product Manager";
+
+  const pmSlugs = useMemo(() => new Set(pmModules.map((m) => m.slug)), []);
+  const pmReadSlugs = useMemo(() => readSlugs.filter((s) => pmSlugs.has(s)), [readSlugs, pmSlugs]);
+  const pmProgressPercent = pmModules.length > 0
+    ? Math.round((pmReadSlugs.length / pmModules.length) * 100)
+    : 0;
 
   const saveToStorage = (email: string, firstName: string, role: string) => {
     const data: StoredAuth = {
@@ -290,7 +299,7 @@ export function AuthProvider({ children, totalPatterns }: { children: ReactNode;
   return (
     <AuthContext.Provider
       value={{
-        user, isLoading, isProductManager, readSlugs, signup, login, logout, markRead, progressPercent,
+        user, isLoading, isProductManager, readSlugs, pmReadSlugs, pmProgressPercent, signup, login, logout, markRead, progressPercent,
         gameScores, totalAttempts, avgPercent, leaderboard, userRank, saveGameScore,
       }}
     >
