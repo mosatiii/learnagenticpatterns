@@ -159,18 +159,37 @@ export default function NavBar() {
                   </div>
                 ) : (
                   <div className="flex items-center gap-3">
-                    <Link
-                      href="/login"
-                      className="font-mono text-sm text-text-secondary hover:text-primary transition-colors"
-                    >
-                      Log In
-                    </Link>
-                    <Link
-                      href="/signup"
-                      className="bg-accent hover:bg-accent/90 text-white font-sans font-semibold text-sm px-5 py-2.5 rounded-md transition-all hover:shadow-lg hover:shadow-accent/20"
-                    >
-                      Sign Up Free
-                    </Link>
+                    {isPractice ? (
+                      <>
+                        <a
+                          href={`${MAIN_DOMAIN}/login`}
+                          className="font-mono text-sm text-text-secondary hover:text-primary transition-colors"
+                        >
+                          Log In
+                        </a>
+                        <a
+                          href={`${MAIN_DOMAIN}/signup`}
+                          className="bg-accent hover:bg-accent/90 text-white font-sans font-semibold text-sm px-5 py-2.5 rounded-md transition-all hover:shadow-lg hover:shadow-accent/20"
+                        >
+                          Sign Up Free
+                        </a>
+                      </>
+                    ) : (
+                      <>
+                        <Link
+                          href="/login"
+                          className="font-mono text-sm text-text-secondary hover:text-primary transition-colors"
+                        >
+                          Log In
+                        </Link>
+                        <Link
+                          href="/signup"
+                          className="bg-accent hover:bg-accent/90 text-white font-sans font-semibold text-sm px-5 py-2.5 rounded-md transition-all hover:shadow-lg hover:shadow-accent/20"
+                        >
+                          Sign Up Free
+                        </Link>
+                      </>
+                    )}
                   </div>
                 )
               )}
@@ -248,20 +267,41 @@ export default function NavBar() {
                   </div>
                 ) : (
                   <div className="pt-4 border-t border-border space-y-3">
-                    <Link
-                      href="/login"
-                      onClick={() => setMobileOpen(false)}
-                      className="block w-full text-center border border-border hover:border-primary/50 text-text-secondary hover:text-primary font-sans font-semibold text-sm px-5 py-2.5 rounded-md transition-all"
-                    >
-                      Log In
-                    </Link>
-                    <Link
-                      href="/signup"
-                      onClick={() => setMobileOpen(false)}
-                      className="block w-full text-center bg-accent hover:bg-accent/90 text-white font-sans font-semibold text-sm px-5 py-2.5 rounded-md transition-all"
-                    >
-                      Sign Up Free
-                    </Link>
+                    {isPractice ? (
+                      <>
+                        <a
+                          href={`${MAIN_DOMAIN}/login`}
+                          onClick={() => setMobileOpen(false)}
+                          className="block w-full text-center border border-border hover:border-primary/50 text-text-secondary hover:text-primary font-sans font-semibold text-sm px-5 py-2.5 rounded-md transition-all"
+                        >
+                          Log In
+                        </a>
+                        <a
+                          href={`${MAIN_DOMAIN}/signup`}
+                          onClick={() => setMobileOpen(false)}
+                          className="block w-full text-center bg-accent hover:bg-accent/90 text-white font-sans font-semibold text-sm px-5 py-2.5 rounded-md transition-all"
+                        >
+                          Sign Up Free
+                        </a>
+                      </>
+                    ) : (
+                      <>
+                        <Link
+                          href="/login"
+                          onClick={() => setMobileOpen(false)}
+                          className="block w-full text-center border border-border hover:border-primary/50 text-text-secondary hover:text-primary font-sans font-semibold text-sm px-5 py-2.5 rounded-md transition-all"
+                        >
+                          Log In
+                        </Link>
+                        <Link
+                          href="/signup"
+                          onClick={() => setMobileOpen(false)}
+                          className="block w-full text-center bg-accent hover:bg-accent/90 text-white font-sans font-semibold text-sm px-5 py-2.5 rounded-md transition-all"
+                        >
+                          Sign Up Free
+                        </Link>
+                      </>
+                    )}
                   </div>
                 )
               )}
