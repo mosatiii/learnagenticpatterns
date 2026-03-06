@@ -63,7 +63,7 @@ export default async function OgImage({
           position: "relative",
         }}
       >
-        {/* Grid overlay */}
+        {/* Grid overlay — split into two divs because Satori can't parse multiple gradients in one backgroundImage */}
         <div
           style={{
             position: "absolute",
@@ -72,7 +72,20 @@ export default async function OgImage({
             right: 0,
             bottom: 0,
             backgroundImage:
-              "linear-gradient(rgba(0,212,255,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(0,212,255,0.04) 1px, transparent 1px)",
+              "linear-gradient(rgba(0,212,255,0.04) 1px, transparent 1px)",
+            backgroundSize: "40px 40px",
+            display: "flex",
+          }}
+        />
+        <div
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundImage:
+              "linear-gradient(90deg, rgba(0,212,255,0.04) 1px, transparent 1px)",
             backgroundSize: "40px 40px",
             display: "flex",
           }}
@@ -135,7 +148,7 @@ export default async function OgImage({
             <span
               style={{ color: "#00D4FF", fontSize: 28, fontWeight: 700 }}
             >
-              ≈
+              ~
             </span>
             <span style={{ color: "#8B95A5", fontSize: 28 }}>
               {pattern.sweParallelFull}
