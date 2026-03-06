@@ -19,9 +19,11 @@ const mainNavLinks = [
 ];
 
 const practiceNavLinks = [
-  { label: "Home", href: "/practice" },
+  { label: "Home", href: "/" },
+  { label: "Curriculum", href: `${MAIN_DOMAIN}/#curriculum` },
+  { label: "Blog", href: `${MAIN_DOMAIN}/blog` },
+  { label: "Assessment", href: `${MAIN_DOMAIN}/assessment` },
   { label: "About", href: `${MAIN_DOMAIN}/about` },
-  { label: "Curriculum", href: MAIN_DOMAIN },
 ];
 
 export default function NavBar() {
@@ -31,8 +33,14 @@ export default function NavBar() {
   const { user, isLoading, logout } = useAuth();
   const dropdownRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
+  const [isOnSubdomain, setIsOnSubdomain] = useState(false);
 
-  const isPractice = pathname === "/practice" || pathname.startsWith("/practice/");
+  useEffect(() => {
+    const host = window.location.hostname;
+    setIsOnSubdomain(host === "practice.learnagenticpatterns.com" || host.startsWith("practice."));
+  }, []);
+
+  const isPractice = isOnSubdomain || pathname === "/practice" || pathname.startsWith("/practice/");
   const navLinks = isPractice ? practiceNavLinks : mainNavLinks;
 
   useEffect(() => {
@@ -66,7 +74,7 @@ export default function NavBar() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
-            <Link href={isPractice ? "/practice" : "/"} className="flex items-center gap-2 group">
+            <Link href="/" className="flex items-center gap-2 group">
               <span className="font-mono text-primary text-lg font-bold">
                 {"$"}
               </span>

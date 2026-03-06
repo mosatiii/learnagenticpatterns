@@ -331,6 +331,121 @@ function GameStats({
   );
 }
 
+// ─── PM Game Stats Section ───────────────────────────────────
+const PM_GAME_LABELS: Record<string, string> = {
+  "pm-ship-or-skip": "Ship or Skip",
+  "pm-budget-builder": "Budget Builder",
+};
+
+function PMGameStats({ scores, totalAttempts }: { scores: PatternScore[]; totalAttempts: number }) {
+  const pmScores = scores.filter((s) => s.pattern_slug.startsWith("pm-"));
+  const pmAttempts = pmScores.reduce((sum, s) => sum + 1, 0);
+
+  if (pmAttempts === 0) {
+    return (
+      <section className="py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <SectionHeader
+            title="Decision Game Scores"
+            subtitle="Play Ship or Skip or Budget Builder inside any module to see your scores here."
+            decorator="▶"
+          />
+          <div className="bg-surface border border-border rounded-xl p-10 text-center">
+            <Gamepad2 size={48} className="text-text-secondary/30 mx-auto mb-4" />
+            <p className="text-text-secondary font-mono text-sm">
+              No games played yet. Open any module and try the <span className="text-accent font-bold">decision games</span>!
+            </p>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  const avgPercent = Math.round(
+    pmScores.reduce((sum, s) => sum + (s.score_max > 0 ? (s.score_total / s.score_max) * 100 : 0), 0) / pmScores.length
+  );
+
+  return (
+    <section className="py-16">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <SectionHeader
+          title="Decision Game Scores"
+          subtitle={`${pmScores.length} game${pmScores.length === 1 ? "" : "s"} played. Keep sharpening your product instincts!`}
+          decorator="▶"
+        />
+
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-8">
+          {[
+            { label: "Avg Score", value: `${avgPercent}%`, accent: avgPercent >= 60 },
+            { label: "Games Played", value: `${pmScores.length}/2`, accent: false },
+            { label: "Best Score", value: `${Math.max(...pmScores.map((s) => Math.round((s.score_total / s.score_max) * 100)))}%`, accent: true },
+          ].map((stat, i) => (
+            <motion.div
+              key={stat.label}
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.08 }}
+              className={`bg-surface border rounded-lg p-4 text-center ${
+                stat.accent ? "border-accent/30" : "border-border"
+              }`}
+            >
+              <p className={`font-mono text-2xl font-bold ${stat.accent ? "text-accent" : "text-text-primary"}`}>
+                {stat.value}
+              </p>
+              <p className="text-text-secondary text-xs font-mono mt-1">{stat.label}</p>
+            </motion.div>
+          ))}
+        </div>
+
+        <div className="bg-surface border border-border rounded-xl p-5">
+          <h3 className="font-mono text-sm text-text-secondary mb-4 flex items-center gap-2">
+            <Trophy size={14} className="text-accent" />
+            Best Scores by Game
+          </h3>
+          <div className="space-y-2">
+            {pmScores.map((s, i) => {
+              const percent = Math.round((s.score_total / s.score_max) * 100);
+              const name = PM_GAME_LABELS[s.pattern_slug] ?? s.pattern_slug;
+
+              return (
+                <motion.div
+                  key={s.pattern_slug}
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: i * 0.04 }}
+                  className="flex items-center gap-3 p-3 rounded-lg hover:bg-code-bg transition-colors"
+                >
+                  <span className={`font-mono text-lg font-bold w-12 text-right ${
+                    percent === 100 ? "text-success" : percent >= 60 ? "text-accent" : "text-red-400"
+                  }`}>
+                    {percent}%
+                  </span>
+                  <div className="flex-1 min-w-0">
+                    <div className="h-2 bg-code-bg rounded-full overflow-hidden">
+                      <motion.div
+                        className={`h-full rounded-full ${
+                          percent === 100 ? "bg-success" : percent >= 60 ? "bg-accent" : "bg-red-400"
+                        }`}
+                        initial={{ width: 0 }}
+                        animate={{ width: `${percent}%` }}
+                        transition={{ duration: 0.6, delay: i * 0.04 }}
+                      />
+                    </div>
+                    <p className="text-text-secondary text-xs font-mono mt-1 truncate">
+                      {name}
+                    </p>
+                  </div>
+                  {s.passed && <span className="text-success text-xs font-mono">PASS</span>}
+                </motion.div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 // ─── Main Page Component ────────────────────────────────────
 export default function HomePage() {
   const {
@@ -493,8 +608,9 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* Game scores — developers only */}
-        {!isProductManager && (
+        {isProductManager ? (
+          <PMGameStats scores={gameScores} totalAttempts={totalAttempts} />
+        ) : (
           <GameStats
             scores={gameScores}
             totalAttempts={totalAttempts}
