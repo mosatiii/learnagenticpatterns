@@ -2,13 +2,11 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { ArrowRight, AlertTriangle, Eye, Target, Quote, Lock, BookOpen, Trophy, Medal, Gamepad2, Briefcase, Code2 } from "lucide-react";
+import { ArrowRight, Lock, BookOpen, Trophy, Medal, Gamepad2, Briefcase, Code2, Puzzle, BarChart3, Crosshair } from "lucide-react";
 import Link from "next/link";
 import SectionHeader from "@/components/SectionHeader";
 import PatternCard from "@/components/PatternCard";
 import PMModuleCard from "@/components/PMModuleCard";
-import MappingTable from "@/components/MappingTable";
-import MaturityLevel from "@/components/MaturityLevel";
 import ProgressCircle from "@/components/ProgressCircle";
 import { patterns } from "@/data/patterns";
 import { pmModules } from "@/data/pm-curriculum";

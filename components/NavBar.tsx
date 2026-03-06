@@ -95,71 +95,10 @@ export default function NavBar() {
 
   return (
     <>
-      {/* Dev banner */}
-      <div className="fixed top-0 left-0 right-0 z-[60] bg-primary/10 border-b border-primary/20">
-        <div className="max-w-7xl mx-auto px-4 flex items-center justify-center h-7">
-          <div className="relative" ref={feedbackRef}>
-            <button
-              onClick={() => { setFeedbackOpen(!feedbackOpen); setFeedbackStatus("idle"); }}
-              className="flex items-center gap-1.5 font-mono text-[11px] text-primary/80 hover:text-primary transition-colors"
-            >
-              <MessageSquare size={11} />
-              This site is in active development — share feedback
-            </button>
-
-            <AnimatePresence>
-              {feedbackOpen && (
-                <motion.div
-                  initial={{ opacity: 0, y: 4, scale: 0.95 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: 4, scale: 0.95 }}
-                  transition={{ duration: 0.15 }}
-                  className="absolute top-full mt-2 left-1/2 -translate-x-1/2 w-72 bg-surface border border-border rounded-lg shadow-2xl p-3 z-[70]"
-                >
-                  {feedbackStatus === "sent" ? (
-                    <p className="text-center text-success font-mono text-xs py-3">
-                      Thanks for your feedback!
-                    </p>
-                  ) : (
-                    <>
-                      <textarea
-                        value={feedbackMsg}
-                        onChange={(e) => setFeedbackMsg(e.target.value)}
-                        placeholder="What's broken or could be better?"
-                        maxLength={2000}
-                        rows={3}
-                        className="w-full bg-code-bg border border-border rounded-md px-3 py-2 font-mono text-xs text-text-primary placeholder:text-text-secondary/40 resize-none focus:outline-none focus:border-primary/50"
-                      />
-                      <div className="flex items-center justify-between mt-2">
-                        <span className="font-mono text-[10px] text-text-secondary/40">
-                          {feedbackMsg.length}/2000
-                        </span>
-                        <button
-                          onClick={handleFeedbackSubmit}
-                          disabled={!feedbackMsg.trim() || feedbackStatus === "sending"}
-                          className="flex items-center gap-1.5 bg-primary/20 hover:bg-primary/30 disabled:opacity-40 text-primary font-mono text-[11px] px-3 py-1.5 rounded-md transition-colors"
-                        >
-                          {feedbackStatus === "sending" ? (
-                            <Loader2 size={11} className="animate-spin" />
-                          ) : (
-                            <Send size={11} />
-                          )}
-                          {feedbackStatus === "sending" ? "Sending..." : feedbackStatus === "error" ? "Retry" : "Send"}
-                        </button>
-                      </div>
-                    </>
-                  )}
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-        </div>
-      </div>
-
       <motion.nav
         initial={{ y: -20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        className={`fixed top-7 left-0 right-0 z-50 transition-all duration-300 ${
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
           scrolled
             ? "bg-background/80 backdrop-blur-xl border-b border-border"
             : "bg-transparent"
@@ -180,6 +119,67 @@ export default function NavBar() {
 
             {/* Desktop Links */}
             <div className="hidden md:flex items-center gap-8">
+              {/* Feedback pulse */}
+              <div className="relative" ref={feedbackRef}>
+                <button
+                  onClick={() => { setFeedbackOpen(!feedbackOpen); setFeedbackStatus("idle"); }}
+                  className="relative flex items-center gap-1.5 font-mono text-[11px] text-text-secondary/60 hover:text-primary transition-colors"
+                  title="Share feedback"
+                >
+                  <span className="relative">
+                    <MessageSquare size={14} />
+                    <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-primary rounded-full animate-pulse" />
+                  </span>
+                  <span className="hidden lg:inline">Feedback</span>
+                </button>
+
+                <AnimatePresence>
+                  {feedbackOpen && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 4, scale: 0.95 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: 4, scale: 0.95 }}
+                      transition={{ duration: 0.15 }}
+                      className="absolute top-full mt-2 right-0 w-72 bg-surface border border-border rounded-lg shadow-2xl p-3 z-[70]"
+                    >
+                      {feedbackStatus === "sent" ? (
+                        <p className="text-center text-success font-mono text-xs py-3">
+                          Thanks for your feedback!
+                        </p>
+                      ) : (
+                        <>
+                          <textarea
+                            value={feedbackMsg}
+                            onChange={(e) => setFeedbackMsg(e.target.value)}
+                            placeholder="What's broken or could be better?"
+                            maxLength={2000}
+                            rows={3}
+                            className="w-full bg-code-bg border border-border rounded-md px-3 py-2 font-mono text-xs text-text-primary placeholder:text-text-secondary/40 resize-none focus:outline-none focus:border-primary/50"
+                          />
+                          <div className="flex items-center justify-between mt-2">
+                            <span className="font-mono text-[10px] text-text-secondary/40">
+                              {feedbackMsg.length}/2000
+                            </span>
+                            <button
+                              onClick={handleFeedbackSubmit}
+                              disabled={!feedbackMsg.trim() || feedbackStatus === "sending"}
+                              className="flex items-center gap-1.5 bg-primary/20 hover:bg-primary/30 disabled:opacity-40 text-primary font-mono text-[11px] px-3 py-1.5 rounded-md transition-colors"
+                            >
+                              {feedbackStatus === "sending" ? (
+                                <Loader2 size={11} className="animate-spin" />
+                              ) : (
+                                <Send size={11} />
+                              )}
+                              {feedbackStatus === "sending" ? "Sending..." : feedbackStatus === "error" ? "Retry" : "Send"}
+                            </button>
+                          </div>
+                        </>
+                      )}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+
               {navLinks.map((link) => {
                 const isExternal = link.href.startsWith("http");
                 const Tag = isExternal ? "a" : Link;
@@ -298,7 +298,7 @@ export default function NavBar() {
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
-            className="fixed inset-x-0 top-[92px] z-40 bg-surface/95 backdrop-blur-xl border-b border-border md:hidden"
+            className="fixed inset-x-0 top-16 z-40 bg-surface/95 backdrop-blur-xl border-b border-border md:hidden"
           >
             <div className="px-4 py-6 space-y-4">
               {navLinks.map((link) => {
