@@ -307,12 +307,6 @@ export default function GuidePage() {
               Explore All 21 Patterns
               <ArrowRight size={18} />
             </Link>
-            <Link
-              href="/agentic-ai-design-patterns-cheatsheet"
-              className="inline-flex items-center gap-2 border border-border hover:border-accent/50 text-text-secondary hover:text-accent font-sans font-medium px-8 py-3.5 rounded-md transition-all"
-            >
-              Download Free Cheat Sheet
-            </Link>
           </div>
         </section>
       </article>
