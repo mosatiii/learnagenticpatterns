@@ -35,6 +35,8 @@ export function PostHogIdentify() {
     posthog.identify(user.email, {
       firstName: user.firstName,
       email: user.email,
+      role: user.role,
+      track: user.role === "Product Manager" ? "pm" : "developer",
     });
   }, [user]);
 

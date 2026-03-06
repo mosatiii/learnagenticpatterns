@@ -270,6 +270,7 @@ export function AuthProvider({ children, totalPatterns }: { children: ReactNode;
         if (typeof window !== "undefined" && POSTHOG_KEY) {
           posthog.capture("pattern_read", {
             pattern: slug,
+            track: user.role === "Product Manager" ? "pm" : "developer",
             totalRead: updated.length,
             percentComplete: Math.round((updated.length / 21) * 100),
           });
