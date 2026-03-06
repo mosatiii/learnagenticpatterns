@@ -46,7 +46,7 @@ const stagger = {
 };
 
 export default function PatternChallengeGrid() {
-  const { user, gameScores } = useAuth();
+  const { user, isLoading, gameScores } = useAuth();
   const scores = (gameScores ?? []) as Array<{ pattern_slug: string; score_total: number; score_max: number; passed: boolean }>;
 
   const getBestScore = (slug: string) => {
@@ -90,7 +90,7 @@ export default function PatternChallengeGrid() {
           const best = getBestScore(pattern.slug);
           const progress = best ? Math.round((best.score_total / best.score_max) * 100) : 0;
           const labCount = getLabCount(pattern.slug);
-          const isLocked = !pattern.isUnlocked && !user;
+          const isLocked = !pattern.isUnlocked && !user && !isLoading;
 
           return (
             <motion.div key={pattern.slug} variants={stagger.item}>

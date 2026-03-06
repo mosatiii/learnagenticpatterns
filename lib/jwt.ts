@@ -1,4 +1,5 @@
 import { SignJWT, jwtVerify, type JWTPayload } from "jose";
+import { NextResponse } from "next/server";
 
 export interface TokenPayload extends JWTPayload {
   userId: number;
@@ -7,6 +8,8 @@ export interface TokenPayload extends JWTPayload {
 
 const ALG = "HS256";
 const TOKEN_TTL = "14d";
+const COOKIE_NAME = "lap_token_shared";
+const COOKIE_MAX_AGE = 14 * 24 * 60 * 60; // 14 days
 
 function getSecret() {
   const raw = process.env.JWT_SECRET;
@@ -50,4 +53,21 @@ export async function verifyToken(headerValue: string | null): Promise<TokenPayl
 /** Convenience: extract + verify from a Request's Authorization header. */
 export async function getAuthUser(request: Request): Promise<TokenPayload | null> {
   return verifyToken(request.headers.get("authorization"));
+}
+
+/**
+ * Attach a Set-Cookie header so the JWT is readable across all
+ * *.learnagenticpatterns.com subdomains (practice.*, www.*, etc.).
+ */
+export function setAuthCookie(response: NextResponse, token: string): NextResponse {
+  const isProd = process.env.NODE_ENV === "production";
+  response.cookies.set(COOKIE_NAME, token, {
+    path: "/",
+    maxAge: COOKIE_MAX_AGE,
+    sameSite: "lax",
+    secure: isProd,
+    httpOnly: false, // needs to be readable by client-side AuthContext
+    ...(isProd ? { domain: ".learnagenticpatterns.com" } : {}),
+  });
+  return response;
 }

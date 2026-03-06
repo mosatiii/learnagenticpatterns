@@ -62,8 +62,8 @@ const FEATURED_PATTERNS = [
 ];
 
 export default function PracticeLanding() {
-  const { user, leaderboard } = useAuth();
-  const isSignedIn = !!user;
+  const { user, isLoading, leaderboard } = useAuth();
+  const isSignedIn = !!user || isLoading;
 
   return (
     <div className="relative">

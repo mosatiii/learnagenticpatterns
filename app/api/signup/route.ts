@@ -4,7 +4,7 @@ import { signupSchema } from "@/lib/validations";
 import { query } from "@/lib/db";
 import { rateLimit, getClientIp } from "@/lib/rate-limit";
 import { welcomeEmail, adminNotificationEmail } from "@/lib/email-templates";
-import { signToken } from "@/lib/jwt";
+import { signToken, setAuthCookie } from "@/lib/jwt";
 
 interface DbUser {
   id: number;
@@ -105,10 +105,11 @@ export async function POST(request: Request) {
 
     const token = await signToken({ userId: user.id, email: user.email });
 
-    return NextResponse.json(
+    const res = NextResponse.json(
       { success: true, token, user: { id: user.id, email: user.email, firstName: user.first_name, role: user.role } },
       { status: 200 }
     );
+    return setAuthCookie(res, token);
   } catch (error) {
     if (error instanceof Error && error.name === "ZodError") {
       return NextResponse.json(

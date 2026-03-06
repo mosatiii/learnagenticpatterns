@@ -31,12 +31,22 @@ export default function LoginPage() {
 
   // Already logged in — redirect
   if (user) {
+    const dest = fromPractice ? PRACTICE_URL : "/";
     if (fromPractice) {
-      window.location.href = PRACTICE_URL;
-      return null;
+      window.location.href = dest;
+    } else {
+      router.push(dest);
     }
-    router.push("/");
-    return null;
+    return (
+      <main className="relative z-10 pt-24 min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="w-6 h-6 animate-spin text-accent mx-auto mb-3" />
+          <p className="text-text-secondary font-mono text-sm">
+            Already signed in — redirecting{fromPractice ? " to Practice Labs" : ""}…
+          </p>
+        </div>
+      </main>
+    );
   }
 
   const onSubmit = async (data: LoginFormData) => {

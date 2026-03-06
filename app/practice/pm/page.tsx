@@ -44,7 +44,7 @@ const stagger = {
 };
 
 export default function PMLabsPage() {
-  const { user } = useAuth();
+  const { user, isLoading } = useAuth();
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-12">
@@ -71,7 +71,7 @@ export default function PMLabsPage() {
           return (
             <motion.div key={game.slug} variants={stagger.item}>
               <Link
-                href={user ? `/practice/pm/${game.slug}` : "https://learnagenticpatterns.com/signup?from=practice"}
+                href={user || isLoading ? `/practice/pm/${game.slug}` : "https://learnagenticpatterns.com/signup?from=practice"}
                 className="group block h-full"
               >
                 <div className="relative h-full bg-surface border border-border rounded-xl p-6 hover:border-accent/30 transition-all duration-300 hover:shadow-lg hover:shadow-accent/5">
@@ -91,7 +91,7 @@ export default function PMLabsPage() {
                     <ArrowRight size={16} className="text-text-secondary group-hover:text-accent group-hover:translate-x-1 transition-all" />
                   </div>
 
-                  {!user && (
+                  {!user && !isLoading && (
                     <div className="absolute inset-0 bg-background/60 backdrop-blur-sm rounded-xl flex items-center justify-center">
                       <div className="flex items-center gap-2 text-text-secondary font-mono text-sm">
                         <Lock size={14} />
