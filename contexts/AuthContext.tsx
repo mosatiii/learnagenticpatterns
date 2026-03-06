@@ -127,9 +127,15 @@ export function AuthProvider({ children, totalPatterns }: { children: ReactNode;
     setSharedCookie(token);
   };
 
-  const clearStorage = () => {
+  /** Clear local session only (keeps cross-subdomain cookie for retries). */
+  const clearLocal = () => {
     localStorage.removeItem(STORAGE_KEY);
     localStorage.removeItem(TOKEN_KEY);
+  };
+
+  /** Full logout: clear everything including the cross-subdomain cookie. */
+  const clearStorage = () => {
+    clearLocal();
     clearSharedCookie();
   };
 
@@ -192,11 +198,16 @@ export function AuthProvider({ children, totalPatterns }: { children: ReactNode;
           setUser(data.user);
           saveToStorage(token, data.user.email, data.user.firstName, data.user.role || "Other");
           await Promise.all([fetchProgress(), fetchGameScores()]);
-        } else {
+        } else if (res.status === 401) {
+          // Token is genuinely invalid/expired — clear everything
           clearStorage();
+        } else {
+          // Server error (5xx) — only clear local, keep cookie for retry
+          clearLocal();
         }
       } catch {
-        clearStorage();
+        // Network error — only clear local, keep cookie for retry
+        clearLocal();
       } finally {
         setIsLoading(false);
       }
