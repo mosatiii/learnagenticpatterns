@@ -6,7 +6,7 @@ export interface TokenPayload extends JWTPayload {
 }
 
 const ALG = "HS256";
-const TOKEN_TTL = "90d";
+const TOKEN_TTL = "14d";
 
 function getSecret() {
   const raw = process.env.JWT_SECRET;

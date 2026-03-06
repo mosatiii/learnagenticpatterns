@@ -30,7 +30,7 @@ export default async function OgImage() {
             right: 0,
             bottom: 0,
             backgroundImage:
-              "linear-gradient(#00D4FF0D 1px, transparent 1px)",
+              "linear-gradient(rgba(0,212,255,0.05) 1px, transparent 1px)",
             backgroundSize: "40px 40px",
             display: "flex",
           }}
@@ -43,7 +43,7 @@ export default async function OgImage() {
             right: 0,
             bottom: 0,
             backgroundImage:
-              "linear-gradient(90deg, #00D4FF0D 1px, transparent 1px)",
+              "linear-gradient(90deg, rgba(0,212,255,0.05) 1px, transparent 1px)",
             backgroundSize: "40px 40px",
             display: "flex",
           }}
@@ -135,7 +135,7 @@ export default async function OgImage() {
                 style={{
                   display: "flex",
                   padding: "8px 20px",
-                  border: "1px solid #00D4FF4D",
+                  border: "1px solid rgba(0,212,255,0.3)",
                   borderRadius: 20,
                   color: "#00D4FF",
                   fontSize: 18,
