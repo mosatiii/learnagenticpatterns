@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import { motion } from "framer-motion";
-import { Lock, ArrowRight, ChevronRight, Home, CheckCircle2 } from "lucide-react";
+import { Lock, ArrowRight, ChevronRight, Home, CheckCircle2, Blocks, Play } from "lucide-react";
 import Link from "next/link";
 import CodeBlock from "@/components/CodeBlock";
 import ProgressCircle from "@/components/ProgressCircle";
@@ -11,7 +11,6 @@ import { patterns, getPatternBySlug } from "@/data/patterns";
 import { formatPatternNumber } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import { PatternArticleJsonLd, BreadcrumbJsonLd, FAQPageJsonLd } from "@/components/JsonLd";
-import AgentBuilder from "@/components/AgentBuilder/AgentBuilder";
 import LessonFeedback from "@/components/LessonFeedback";
 import PatternFlowDiagram from "@/components/PatternFlowDiagram";
 import CollapsibleText from "@/components/CollapsibleText";
@@ -452,7 +451,25 @@ export default function PatternDetailPage() {
 
               {gameAvailable && (
                 <div className={activeTab === "build" ? "block" : "hidden"}>
-                  <AgentBuilder patternSlug={slug} />
+                  <div className="bg-surface border border-accent/20 rounded-xl p-8 text-center">
+                    <div className="w-14 h-14 rounded-2xl bg-accent/10 border border-accent/20 flex items-center justify-center mx-auto mb-4">
+                      <Blocks size={28} className="text-accent" />
+                    </div>
+                    <h3 className="text-xl font-bold text-text-primary mb-2">
+                      Practice {pattern.name}
+                    </h3>
+                    <p className="text-text-secondary text-sm mb-6 max-w-md mx-auto">
+                      4 challenge types: Build architectures, debug broken pipelines, write real prompts, and optimize costs.
+                      Three difficulty tiers from Apprentice to Architect.
+                    </p>
+                    <a
+                      href={`https://practice.learnagenticpatterns.com/patterns/${slug}`}
+                      className="inline-flex items-center gap-2 bg-accent hover:bg-accent/90 text-white font-mono text-sm px-6 py-3 rounded-lg transition-colors"
+                    >
+                      <Play size={16} />
+                      Go to Practice Labs
+                    </a>
+                  </div>
                 </div>
               )}
             </div>

@@ -7,6 +7,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import ProgressBadge from "@/components/ProgressBadge";
 import { useAuth } from "@/contexts/AuthContext";
+import PracticeNav from "@/components/PracticeNav";
 
 const MAIN_DOMAIN = "https://learnagenticpatterns.com";
 
@@ -46,6 +47,8 @@ export default function NavBar() {
   }, []);
 
   const isPractice = isOnSubdomain || pathname === "/practice" || pathname.startsWith("/practice/");
+
+  if (isPractice) return <PracticeNav />;
   const baseLinks = isPractice ? practiceNavLinks : mainNavLinks;
   const navLinks = user
     ? baseLinks.filter((link) => link.label !== "Assessment" && link.label !== "Curriculum" && link.label !== "About")

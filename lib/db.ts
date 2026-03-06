@@ -60,6 +60,19 @@ async function ensureTables() {
       created_at      TIMESTAMPTZ DEFAULT NOW(),
       UNIQUE(user_id, lesson_slug)
     );
+
+    CREATE TABLE IF NOT EXISTS challenge_scores (
+      id              SERIAL PRIMARY KEY,
+      user_id         INTEGER REFERENCES users(id) ON DELETE CASCADE,
+      pattern_slug    TEXT NOT NULL,
+      challenge_type  TEXT NOT NULL,
+      difficulty      TEXT NOT NULL DEFAULT 'apprentice',
+      score_total     INTEGER NOT NULL,
+      score_max       INTEGER NOT NULL,
+      passed          BOOLEAN NOT NULL DEFAULT FALSE,
+      metadata        JSONB DEFAULT '{}',
+      played_at       TIMESTAMPTZ DEFAULT NOW()
+    );
   `);
 
   // Add password_hash column if upgrading from the old schema
