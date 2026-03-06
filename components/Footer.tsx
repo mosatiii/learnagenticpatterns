@@ -4,10 +4,11 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Github, Linkedin } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 
 const MAIN_DOMAIN = "https://learnagenticpatterns.com";
 
-const footerLinks = [
+const allFooterLinks = [
   { label: "Home", href: "/" },
   { label: "Curriculum", href: "/#curriculum" },
   { label: "Blog", href: "/blog" },
@@ -23,6 +24,7 @@ const socialLinks = [
 
 export default function Footer() {
   const pathname = usePathname();
+  const { user } = useAuth();
   const [isOnSubdomain, setIsOnSubdomain] = useState(false);
 
   useEffect(() => {
@@ -31,6 +33,10 @@ export default function Footer() {
   }, []);
 
   const isPractice = isOnSubdomain || pathname === "/practice" || pathname.startsWith("/practice/");
+
+  const footerLinks = user
+    ? allFooterLinks.filter((link) => link.href !== "/signup")
+    : allFooterLinks;
 
   return (
     <footer className="border-t border-border bg-surface/50">

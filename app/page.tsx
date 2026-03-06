@@ -660,36 +660,6 @@ export default function HomePage() {
           </section>
         )}
 
-        {/* Manifesto quote */}
-        <section className="py-24 bg-surface/30">
-          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
-            >
-              <Quote className="w-12 h-12 text-primary/30 mx-auto mb-6" />
-              <blockquote className="font-mono text-xl md:text-2xl lg:text-3xl text-text-primary leading-relaxed mb-6">
-                {isProductManager ? (
-                  <>
-                    &ldquo;The Product Manager who understands agentic patterns
-                    will define the intelligent products of the next decade.&rdquo;
-                  </>
-                ) : (
-                  <>
-                    &ldquo;Software Engineering is not dying. It is evolving. The
-                    architect who understands agentic patterns will design the
-                    intelligent systems of the next decade.&rdquo;
-                  </>
-                )}
-              </blockquote>
-              <cite className="text-primary font-mono text-sm not-italic">
-                Mousa
-              </cite>
-            </motion.div>
-          </div>
-        </section>
       </main>
     );
   }

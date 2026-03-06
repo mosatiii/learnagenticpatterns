@@ -41,7 +41,10 @@ export default function NavBar() {
   }, []);
 
   const isPractice = isOnSubdomain || pathname === "/practice" || pathname.startsWith("/practice/");
-  const navLinks = isPractice ? practiceNavLinks : mainNavLinks;
+  const baseLinks = isPractice ? practiceNavLinks : mainNavLinks;
+  const navLinks = user
+    ? baseLinks.filter((link) => link.label !== "Assessment" && link.label !== "Curriculum" && link.label !== "About")
+    : baseLinks;
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
