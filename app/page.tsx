@@ -659,18 +659,6 @@ export default function HomePage() {
           </section>
         )}
 
-        {/* Maturity Model — useful for both PMs and developers */}
-        <section className="py-24">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <SectionHeader
-              title="Where Does Your System Sit?"
-              subtitle="Five levels of agent autonomy, from zero-shot responses to fully autonomous multi-agent systems."
-              decorator="L0→L4"
-            />
-            <MaturityLevel />
-          </div>
-        </section>
-
         {/* Manifesto quote */}
         <section className="py-24 bg-surface/30">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">

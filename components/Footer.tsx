@@ -109,40 +109,10 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* CTA banner */}
-        <div className="my-8 bg-code-bg border border-border rounded-lg p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div>
-            <p className="font-mono text-sm text-text-primary font-semibold">
-              Want to build your own AI agents?
-            </p>
-            <p className="text-text-secondary text-xs mt-1">
-              We help teams ship AI-powered products, fast.
-            </p>
-          </div>
-          <a
-            href="https://www.prompted.software/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 bg-accent hover:bg-accent/90 text-white font-sans font-semibold text-sm px-5 py-2.5 rounded-md transition-all hover:shadow-lg hover:shadow-accent/20 whitespace-nowrap"
-          >
-            Talk to Prompted Studio →
-          </a>
-        </div>
-
         <div className="circuit-line my-8" />
 
         <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-text-secondary">
-          <p>
-            © 2026 learnagenticpatterns.com · Built by{" "}
-            <a
-              href="https://www.prompted.software/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-primary hover:underline"
-            >
-              Prompted Studio
-            </a>
-          </p>
+          <p>© 2026 learnagenticpatterns.com</p>
           <p>
             Based on &ldquo;Agentic Design Patterns&rdquo; by Antonio Gull&iacute;
           </p>
