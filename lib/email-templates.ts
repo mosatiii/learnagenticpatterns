@@ -126,7 +126,6 @@ export function adminNotificationEmail(data: {
   firstName: string;
   email: string;
   role: string;
-  challenge?: string;
 }): string {
   return baseLayout(`
     <h1 style="color:${TEXT_COLOR};font-size:20px;margin:0 0 20px 0;font-family:monospace;">
@@ -142,12 +141,8 @@ export function adminNotificationEmail(data: {
         <td style="color:${TEXT_COLOR};font-size:14px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.06);text-align:right;">${esc(data.email)}</td>
       </tr>
       <tr>
-        <td style="color:${TEXT_SECONDARY};font-size:13px;font-family:monospace;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.06);">Role</td>
-        <td style="color:${TEXT_COLOR};font-size:14px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.06);text-align:right;">${esc(data.role)}</td>
-      </tr>
-      <tr>
-        <td style="color:${TEXT_SECONDARY};font-size:13px;font-family:monospace;padding:8px 0;">Challenge</td>
-        <td style="color:${TEXT_COLOR};font-size:14px;padding:8px 0;text-align:right;">${esc(data.challenge || "Not provided")}</td>
+        <td style="color:${TEXT_SECONDARY};font-size:13px;font-family:monospace;padding:8px 0;">Role</td>
+        <td style="color:${TEXT_COLOR};font-size:14px;padding:8px 0;text-align:right;">${esc(data.role)}</td>
       </tr>
     </table>
   `);

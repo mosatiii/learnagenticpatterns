@@ -142,20 +142,6 @@ export default function SignupPage() {
             </div>
 
             <div>
-              <label htmlFor="challenge" className="block font-mono text-sm text-text-secondary mb-1.5">
-                Biggest challenge with Agentic AI?{" "}
-                <span className="text-text-secondary/50">(optional)</span>
-              </label>
-              <textarea
-                id="challenge"
-                {...register("challenge")}
-                rows={2}
-                className="w-full bg-code-bg border border-border rounded-md px-4 py-3 text-text-primary placeholder-text-secondary/50 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/30 transition-colors font-sans resize-none"
-                placeholder="I know microservices but agents feel like magic..."
-              />
-            </div>
-
-            <div>
               <label className="flex items-start gap-3 cursor-pointer group">
                 <input
                   type="checkbox"

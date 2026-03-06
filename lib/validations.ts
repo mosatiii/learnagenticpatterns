@@ -51,13 +51,6 @@ export const signupSchema = z.object({
     ],
     { required_error: "Please select your role" }
   ),
-  challenge: z
-    .string()
-    .max(500, "Please keep your response under 500 characters")
-    .transform(sanitize)
-    .pipe(noSqlInjection("Challenge"))
-    .optional()
-    .or(z.literal("")),
   agreedToTerms: z
     .literal(true, {
       errorMap: () => ({ message: "You must agree to the Privacy Policy and Terms of Service" }),

@@ -45,15 +45,14 @@ export async function POST(request: Request) {
     }
 
     const rows = await query<DbUser>(
-      `INSERT INTO users (email, first_name, password_hash, role, challenge)
-       VALUES ($1, $2, $3, $4, $5)
+      `INSERT INTO users (email, first_name, password_hash, role)
+       VALUES ($1, $2, $3, $4)
        RETURNING id, email, first_name, role`,
       [
         userData.email.toLowerCase().trim(),
         userData.firstName,
         passwordHash,
         userData.role,
-        userData.challenge || null,
       ]
     );
 
@@ -95,7 +94,6 @@ export async function POST(request: Request) {
                 firstName: userData.firstName,
                 email: userData.email,
                 role: userData.role,
-                challenge: userData.challenge,
               }),
             }),
           });
