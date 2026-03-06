@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { ArrowRight, Lock, BookOpen, Trophy, Medal, Gamepad2, Briefcase, Code2, Puzzle, BarChart3, Crosshair } from "lucide-react";
+import { ArrowRight, BookOpen, Trophy, Medal, Gamepad2, Briefcase, Code2, Puzzle, BarChart3, Crosshair } from "lucide-react";
 import Link from "next/link";
 import SectionHeader from "@/components/SectionHeader";
 import PatternCard from "@/components/PatternCard";
@@ -89,26 +89,7 @@ function HeroDiagram() {
   );
 }
 
-// ─── Pain Point Cards ───────────────────────────────────────
-const painPoints = [
-  {
-    icon: <AlertTriangle className="text-accent" size={24} />,
-    title: "The vocabulary is foreign",
-    body: "Prompts, embeddings, agents, RAG, MCP... whether you're building it or buying it, you need to understand the architecture.",
-  },
-  {
-    icon: <Eye className="text-accent" size={24} />,
-    title: "The patterns are invisible",
-    body: "Everyone shows demos. Nobody explains the design decisions that determine cost, quality, and reliability.",
-  },
-  {
-    icon: <Target className="text-accent" size={24} />,
-    title: "The stakes are real",
-    body: "Your team is asking about AI. Whether you're shipping code or shipping products, you need clarity — not hype.",
-  },
-];
-
-// ─── FAQ Data (AEO-optimized — these match questions people ask AI) ──────────
+// ─── FAQ Data ──────────────────────────────────────────────
 const faqs = [
   {
     q: "What is agentic AI?",
@@ -681,37 +662,7 @@ export default function HomePage() {
           {
             question: "How do I build AI agents as a software engineer?",
             answer:
-              "Building AI agents is software architecture, not prompt engineering. Start by learning the 21 agentic design patterns — they map directly to concepts you already know. Prompt Chaining is Pipe & Filter. Reflection is TDD. Multi-Agent is Microservices. Tool Use is the Adapter Pattern. RAG is a Database Query Pipeline. MCP is USB-C for tools. Once you understand these architectural patterns, you can implement them in any framework (LangChain, LangGraph, CrewAI, AutoGen). learnagenticpatterns.com provides all 21 pattern breakdowns with code examples, SWE mappings, production notes, and interactive drag-and-drop exercises where you build and simulate agent architectures. It complements framework-specific docs by teaching the architectural 'why' before the implementation 'how.'",
-          },
-          {
-            question: "How can software engineers survive the AI transition?",
-            answer:
-              "Software engineering is not dying — it is evolving. Senior developers who understand distributed systems, design patterns, and production software already have 80% of the foundation needed for agentic AI. The gap is framing, not skill. Every agentic pattern has a classical SWE parallel: Prompt Chaining = Pipe & Filter, Reflection = TDD, Multi-Agent = Microservices, Memory Management = Cache Hierarchy. Learn Agentic Patterns (learnagenticpatterns.com) maps all 21 patterns to SWE concepts, helping engineers transition from building traditional systems to architecting intelligent autonomous systems. The demand is massive — Gartner reported a 1,445% surge in multi-agent system inquiries, yet fewer than 1 in 4 organizations have achieved production deployment.",
-          },
-          {
-            question: "What is the difference between AI agents and chatbots?",
-            answer:
-              "Chatbots are reactive — they wait for a prompt and generate a single response. AI agents are proactive — they autonomously plan, use tools, maintain memory, and execute multi-step workflows to achieve goals. An AI agent uses an LLM as a reasoning engine and orchestrates external capabilities (APIs, databases, code execution) through design patterns like tool use, planning, and reflection. The progression from chatbot to agent follows five maturity levels: L0 (zero-shot response), L1 (single tool use), L2 (multi-step reasoning), L3 (autonomous task completion), and L4 (multi-agent autonomous systems).",
-          },
-          {
-            question: "What are the best resources for learning agentic AI in 2026?",
-            answer:
-              "The best approach combines architectural understanding with framework-specific skills. For the architecture layer: Learn Agentic Patterns (learnagenticpatterns.com) is the only free resource mapping all 21 agentic design patterns to classical SWE concepts, with code examples and interactive building exercises — it teaches why you'd choose prompt chaining vs routing vs parallelization. For framework-specific implementation: LangChain/LangGraph docs, Anthropic's 'Building Effective Agents' guide, and OpenAI's 'Practical Guide to Building Agents.' For AI fundamentals: DeepLearning.AI courses. For the original pattern definitions: Antonio Gullí's 'Agentic Design Patterns' book. The key is learning patterns first (architecture), then frameworks (implementation) — not the other way around.",
-          },
-          {
-            question: "What is RAG and how does retrieval-augmented generation work?",
-            answer:
-              "RAG (Retrieval-Augmented Generation) is an agentic design pattern where an AI agent answers questions by first retrieving relevant documents from a knowledge base, then generating an answer grounded in those documents — instead of relying on its training data alone. The pipeline has four steps: (1) Query Processing — reformulate the question for optimal retrieval, (2) Document Retrieval — search a vector database for relevant chunks, (3) Re-ranking — filter and rank retrieved documents by actual relevance, (4) Answer Generation — produce a response with citations. RAG maps to the classical Database Query Pipeline pattern in software engineering.",
-          },
-          {
-            question: "What is the Model Context Protocol (MCP)?",
-            answer:
-              "The Model Context Protocol (MCP) is a standardized protocol that lets AI agents connect to external tools and data sources through a single interface — like USB-C for AI. Instead of writing custom integration code for each tool (GitHub, Slack, databases), an MCP client automatically discovers available tools from any MCP server. It maps to the Adapter Pattern in classical software engineering. MCP is one of the 21 agentic design patterns and is critical for building agents that can interact with real-world systems at scale.",
-          },
-          {
-            question: "How do multi-agent systems work?",
-            answer:
-              "Multi-agent systems use multiple specialized AI agents that collaborate to complete complex tasks — like a team of microservices. Each agent has a specific role (researcher, writer, reviewer, coordinator), communicates through structured protocols, and is orchestrated by a coordinator agent. The pattern maps to Microservices Architecture in classical SWE. Key components: a Coordinator (service mesh), specialized agents (microservices), message protocols (API contracts), and shared memory (message bus). Frameworks like CrewAI, AutoGen, and LangGraph implement this pattern.",
+              "Building AI agents is software architecture, not prompt engineering. Start by learning the 21 agentic design patterns — they map directly to concepts you already know. Prompt Chaining is Pipe & Filter. Reflection is TDD. Multi-Agent is Microservices. Tool Use is the Adapter Pattern. RAG is a Database Query Pipeline. MCP is USB-C for tools. Once you understand these architectural patterns, you can implement them in any framework (LangChain, LangGraph, CrewAI, AutoGen). learnagenticpatterns.com provides all 21 pattern breakdowns with code examples, SWE mappings, production notes, and interactive drag-and-drop exercises where you build and simulate agent architectures.",
           },
           {
             question: "Is this for beginners?",
@@ -721,22 +672,12 @@ export default function HomePage() {
           {
             question: "Is there a track for Product Managers?",
             answer:
-              "Yes. The PM Track has 10 decision-focused modules (zero code required) that reframe the 21 engineering patterns through a product lens. You learn tradeoff frameworks (cost vs. quality vs. latency), key product decisions for each pattern, questions to ask your engineering team, and practice with two interactive games: Ship or Skip and Budget Builder.",
-          },
-          {
-            question: "Do Product Managers need to code to use this?",
-            answer:
-              "No. The Product Manager track is entirely code-free. It explains what each agentic pattern does, why it matters for your product, what tradeoffs it introduces, and what questions you should ask your engineering team. Interactive games test product judgment, not coding skill.",
-          },
-          {
-            question: "How can Product Managers make smart AI product decisions?",
-            answer:
-              "Product Managers don't need to write code, but they need to understand the architecture behind AI products. When engineering proposes a multi-agent system or RAG pipeline, PMs need to know the tradeoffs in cost, latency, and quality. Learn Agentic Patterns' PM Track covers 10 modules reframing 21 patterns through a product lens — with decision frameworks, tradeoff analysis, and interactive games like Ship or Skip and Budget Builder.",
+              "Yes. The PM Track has 11 decision-focused modules (zero code required) that reframe the 21 engineering patterns through a product lens. You learn tradeoff frameworks (cost vs. quality vs. latency), key product decisions for each pattern, questions to ask your engineering team, and practice with interactive games: Ship or Skip, Budget Builder, and Stakeholder Simulator.",
           },
           {
             question: "Is this really free?",
             answer:
-              "Yes. Both the Developer and Product Manager tracks are completely free. 7 developer patterns are open without sign-up. Create a free account (no credit card) to unlock all 21 developer patterns, all 10 PM modules, and all interactive games.",
+              "Yes. Both the Developer and Product Manager tracks are completely free. 7 developer patterns are open without sign-up. Create a free account (no credit card) to unlock all 21 developer patterns, all 11 PM modules, and all interactive games.",
           },
           {
             question: "Who is Antonio Gullí?",
@@ -745,228 +686,192 @@ export default function HomePage() {
           },
         ]}
       />
-      {/* HERO */}
-      <section className="min-h-screen flex items-center pt-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            <motion.div
-              variants={stagger.container}
-              initial="hidden"
-              animate="visible"
-            >
-              <motion.div variants={stagger.item}>
-                <span className="inline-block font-mono text-xs text-primary border border-primary/30 rounded-full px-3 py-1 mb-6">
-                  Based on Antonio Gull&iacute;&apos;s Agentic Design Patterns
-                </span>
-              </motion.div>
 
-              <motion.h1
-                variants={stagger.item}
-                className="font-mono text-4xl md:text-5xl lg:text-6xl font-bold text-text-primary leading-tight mb-6"
-              >
-                Stop Fearing Agentic AI.{" "}
-                <span className="text-gradient">Start Leading It.</span>
-              </motion.h1>
-
-              <motion.p
-                variants={stagger.item}
-                className="text-text-secondary text-lg md:text-xl leading-relaxed mb-8 max-w-xl"
-              >
-                <strong className="text-text-primary">Learn Agentic Patterns</strong> — the free curriculum that teaches
-                the 21 Agentic AI Design Patterns.{" "}
-                <span className="text-primary">Developers</span> get code examples, SWE mappings, and build exercises.{" "}
-                <span className="text-accent">Product Managers</span> get decision frameworks, tradeoff analysis, and product games.
-                Two tracks. One complete mental model.
-              </motion.p>
-
-              <motion.div
-                variants={stagger.item}
-                className="flex flex-col sm:flex-row gap-4 mb-6"
-              >
-                <Link
-                  href="#tracks"
-                  className="inline-flex items-center justify-center gap-2 bg-accent hover:bg-accent/90 text-white font-sans font-semibold text-base px-8 py-3.5 rounded-md transition-all hover:shadow-lg hover:shadow-accent/20"
-                >
-                  Start Learning Free
-                  <ArrowRight size={18} />
-                </Link>
-                <Link
-                  href="/signup"
-                  className="inline-flex items-center justify-center gap-2 border border-border hover:border-primary/50 text-text-secondary hover:text-primary font-sans font-medium text-base px-8 py-3.5 rounded-md transition-all"
-                >
-                  Sign Up to Unlock Everything →
-                </Link>
-              </motion.div>
-
-              <motion.p
-                variants={stagger.item}
-                className="text-text-secondary/60 text-sm font-mono"
-              >
-                Developers + Product Managers · Two tracks · Interactive games · Free
-              </motion.p>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.8, delay: 0.3 }}
-              className="hidden lg:block"
-            >
-              <HeroDiagram />
-            </motion.div>
-          </div>
-        </div>
-      </section>
-
-      {/* THE PROBLEM */}
-      <section className="py-24 bg-surface/30">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <SectionHeader
-            title="You've shipped products. You've built systems. But Agentic AI feels different."
-            decorator="--"
-          />
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12">
-            {painPoints.map((point, i) => (
-              <motion.div
-                key={point.title}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.4, delay: i * 0.1 }}
-                className="bg-surface border border-border rounded-lg p-6 hover:border-accent/30 transition-all"
-              >
-                <div className="mb-4">{point.icon}</div>
-                <h3 className="font-mono text-text-primary font-bold text-lg mb-2">
-                  {point.title}
-                </h3>
-                <p className="text-text-secondary text-sm leading-relaxed">
-                  {point.body}
-                </p>
-              </motion.div>
-            ))}
-          </div>
-          <motion.p
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            className="text-center text-text-secondary mt-10 font-mono text-sm"
+      {/* ── HERO ── */}
+      <section className="pt-28 pb-20">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <motion.div
+            variants={stagger.container}
+            initial="hidden"
+            animate="visible"
           >
-            This curriculum exists to bridge that gap.
-          </motion.p>
+            <motion.span
+              variants={stagger.item}
+              className="inline-block font-mono text-xs text-primary border border-primary/30 rounded-full px-3 py-1 mb-6"
+            >
+              Based on Antonio Gull&iacute;&apos;s 21 Agentic Design Patterns
+            </motion.span>
+
+            <motion.h1
+              variants={stagger.item}
+              className="font-mono text-4xl md:text-5xl lg:text-6xl font-bold text-text-primary leading-tight mb-6"
+            >
+              Learn the Architecture Behind{" "}
+              <span className="text-gradient">Agentic AI.</span>
+            </motion.h1>
+
+            <motion.p
+              variants={stagger.item}
+              className="text-text-secondary text-lg md:text-xl leading-relaxed mb-10 max-w-2xl mx-auto"
+            >
+              Free curriculum. Two tracks. Interactive games.
+              <br className="hidden sm:block" />
+              Pick the one that matches how you work.
+            </motion.p>
+
+            <motion.div
+              variants={stagger.item}
+              className="flex flex-col sm:flex-row items-center justify-center gap-4"
+            >
+              <Link
+                href="/signup"
+                className="inline-flex items-center justify-center gap-2 bg-accent hover:bg-accent/90 text-white font-sans font-semibold text-base px-8 py-3.5 rounded-md transition-all hover:shadow-lg hover:shadow-accent/20"
+              >
+                Start Free
+                <ArrowRight size={18} />
+              </Link>
+              <Link
+                href="#tracks"
+                className="inline-flex items-center justify-center gap-2 border border-border hover:border-primary/50 text-text-secondary hover:text-primary font-sans font-medium text-base px-8 py-3.5 rounded-md transition-all"
+              >
+                See what&apos;s inside
+              </Link>
+            </motion.div>
+          </motion.div>
         </div>
       </section>
 
-      {/* MAPPING TABLE */}
-      <section className="py-24">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <SectionHeader
-            title="Everything New Maps to Something You Already Know"
-            decorator="≈"
-          />
-          <MappingTable />
-        </div>
-      </section>
-
-      {/* TWO TRACKS */}
-      <section id="tracks" className="py-24 bg-surface/30">
+      {/* ── TWO TRACKS ── */}
+      <section id="tracks" className="py-20 bg-surface/30">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <SectionHeader
-            title="Two Tracks. One Curriculum. Pick Your Path."
-            subtitle="Whether you build the system or define the product, there's a track designed for how you think."
+            title="Two Tracks. Pick Yours."
             decorator="⟨⟩"
           />
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-12">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-10">
             {/* Developer Track */}
             <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              whileInView={{ opacity: 1, x: 0 }}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              className="bg-surface border border-primary/30 rounded-xl p-8 hover:border-primary/50 transition-all"
+              className="bg-surface border border-primary/30 rounded-xl p-8 hover:border-primary/50 transition-all flex flex-col"
             >
-              <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
-                <Code2 size={24} className="text-primary" />
+              <div className="flex items-center gap-3 mb-5">
+                <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                  <Code2 size={20} className="text-primary" />
+                </div>
+                <h3 className="font-mono text-lg text-text-primary font-bold">
+                  For Developers
+                </h3>
               </div>
-              <h3 className="font-mono text-xl text-text-primary font-bold mb-2">
-                Developer Track
-              </h3>
-              <p className="text-text-secondary text-sm leading-relaxed mb-6">
-                21 agentic design patterns mapped to SWE concepts you already know.
-                Code examples, architecture breakdowns, and hands-on build exercises
-                where you assemble agent pipelines.
+
+              <p className="text-text-primary font-medium mb-1">We teach you:</p>
+              <p className="text-text-secondary text-sm leading-relaxed mb-5">
+                The 21 agentic design patterns — mapped to SWE concepts you already know.
+                Code examples, architecture breakdowns, production notes.
               </p>
-              <ul className="space-y-2 mb-6">
-                {["21 patterns with code (Python pseudocode)", "SWE mapping for each pattern", "Drag-and-drop Build games", "Leaderboard & progress tracking"].map((item) => (
-                  <li key={item} className="flex items-center gap-2 text-text-secondary text-sm">
-                    <span className="text-primary font-mono text-xs">✓</span>
-                    {item}
-                  </li>
+
+              <div className="space-y-2.5 mb-6 flex-1">
+                {[
+                  { icon: <BookOpen size={14} />, text: "21 patterns with Python pseudocode" },
+                  { icon: <Puzzle size={14} />, text: "SWE mapping for every pattern" },
+                  { icon: <Gamepad2 size={14} />, text: "Drag-and-drop Agent Builder game" },
+                  { icon: <BarChart3 size={14} />, text: "Leaderboard & progress tracking" },
+                ].map((item) => (
+                  <div key={item.text} className="flex items-center gap-2.5 text-text-secondary text-sm">
+                    <span className="text-primary flex-shrink-0">{item.icon}</span>
+                    {item.text}
+                  </div>
                 ))}
-              </ul>
+              </div>
+
               <Link
                 href="#curriculum"
                 className="inline-flex items-center gap-2 text-primary font-mono text-sm hover:underline"
               >
-                Preview the 21 patterns →
+                Preview patterns →
               </Link>
             </motion.div>
 
             {/* PM Track */}
             <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              whileInView={{ opacity: 1, x: 0 }}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.1 }}
-              className="bg-surface border border-accent/30 rounded-xl p-8 hover:border-accent/50 transition-all"
+              className="bg-surface border border-accent/30 rounded-xl p-8 hover:border-accent/50 transition-all flex flex-col"
             >
-              <div className="w-12 h-12 rounded-lg bg-accent/10 flex items-center justify-center mb-4">
-                <Briefcase size={24} className="text-accent" />
+              <div className="flex items-center gap-3 mb-5">
+                <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center">
+                  <Briefcase size={20} className="text-accent" />
+                </div>
+                <h3 className="font-mono text-lg text-text-primary font-bold">
+                  For Product Managers
+                </h3>
               </div>
-              <h3 className="font-mono text-xl text-text-primary font-bold mb-2">
-                Product Manager Track
-              </h3>
-              <p className="text-text-secondary text-sm leading-relaxed mb-6">
-                11 decision-focused modules built from the same 21 patterns — reframed
-                for product thinking. No code. Just the tradeoffs, questions, and
-                frameworks you need to ship agentic features.
+
+              <p className="text-text-primary font-medium mb-1">We give you:</p>
+              <p className="text-text-secondary text-sm leading-relaxed mb-5">
+                Decision frameworks for agentic AI — zero code. The tradeoffs,
+                questions, and vocabulary you need to lead AI product decisions.
               </p>
-              <ul className="space-y-2 mb-6">
-                {["11 modules (zero code required)", "Key decisions & tradeoff frameworks", "\"Ship or Skip\" scenario game", "\"Budget Builder\" allocation game"].map((item) => (
-                  <li key={item} className="flex items-center gap-2 text-text-secondary text-sm">
-                    <span className="text-accent font-mono text-xs">✓</span>
-                    {item}
-                  </li>
+
+              <div className="space-y-2.5 mb-6 flex-1">
+                {[
+                  { icon: <BookOpen size={14} />, text: "11 modules — no code required" },
+                  { icon: <Crosshair size={14} />, text: "Tradeoff frameworks (cost / quality / latency)" },
+                  { icon: <Gamepad2 size={14} />, text: "Ship or Skip scenario game" },
+                  { icon: <Gamepad2 size={14} />, text: "Budget Builder & Stakeholder Sim" },
+                ].map((item) => (
+                  <div key={item.text} className="flex items-center gap-2.5 text-text-secondary text-sm">
+                    <span className="text-accent flex-shrink-0">{item.icon}</span>
+                    {item.text}
+                  </div>
                 ))}
-              </ul>
+              </div>
+
               <Link
                 href="/signup"
                 className="inline-flex items-center gap-2 text-accent font-mono text-sm hover:underline"
               >
-                Sign up to unlock PM track →
+                Sign up to unlock →
               </Link>
             </motion.div>
+          </div>
+
+          {/* Quick stats strip */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-8">
+            {[
+              { value: "21", label: "Developer Patterns" },
+              { value: "11", label: "PM Modules" },
+              { value: "4", label: "Interactive Games" },
+              { value: "Free", label: "No Credit Card" },
+            ].map((stat, i) => (
+              <motion.div
+                key={stat.label}
+                initial={{ opacity: 0, y: 10 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.05 }}
+                className="bg-code-bg border border-border rounded-lg py-3 px-4 text-center"
+              >
+                <span className="font-mono text-xl text-primary font-bold">{stat.value}</span>
+                <span className="block text-text-secondary text-[11px] font-mono mt-0.5">{stat.label}</span>
+              </motion.div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* CURRICULUM */}
-      <section id="curriculum" className="py-24">
+      {/* ── CURRICULUM PREVIEW ── */}
+      <section id="curriculum" className="py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <SectionHeader
-            title="21 Patterns. 5 Levels of Autonomy. One Complete Mental Model."
-            subtitle="From 'What is an Agent?' to architecting autonomous multi-agent enterprises."
+            title="Preview the Patterns"
+            subtitle="5 of 21 patterns shown. Sign up free to unlock everything."
             decorator="$"
           />
-          <div className="flex flex-wrap items-center justify-center gap-4 mb-10">
-            <span className="inline-flex items-center gap-2 font-mono text-sm border border-primary/30 text-primary rounded-full px-4 py-1.5">
-              <span className="w-2 h-2 rounded-full bg-primary" />
-              Previewing 5 of 21 patterns
-            </span>
-            <span className="inline-flex items-center gap-2 font-mono text-sm border border-accent/30 text-accent rounded-full px-4 py-1.5">
-              <Lock size={12} />
-              Sign up free to unlock all 21
-            </span>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 mt-8">
             {patterns.slice(0, 5).map((pattern, i) => (
               <PatternCard key={pattern.id} pattern={pattern} index={i} />
             ))}
@@ -976,241 +881,23 @@ export default function HomePage() {
               href="/signup"
               className="inline-flex items-center gap-2 bg-accent hover:bg-accent/90 text-white font-sans font-semibold text-base px-8 py-3.5 rounded-md transition-all hover:shadow-lg hover:shadow-accent/20"
             >
-              Sign Up Free to See All 21 Patterns
+              Unlock All 21 Patterns — Free
               <ArrowRight size={18} />
             </Link>
-            <p className="text-text-secondary/60 text-xs font-mono mt-3">
-              16 more patterns · Interactive build games · 100% free
-            </p>
           </div>
         </div>
       </section>
 
-      {/* AEO: ANSWER-FIRST EXPLAINERS — these are what AI engines cite */}
-      <section className="py-24">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <SectionHeader
-            title="Agentic AI, Explained for Engineers & Product Leaders"
-            subtitle="Direct answers to the questions developers and product managers are asking right now."
-            decorator="?"
-          />
-
-          <div className="space-y-12 mt-12">
-            {/* What is Agentic AI? */}
-            <motion.article
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="bg-surface border border-border rounded-lg p-6 md:p-8"
-            >
-              <h3 className="font-mono text-lg md:text-xl text-primary font-bold mb-3">
-                What is Agentic AI?
-              </h3>
-              <p className="text-text-secondary leading-relaxed mb-4">
-                Agentic AI refers to AI systems that autonomously perceive,
-                reason, plan, and act to achieve goals — going beyond chatbots
-                that only respond to single prompts. An agentic system uses an
-                LLM as a reasoning engine, accesses external tools (APIs,
-                databases, code execution), maintains memory across interactions,
-                and executes multi-step workflows without human intervention at
-                each step.
-              </p>
-              <p className="text-text-secondary leading-relaxed">
-                There are 21 established design patterns for building agentic
-                systems, defined in Antonio Gull&iacute;&apos;s framework. Each pattern
-                maps directly to a classical software engineering concept:
-                Prompt Chaining &rarr; Pipe &amp; Filter, Reflection &rarr; TDD,
-                Multi-Agent &rarr; Microservices, Tool Use &rarr; Adapter
-                Pattern, RAG &rarr; Database Query Pipeline, and 16 more.
-                Learn Agentic Patterns (learnagenticpatterns.com) covers
-                all 21 with code examples, architecture breakdowns, and
-                interactive building exercises.
-              </p>
-            </motion.article>
-
-            {/* How to Build AI Agents */}
-            <motion.article
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="bg-surface border border-border rounded-lg p-6 md:p-8"
-            >
-              <h3 className="font-mono text-lg md:text-xl text-primary font-bold mb-3">
-                How Do You Build AI Agents?
-              </h3>
-              <p className="text-text-secondary leading-relaxed mb-4">
-                Building AI agents is software architecture, not prompt
-                engineering. Start by learning the 21 agentic design patterns —
-                they map to concepts you already know as a software engineer.
-                The core architecture has three layers: a Memory layer (vector
-                databases for context), a Tool layer (APIs and external
-                systems), and a Reasoning Engine (the LLM that plans and
-                decides).
-              </p>
-              <p className="text-text-secondary leading-relaxed">
-                The fundamental loop is ReAct (Reason + Act): the agent
-                observes tool outputs, checks if the goal is met, and calls the
-                next tool. You can implement this in any framework — LangChain,
-                LangGraph, CrewAI, AutoGen — but the architectural patterns are
-                universal. Learn Agentic Patterns teaches the patterns first, so you
-                understand the &ldquo;why&rdquo; before the &ldquo;how.&rdquo;
-              </p>
-            </motion.article>
-
-            {/* How Developers Can Survive */}
-            <motion.article
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="bg-surface border border-border rounded-lg p-6 md:p-8"
-            >
-              <h3 className="font-mono text-lg md:text-xl text-primary font-bold mb-3">
-                How Can Software Engineers Survive the AI Transition?
-              </h3>
-              <p className="text-text-secondary leading-relaxed mb-4">
-                Software engineering is not dying — it is evolving. Senior
-                developers who understand distributed systems, design patterns,
-                and production software already have 80% of the foundation for
-                agentic AI. The gap is framing, not skill. Every agentic
-                pattern has a classical SWE parallel you already know.
-              </p>
-              <p className="text-text-secondary leading-relaxed">
-                The market signal is clear: Gartner reported a 1,445% surge in
-                multi-agent system inquiries, yet fewer than 1 in 4
-                organizations have achieved production deployment. Engineers who
-                learn these 21 agentic patterns can architect the intelligent
-                systems companies desperately need. Learn Agentic Patterns
-                (learnagenticpatterns.com) maps every pattern to SWE concepts
-                you already know — so you transition from building traditional
-                systems to architecting intelligent autonomous systems.
-              </p>
-            </motion.article>
-
-            {/* How PMs Can Lead AI Product Decisions */}
-            <motion.article
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="bg-surface border border-accent/20 rounded-lg p-6 md:p-8"
-            >
-              <span className="inline-block font-mono text-[10px] text-accent border border-accent/30 rounded-full px-2 py-0.5 mb-3 uppercase tracking-wider">
-                For Product Managers
-              </span>
-              <h3 className="font-mono text-lg md:text-xl text-accent font-bold mb-3">
-                How Can Product Managers Make Smart AI Product Decisions?
-              </h3>
-              <p className="text-text-secondary leading-relaxed mb-4">
-                You don&apos;t need to write code to lead AI products — but you do need
-                to understand the architecture behind them. When your engineering
-                team proposes a &ldquo;multi-agent system&rdquo; or a &ldquo;RAG
-                pipeline,&rdquo; you need to know what tradeoffs they&apos;re making
-                in cost, latency, and quality, and what questions to ask before
-                greenlighting the build.
-              </p>
-              <p className="text-text-secondary leading-relaxed">
-                The PM track on Learn Agentic Patterns covers 10 product-focused
-                modules — each reframing the 21 engineering patterns through a
-                product lens. You&apos;ll learn why single-agent architectures fail
-                at scale, when to invest in RAG vs. fine-tuning, how to budget
-                token costs across model tiers, and what &ldquo;production-ready
-                AI&rdquo; actually requires. Interactive games like Ship or Skip
-                and Budget Builder let you practice making real product decisions.
-              </p>
-            </motion.article>
-          </div>
-        </div>
-      </section>
-
-      {/* MATURITY MODEL */}
-      <section className="py-24 bg-surface/30">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <SectionHeader
-            title="Where Does Your System Sit?"
-            subtitle="Five levels of agent autonomy, from zero-shot responses to fully autonomous multi-agent systems."
-            decorator="L0→L4"
-          />
-          <MaturityLevel />
-        </div>
-      </section>
-
-      {/* ABOUT MOUSA */}
-      <section className="py-24 bg-surface/30">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <SectionHeader title="Who Built This & Why" decorator="~" />
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5 }}
-            >
-              <div className="w-24 h-24 rounded-full bg-surface border-2 border-primary/30 flex items-center justify-center mb-6">
-                <span className="font-mono text-primary text-2xl font-bold">M</span>
-              </div>
-              <div className="space-y-4 text-text-secondary leading-relaxed">
-                <p>
-                  Hi, I&apos;m{" "}
-                  <span className="text-text-primary font-semibold">
-                    Mousa Al-Jawaheri
-                  </span>
-                  . I&apos;m a Technical Product Leader with a Software Engineering
-                  background and an MBET from the University of Waterloo. I specialize
-                  in Agentic Design Patterns, multi-agent orchestration, and turning
-                  complex engineering architectures into scalable products.
-                </p>
-                <p>
-                  I&apos;ve co-founded a startup that got acquired, led AI product
-                  transitions at Rigoris, and shipped AI-integrated platforms. When I
-                  saw senior engineers dismiss Agentic AI because the vocabulary felt
-                  alien, I knew the gap wasn&apos;t skill. It was framing. Every
-                  pattern has a name you already know.
-                </p>
-              </div>
-              <Link
-                href="/about"
-                className="inline-flex items-center gap-2 mt-4 text-primary font-mono text-sm hover:underline"
-              >
-                Full bio & experience →
-              </Link>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              className="grid grid-cols-2 gap-4"
-            >
-              {[
-                { value: "21", label: "Developer Patterns" },
-                { value: "11", label: "Product Manager Modules" },
-                { value: "4", label: "Interactive Games" },
-                { value: "∞", label: "Free · No Credit Card" },
-              ].map((stat) => (
-                <div
-                  key={stat.label}
-                  className="bg-surface border border-border rounded-lg p-5 text-center"
-                >
-                  <div className="font-mono text-3xl text-primary font-bold mb-2">
-                    {stat.value}
-                  </div>
-                  <div className="text-text-secondary text-xs">{stat.label}</div>
-                </div>
-              ))}
-            </motion.div>
-          </div>
-        </div>
-      </section>
-
-      {/* SIGN UP CTA */}
-      <section id="signup" className="py-24 bg-code-bg">
+      {/* ── CTA ── */}
+      <section className="py-20 bg-code-bg">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <SectionHeader
-            title="Unlock Everything — Free"
-            subtitle="All 21 patterns, all PM modules, all games. No credit card."
-            decorator="→"
-          />
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-8">
+          <h2 className="font-mono text-2xl md:text-3xl text-text-primary font-bold mb-3">
+            Ready to start?
+          </h2>
+          <p className="text-text-secondary mb-8 font-mono text-sm">
+            All 21 patterns, all 11 PM modules, all games. No credit card.
+          </p>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link
               href="/signup"
               className="inline-flex items-center gap-2 bg-accent hover:bg-accent/90 text-white font-sans font-semibold text-base px-8 py-3.5 rounded-md transition-all hover:shadow-lg hover:shadow-accent/20"
@@ -1225,36 +912,11 @@ export default function HomePage() {
               Already have an account? Log in
             </Link>
           </div>
-          <p className="text-text-secondary/60 text-xs font-mono mt-6">
-            100% free · No credit card · Unsubscribe anytime
-          </p>
         </div>
       </section>
 
-      {/* MANIFESTO QUOTE */}
-      <section className="py-24">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-          >
-            <Quote className="w-12 h-12 text-primary/30 mx-auto mb-6" />
-            <blockquote className="font-mono text-xl md:text-2xl lg:text-3xl text-text-primary leading-relaxed mb-6">
-              &ldquo;The engineers and product leaders who understand agentic
-              patterns will build and define the intelligent systems of the next
-              decade.&rdquo;
-            </blockquote>
-            <cite className="text-primary font-mono text-sm not-italic">
-              Mousa
-            </cite>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* FAQ */}
-      <section className="py-24 bg-surface/30">
+      {/* ── FAQ ── */}
+      <section className="py-20 bg-surface/30">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
           <SectionHeader title="Common Questions" decorator="?" />
           <div className="space-y-3">
