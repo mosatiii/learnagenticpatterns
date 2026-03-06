@@ -1238,8 +1238,8 @@ export default function HomePage() {
       <section id="signup" className="py-24 bg-code-bg">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <SectionHeader
-            title="Sign Up Free: Unlock Your Track"
-            subtitle="Developers unlock all 21 patterns + build games. Product Managers unlock 11 modules + decision games. No credit card. No catch."
+            title="Unlock Everything — Free"
+            subtitle="All 21 patterns, all PM modules, all games. No credit card."
             decorator="→"
           />
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-8">

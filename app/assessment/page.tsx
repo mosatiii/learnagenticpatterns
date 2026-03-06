@@ -667,85 +667,75 @@ function Results({
 
           {/* Email report */}
           {!emailSent ? (
-            <div className="bg-code-bg border border-border rounded-lg p-5">
-              <p className="font-mono text-sm text-text-primary font-semibold mb-3">
-                <Mail size={14} className="inline mr-2" />
-                Send me my full report
-              </p>
-              <div className="flex gap-3">
-                <input
-                  type="email"
-                  placeholder="your@email.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="flex-1 bg-surface border border-border rounded-md px-4 py-2.5 text-sm text-text-primary placeholder:text-text-secondary/50 focus:outline-none focus:border-primary"
-                />
-                <button
-                  onClick={handleSendEmail}
-                  disabled={!email || emailSending}
-                  className={`font-sans font-semibold text-sm px-5 py-2.5 rounded-md transition-all whitespace-nowrap ${
-                    email && !emailSending
-                      ? "bg-accent hover:bg-accent/90 text-white"
-                      : "bg-surface text-text-secondary/50 border border-border cursor-not-allowed"
-                  }`}
-                >
-                  {emailSending ? "Sending..." : "Send"}
-                </button>
-              </div>
+            <div className="bg-code-bg border border-border rounded-lg p-4 flex items-center gap-3">
+              <Mail size={16} className="text-text-secondary flex-shrink-0" />
+              <input
+                type="email"
+                placeholder="Email me my results"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="flex-1 bg-transparent text-sm text-text-primary placeholder:text-text-secondary/50 focus:outline-none min-w-0"
+              />
+              <button
+                onClick={handleSendEmail}
+                disabled={!email || emailSending}
+                className={`font-sans font-semibold text-sm px-4 py-2 rounded-md transition-all whitespace-nowrap ${
+                  email && !emailSending
+                    ? "bg-accent hover:bg-accent/90 text-white"
+                    : "text-text-secondary/40 cursor-not-allowed"
+                }`}
+              >
+                {emailSending ? "..." : "Send"}
+              </button>
             </div>
           ) : (
-            <div className="bg-code-bg border border-success/30 rounded-lg p-5 text-center">
-              <Check size={20} className="text-success mx-auto mb-2" />
+            <div className="bg-code-bg border border-success/30 rounded-lg p-4 flex items-center justify-center gap-2">
+              <Check size={16} className="text-success" />
               <p className="font-mono text-sm text-text-primary">
-                Report sent! Check your inbox.
+                Sent! Check your inbox.
               </p>
             </div>
           )}
 
           {/* CTA to curriculum */}
           {(role === "developer" || role === "product-manager") && (
-            <div className="bg-surface border border-border rounded-xl p-6 text-center">
-              <p className="font-mono text-sm text-text-primary font-semibold mb-2">
-                {role === "product-manager"
-                  ? "Understand the patterns your engineering team is using"
-                  : "Ready to close the gaps?"}
-              </p>
-              <p className="text-text-secondary text-sm mb-4">
-                {role === "product-manager"
-                  ? "Learn Agentic Patterns maps all 21 AI design patterns to concepts you can understand — no coding required."
-                  : "Learn Agentic Patterns maps all 21 AI design patterns to SWE concepts you already know."}
-              </p>
-              <Link
-                href="/#curriculum"
-                className="inline-flex items-center gap-2 bg-accent hover:bg-accent/90 text-white font-sans font-semibold text-sm px-6 py-3 rounded-md transition-all"
-              >
-                Explore the Curriculum
-                <ArrowRight size={16} />
-              </Link>
-            </div>
+            <Link
+              href="/#curriculum"
+              className="flex items-center justify-between bg-surface border border-border rounded-xl p-5 hover:border-primary/40 transition-all group"
+            >
+              <div>
+                <p className="font-mono text-sm text-text-primary font-semibold">
+                  {role === "product-manager"
+                    ? "Learn the patterns behind AI products"
+                    : "Close the gaps — start learning"}
+                </p>
+                <p className="text-text-secondary text-xs mt-0.5">
+                  21 patterns · Free · No credit card
+                </p>
+              </div>
+              <ArrowRight size={18} className="text-primary group-hover:translate-x-1 transition-transform flex-shrink-0" />
+            </Link>
           )}
 
           {role !== "developer" && role !== "product-manager" && (
-            <div className="bg-surface border border-border rounded-xl p-6 text-center">
-              <p className="font-mono text-sm text-text-primary font-semibold mb-2">
-                Know someone worried about AI?
-              </p>
-              <p className="text-text-secondary text-sm mb-4">
-                Share this assessment — the developer &amp; PM versions map
-                their skills to 21 agentic AI patterns.
-              </p>
-              <button
-                onClick={() => {
-                  navigator.clipboard.writeText(
-                    "https://learnagenticpatterns.com/assessment"
-                  );
-                }}
-                className="inline-flex items-center gap-2 border border-primary/30 hover:border-primary text-primary font-mono text-sm px-6 py-3 rounded-md transition-all"
-              >
-                <Copy size={14} />
-                Copy link to share
-              </button>
-            </div>
+            <button
+              onClick={() => {
+                navigator.clipboard.writeText(
+                  "https://learnagenticpatterns.com/assessment"
+                );
+              }}
+              className="w-full flex items-center justify-between bg-surface border border-border rounded-xl p-5 hover:border-primary/40 transition-all group"
+            >
+              <div className="text-left">
+                <p className="font-mono text-sm text-text-primary font-semibold">
+                  Share with a colleague
+                </p>
+                <p className="text-text-secondary text-xs mt-0.5">
+                  Dev &amp; PM versions available
+                </p>
+              </div>
+              <Copy size={16} className="text-primary flex-shrink-0" />
+            </button>
           )}
         </motion.div>
       </div>
