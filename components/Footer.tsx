@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Github, Linkedin } from "lucide-react";
@@ -23,7 +24,14 @@ const socialLinks = [
 
 export default function Footer() {
   const pathname = usePathname();
-  const isPractice = pathname === "/practice" || pathname.startsWith("/practice/");
+  const [isOnSubdomain, setIsOnSubdomain] = useState(false);
+
+  useEffect(() => {
+    const host = window.location.hostname;
+    setIsOnSubdomain(host === "practice.learnagenticpatterns.com" || host.startsWith("practice."));
+  }, []);
+
+  const isPractice = isOnSubdomain || pathname === "/practice" || pathname.startsWith("/practice/");
 
   return (
     <footer className="border-t border-border bg-surface/50">
