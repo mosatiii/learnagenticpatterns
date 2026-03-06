@@ -167,13 +167,13 @@ export default function PracticeNav() {
             ) : (
               <div className="flex items-center gap-2">
                 <Link
-                  href={`${MAIN_DOMAIN}/login`}
+                  href={`${MAIN_DOMAIN}/login?from=practice`}
                   className="font-mono text-xs text-text-secondary hover:text-text-primary transition-colors px-3 py-1.5"
                 >
                   Log In
                 </Link>
                 <Link
-                  href={`${MAIN_DOMAIN}/signup`}
+                  href={`${MAIN_DOMAIN}/signup?from=practice`}
                   className="font-mono text-xs bg-accent hover:bg-accent/90 text-white px-4 py-1.5 rounded-lg transition-colors"
                 >
                   Sign Up Free

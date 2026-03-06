@@ -6,9 +6,11 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { motion } from "framer-motion";
 import { Loader2, ArrowRight, Eye, EyeOff, Code2, Briefcase } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { signupSchema, type SignupFormData } from "@/lib/validations";
 import { useAuth } from "@/contexts/AuthContext";
+
+const PRACTICE_URL = "https://practice.learnagenticpatterns.com";
 
 const tracks = [
   {
@@ -28,8 +30,11 @@ const tracks = [
 export default function SignupPage() {
   const { user, signup } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [serverError, setServerError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+
+  const fromPractice = searchParams.get("from") === "practice";
 
   const {
     register,
@@ -44,6 +49,10 @@ export default function SignupPage() {
   const selectedRole = watch("role");
 
   if (user) {
+    if (fromPractice) {
+      window.location.href = PRACTICE_URL;
+      return null;
+    }
     router.push("/");
     return null;
   }
@@ -52,7 +61,11 @@ export default function SignupPage() {
     setServerError("");
     try {
       await signup(data);
-      router.push("/");
+      if (fromPractice) {
+        window.location.href = PRACTICE_URL;
+      } else {
+        router.push("/");
+      }
     } catch (err) {
       setServerError(err instanceof Error ? err.message : "Something went wrong");
     }
@@ -229,7 +242,7 @@ export default function SignupPage() {
 
           <p className="text-center text-text-secondary text-sm mt-6">
             Already have an account?{" "}
-            <Link href="/login" className="text-primary font-mono hover:underline">
+            <Link href={fromPractice ? "/login?from=practice" : "/login"} className="text-primary font-mono hover:underline">
               Log in
             </Link>
           </p>

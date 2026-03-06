@@ -6,15 +6,20 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { motion } from "framer-motion";
 import { Loader2, ArrowRight, Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { loginSchema, type LoginFormData } from "@/lib/validations";
 import { useAuth } from "@/contexts/AuthContext";
+
+const PRACTICE_URL = "https://practice.learnagenticpatterns.com";
 
 export default function LoginPage() {
   const { user, login } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [serverError, setServerError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+
+  const fromPractice = searchParams.get("from") === "practice";
 
   const {
     register,
@@ -26,6 +31,10 @@ export default function LoginPage() {
 
   // Already logged in — redirect
   if (user) {
+    if (fromPractice) {
+      window.location.href = PRACTICE_URL;
+      return null;
+    }
     router.push("/");
     return null;
   }
@@ -34,7 +43,11 @@ export default function LoginPage() {
     setServerError("");
     try {
       await login(data.email, data.password);
-      router.push("/");
+      if (fromPractice) {
+        window.location.href = PRACTICE_URL;
+      } else {
+        router.push("/");
+      }
     } catch (err) {
       setServerError(err instanceof Error ? err.message : "Something went wrong");
     }
@@ -126,7 +139,7 @@ export default function LoginPage() {
 
           <p className="text-center text-text-secondary text-sm mt-6">
             Don&apos;t have an account?{" "}
-            <Link href="/signup" className="text-primary font-mono hover:underline">
+            <Link href={fromPractice ? "/signup?from=practice" : "/signup"} className="text-primary font-mono hover:underline">
               Sign up free
             </Link>
           </p>
