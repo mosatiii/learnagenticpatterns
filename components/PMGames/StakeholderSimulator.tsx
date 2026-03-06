@@ -1,123 +1,115 @@
 "use client";
 
-import { useState, useCallback, useRef, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  CheckCircle2, XCircle, ArrowRight, RotateCcw,
-  Trophy, Lightbulb, Target, Flame, Crown, Timer,
+  Users, ArrowRight, RotateCcw, Trophy,
+  CheckCircle2, XCircle, Target, Lightbulb,
+  AlertTriangle, Crown, Timer,
 } from "lucide-react";
-import { shipOrSkipRounds } from "@/data/pm-games";
-import type { ShipOrSkipOption } from "@/data/pm-games";
+import { stakeholderRounds } from "@/data/pm-games";
+import type { Stakeholder } from "@/data/pm-games";
 import { useAuth } from "@/contexts/AuthContext";
 import { trackGameEvent } from "@/lib/game/analytics";
 
-type Confidence = "guessing" | "fairly-sure" | "very-confident";
-type Phase = "choosing" | "confidence" | "feedback" | "summary";
+type Phase = "choosing" | "feedback" | "summary";
 
 interface RoundResult {
   roundId: string;
   chosenId: string;
   correct: boolean;
-  confidence: Confidence | null;
   timeMs: number;
   category: string;
 }
 
-const CONFIDENCE_OPTIONS: { id: Confidence; label: string; color: string }[] = [
-  { id: "guessing", label: "Guessing", color: "border-red-500/40 bg-red-500/10 text-red-400" },
-  { id: "fairly-sure", label: "Fairly Sure", color: "border-accent/40 bg-accent/10 text-accent" },
-  { id: "very-confident", label: "Very Confident", color: "border-success/40 bg-success/10 text-success" },
-];
+const ROLE_COLORS: Record<string, string> = {
+  "Engineering Lead": "border-primary/30 bg-primary/5",
+  "VP of Sales": "border-accent/30 bg-accent/5",
+  "CEO": "border-red-500/30 bg-red-500/5",
+  "CFO": "border-success/30 bg-success/5",
+  "General Counsel": "border-red-500/30 bg-red-500/5",
+  "Data Team Lead": "border-primary/30 bg-primary/5",
+};
 
-function longestStreak(results: RoundResult[]): number {
-  let max = 0;
-  let current = 0;
-  for (const r of results) {
-    if (r.correct) { current++; max = Math.max(max, current); }
-    else { current = 0; }
-  }
-  return max;
-}
+const ROLE_ICONS: Record<string, string> = {
+  "Engineering Lead": "🛠",
+  "VP of Sales": "📈",
+  "CEO": "👔",
+  "CFO": "💰",
+  "General Counsel": "⚖️",
+  "Data Team Lead": "📊",
+};
 
-export default function ShipOrSkip() {
+export default function StakeholderSimulator() {
   const { saveGameScore } = useAuth();
   const [currentRound, setCurrentRound] = useState(0);
   const [phase, setPhase] = useState<Phase>("choosing");
-  const [selectedOption, setSelectedOption] = useState<string | null>(null);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
   const [results, setResults] = useState<RoundResult[]>([]);
   const [scoreSaved, setScoreSaved] = useState(false);
-  const [pendingConfidence, setPendingConfidence] = useState<Confidence | null>(null);
   const roundStartRef = useRef(Date.now());
 
-  const round = shipOrSkipRounds[currentRound];
-  const totalRounds = shipOrSkipRounds.length;
+  const round = stakeholderRounds[currentRound];
+  const totalRounds = stakeholderRounds.length;
 
-  // Track game start on mount
   useEffect(() => {
-    trackGameEvent("pm_sos_started", { total_rounds: totalRounds });
+    trackGameEvent("pm_ss_started", { total_rounds: totalRounds });
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Reset round timer when advancing
   useEffect(() => {
     roundStartRef.current = Date.now();
   }, [currentRound]);
 
-  const handleSelect = useCallback((optionId: string) => {
+  const handleSelect = useCallback((stakeholderId: string) => {
     if (phase !== "choosing") return;
-    setSelectedOption(optionId);
-    setPhase("confidence");
-  }, [phase]);
-
-  const handleConfidence = useCallback((confidence: Confidence) => {
-    if (!selectedOption) return;
-    setPendingConfidence(confidence);
     const elapsed = Date.now() - roundStartRef.current;
-    const option = round.options.find((o) => o.id === selectedOption);
-    const result: RoundResult = {
-      roundId: round.id,
-      chosenId: selectedOption,
-      correct: option?.isCorrect ?? false,
-      confidence,
-      timeMs: elapsed,
-      category: round.category,
-    };
-    setResults((prev) => [...prev, result]);
+    const stakeholder = round.stakeholders.find((s) => s.id === stakeholderId);
+    const correct = stakeholder?.isOptimal ?? false;
 
-    trackGameEvent("pm_sos_round_answered", {
+    setSelectedId(stakeholderId);
+    setResults((prev) => [
+      ...prev,
+      {
+        roundId: round.id,
+        chosenId: stakeholderId,
+        correct,
+        timeMs: elapsed,
+        category: round.category,
+      },
+    ]);
+
+    trackGameEvent("pm_ss_round_answered", {
       round_id: round.id,
       round_index: currentRound,
-      chosen_id: selectedOption,
-      is_correct: result.correct,
-      confidence,
+      chosen_id: stakeholderId,
+      is_correct: correct,
       time_to_answer_ms: elapsed,
       category: round.category,
     });
 
     setPhase("feedback");
-  }, [selectedOption, round, currentRound]);
+  }, [phase, round, currentRound]);
 
   const handleNext = useCallback(() => {
     if (currentRound + 1 >= totalRounds) {
       setPhase("summary");
     } else {
       setCurrentRound((prev) => prev + 1);
-      setSelectedOption(null);
-      setPendingConfidence(null);
+      setSelectedId(null);
       setPhase("choosing");
     }
   }, [currentRound, totalRounds]);
 
   const handleReset = useCallback(() => {
-    trackGameEvent("pm_sos_retry", {
+    trackGameEvent("pm_ss_retry", {
       previous_score: results.length > 0
         ? Math.round((results.filter((r) => r.correct).length / results.length) * 100)
         : 0,
     });
     setCurrentRound(0);
     setPhase("choosing");
-    setSelectedOption(null);
-    setPendingConfidence(null);
+    setSelectedId(null);
     setResults([]);
     setScoreSaved(false);
   }, [results]);
@@ -127,38 +119,31 @@ export default function ShipOrSkip() {
   const scoreMax = totalRounds * 20;
   const percent = Math.round((scoreTotal / scoreMax) * 100);
   const passed = percent >= 60;
-  const streak = longestStreak(results);
-  const isPerfect = correctCount === totalRounds;
+  const isDiplomatic = correctCount >= 4;
 
-  // Save score + track completion
   if (phase === "summary" && !scoreSaved) {
     setScoreSaved(true);
 
     const avgTimeMs = results.length > 0
       ? Math.round(results.reduce((s, r) => s + r.timeMs, 0) / results.length)
       : 0;
-    const confCounts = results.reduce<Record<string, number>>((acc, r) => {
-      if (r.confidence) acc[r.confidence] = (acc[r.confidence] || 0) + 1;
-      return acc;
-    }, {});
 
-    trackGameEvent("pm_sos_completed", {
+    trackGameEvent("pm_ss_completed", {
       score_percent: percent,
       correct_count: correctCount,
       total_rounds: totalRounds,
       passed,
-      streak,
+      diplomatic_leader: isDiplomatic,
       avg_time_ms: avgTimeMs,
-      confidence_distribution: confCounts,
     });
 
     saveGameScore({
-      patternSlug: "pm-ship-or-skip",
+      patternSlug: "pm-stakeholder-sim",
       scoreTotal,
       scoreMax,
       architecture: correctCount * 8,
-      resilience: correctCount * 8,
-      efficiency: correctCount * 4,
+      resilience: correctCount * 6,
+      efficiency: correctCount * 6,
       passed,
     });
   }
@@ -168,9 +153,6 @@ export default function ShipOrSkip() {
     const avgTimeMs = results.length > 0
       ? Math.round(results.reduce((s, r) => s + r.timeMs, 0) / results.length)
       : 0;
-
-    const confCorrect = results.filter((r) => r.confidence === "very-confident" && r.correct).length;
-    const confTotal = results.filter((r) => r.confidence === "very-confident").length;
 
     const categoryMap = new Map<string, { correct: number; total: number }>();
     for (const r of results) {
@@ -194,62 +176,41 @@ export default function ShipOrSkip() {
             {percent}%
           </p>
           <p className="text-text-secondary text-sm font-mono">
-            {correctCount} / {totalRounds} correct decisions
+            {correctCount} / {totalRounds} optimal decisions
           </p>
 
-          {/* Badges */}
-          <div className="flex items-center justify-center gap-3 mt-4">
-            {isPerfect && (
-              <motion.div
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                transition={{ type: "spring", delay: 0.3 }}
-                className="inline-flex items-center gap-1.5 bg-accent/10 border border-accent/30 rounded-full px-3 py-1"
-              >
-                <Crown size={14} className="text-accent" />
-                <span className="font-mono text-xs text-accent font-bold">Perfect Instincts</span>
-              </motion.div>
-            )}
-            {streak >= 3 && !isPerfect && (
-              <motion.div
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                transition={{ type: "spring", delay: 0.3 }}
-                className="inline-flex items-center gap-1.5 bg-red-500/10 border border-red-500/30 rounded-full px-3 py-1"
-              >
-                <Flame size={14} className="text-red-400" />
-                <span className="font-mono text-xs text-red-400 font-bold">{streak}-Round Streak</span>
-              </motion.div>
-            )}
-          </div>
+          {isDiplomatic && (
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ type: "spring", delay: 0.3 }}
+              className="inline-flex items-center gap-1.5 bg-accent/10 border border-accent/30 rounded-full px-3 py-1 mt-4"
+            >
+              <Crown size={14} className="text-accent" />
+              <span className="font-mono text-xs text-accent font-bold">Diplomatic Leader</span>
+            </motion.div>
+          )}
 
           <p className={`mt-3 text-sm ${passed ? "text-success/80" : "text-text-secondary"}`}>
-            {isPerfect
-              ? "Flawless product judgment across every category."
+            {isDiplomatic
+              ? "Outstanding stakeholder management — you balanced competing priorities with clarity."
               : passed
-                ? "Strong product instincts! You know when to ship, skip, or scale."
-                : "Review the tradeoffs below — understanding 'why' is more important than getting it right."}
+                ? "Good strategic judgment. You can navigate most stakeholder conflicts effectively."
+                : "Stakeholder management is nuanced. Review the rationale for each round to build intuition."}
           </p>
         </motion.div>
 
         {/* Stats row */}
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-2 gap-3">
           <div className="bg-code-bg border border-border rounded-lg p-3 text-center">
             <Timer size={14} className="text-accent mx-auto mb-1" />
             <p className="font-mono text-lg font-bold text-text-primary">{(avgTimeMs / 1000).toFixed(1)}s</p>
             <p className="text-text-secondary text-[10px]">Avg Decision Time</p>
           </div>
           <div className="bg-code-bg border border-border rounded-lg p-3 text-center">
-            <Flame size={14} className="text-red-400 mx-auto mb-1" />
-            <p className="font-mono text-lg font-bold text-text-primary">{streak}</p>
-            <p className="text-text-secondary text-[10px]">Best Streak</p>
-          </div>
-          <div className="bg-code-bg border border-border rounded-lg p-3 text-center">
-            <Target size={14} className="text-primary mx-auto mb-1" />
-            <p className="font-mono text-lg font-bold text-text-primary">
-              {confTotal > 0 ? `${Math.round((confCorrect / confTotal) * 100)}%` : "—"}
-            </p>
-            <p className="text-text-secondary text-[10px]">Confident & Correct</p>
+            <Users size={14} className="text-primary mx-auto mb-1" />
+            <p className="font-mono text-lg font-bold text-text-primary">{correctCount}/{totalRounds}</p>
+            <p className="text-text-secondary text-[10px]">Optimal Choices</p>
           </div>
         </div>
 
@@ -263,9 +224,7 @@ export default function ShipOrSkip() {
                 className={`px-3 py-1.5 rounded-md border text-xs font-mono ${
                   data.correct === data.total
                     ? "border-success/30 bg-success/5 text-success"
-                    : data.correct > 0
-                      ? "border-accent/30 bg-accent/5 text-accent"
-                      : "border-red-500/30 bg-red-500/5 text-red-400"
+                    : "border-red-500/30 bg-red-500/5 text-red-400"
                 }`}
               >
                 {cat}: {data.correct}/{data.total}
@@ -278,9 +237,9 @@ export default function ShipOrSkip() {
         <div className="space-y-3">
           <h4 className="font-mono text-sm text-text-secondary">Round-by-Round Review</h4>
           {results.map((result, i) => {
-            const roundData = shipOrSkipRounds[i];
-            const chosen = roundData.options.find((o) => o.id === result.chosenId);
-            const correct = roundData.options.find((o) => o.isCorrect);
+            const roundData = stakeholderRounds[i];
+            const chosen = roundData.stakeholders.find((s) => s.id === result.chosenId);
+            const optimal = roundData.stakeholders.find((s) => s.isOptimal);
             return (
               <motion.div
                 key={result.roundId}
@@ -303,9 +262,9 @@ export default function ShipOrSkip() {
                       </span>
                     </div>
                     <p className="text-text-secondary text-xs mt-0.5">
-                      You picked: <span className={result.correct ? "text-success" : "text-red-400"}>{chosen?.label}</span>
+                      You sided with: <span className={result.correct ? "text-success" : "text-red-400"}>{chosen?.name} ({chosen?.role})</span>
                       {!result.correct && (
-                        <> · Best choice: <span className="text-success">{correct?.label}</span></>
+                        <> · Optimal: <span className="text-success">{optimal?.name} ({optimal?.role})</span></>
                       )}
                     </p>
                   </div>
@@ -314,7 +273,7 @@ export default function ShipOrSkip() {
                   </span>
                 </div>
                 <p className="text-text-secondary/70 text-xs leading-relaxed pl-5">
-                  {roundData.tradeoffExplanation}
+                  {roundData.optimalRationale}
                 </p>
               </motion.div>
             );
@@ -335,16 +294,6 @@ export default function ShipOrSkip() {
   }
 
   // ─── Playing View ───
-  const currentStreak = longestStreak(results.slice(-results.length));
-  const liveStreak = (() => {
-    let s = 0;
-    for (let i = results.length - 1; i >= 0; i--) {
-      if (results[i].correct) s++;
-      else break;
-    }
-    return s;
-  })();
-
   return (
     <div className="space-y-5">
       {/* Progress bar */}
@@ -360,84 +309,54 @@ export default function ShipOrSkip() {
           />
         </div>
         <span className="font-mono text-xs text-accent">{correctCount} ✓</span>
-        {liveStreak >= 3 && (
-          <motion.span
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            className="inline-flex items-center gap-1 text-red-400 font-mono text-xs"
-          >
-            <Flame size={12} /> {liveStreak}
-          </motion.span>
-        )}
       </div>
 
-      {/* Scenario */}
+      {/* Situation */}
       <div className="bg-surface border border-primary/20 rounded-lg p-5">
         <div className="flex items-start gap-3">
           <Target size={18} className="text-primary flex-shrink-0 mt-0.5" />
-          <div className="flex-1">
+          <div>
             <div className="flex items-center gap-2 mb-2">
-              <h3 className="font-mono text-primary text-sm font-bold">Scenario</h3>
+              <h3 className="font-mono text-primary text-sm font-bold">Situation</h3>
               <span className="font-mono text-[10px] text-text-secondary/60 border border-border rounded px-1.5 py-0.5">
                 {round.category}
               </span>
             </div>
-            <p className="text-text-primary text-sm leading-relaxed mb-2">{round.scenario}</p>
-            <p className="text-text-secondary text-xs leading-relaxed italic">{round.context}</p>
+            <p className="text-text-primary text-sm leading-relaxed mb-3">{round.situation}</p>
+            <div className="flex items-start gap-2 bg-red-500/5 border border-red-500/20 rounded-md px-3 py-2">
+              <AlertTriangle size={14} className="text-red-400 flex-shrink-0 mt-0.5" />
+              <p className="text-red-400/80 text-xs leading-relaxed">{round.tension}</p>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Options */}
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={round.id}
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: -20 }}
-          className="space-y-3"
-        >
-          {round.options.map((option, i) => (
-            <OptionCard
-              key={option.id}
-              option={option}
-              index={i}
-              phase={phase}
-              isSelected={selectedOption === option.id}
-              onSelect={handleSelect}
-            />
-          ))}
-        </motion.div>
-      </AnimatePresence>
-
-      {/* Confidence selector */}
-      <AnimatePresence>
-        {phase === "confidence" && (
+      {/* Stakeholder Cards */}
+      <div className="space-y-3">
+        <h4 className="font-mono text-xs text-text-secondary">Choose which stakeholder&apos;s approach to follow:</h4>
+        <AnimatePresence mode="wait">
           <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            className="overflow-hidden"
+            key={round.id}
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            className="space-y-3"
           >
-            <div className="bg-surface border border-accent/20 rounded-lg p-4">
-              <p className="text-text-secondary text-xs font-mono mb-3">How confident are you?</p>
-              <div className="flex gap-2">
-                {CONFIDENCE_OPTIONS.map((opt) => (
-                  <button
-                    key={opt.id}
-                    onClick={() => handleConfidence(opt.id)}
-                    className={`flex-1 font-mono text-xs px-3 py-2.5 rounded-md border transition-all hover:scale-[1.02] ${opt.color}`}
-                  >
-                    {opt.label}
-                  </button>
-                ))}
-              </div>
-            </div>
+            {round.stakeholders.map((stakeholder, i) => (
+              <StakeholderCard
+                key={stakeholder.id}
+                stakeholder={stakeholder}
+                index={i}
+                phase={phase}
+                isSelected={selectedId === stakeholder.id}
+                onSelect={handleSelect}
+              />
+            ))}
           </motion.div>
-        )}
-      </AnimatePresence>
+        </AnimatePresence>
+      </div>
 
-      {/* Tradeoff explanation */}
+      {/* Rationale + next */}
       <AnimatePresence>
         {phase === "feedback" && (
           <motion.div
@@ -448,10 +367,10 @@ export default function ShipOrSkip() {
           >
             <div className="bg-primary/5 border border-primary/20 rounded-lg px-4 py-3">
               <p className="text-primary text-xs font-mono mb-1 flex items-center gap-1.5">
-                <Lightbulb size={12} /> Key Tradeoff
+                <Lightbulb size={12} /> Optimal Rationale
               </p>
               <p className="text-text-secondary text-sm leading-relaxed">
-                {round.tradeoffExplanation}
+                {round.optimalRationale}
               </p>
             </div>
 
@@ -469,67 +388,71 @@ export default function ShipOrSkip() {
   );
 }
 
-// ─── Option Card ─────────────────────────────────────────────────────────────
+// ─── Stakeholder Card ────────────────────────────────────────────────────────
 
-function OptionCard({
-  option,
+function StakeholderCard({
+  stakeholder,
   index,
   phase,
   isSelected,
   onSelect,
 }: {
-  option: ShipOrSkipOption;
+  stakeholder: Stakeholder;
   index: number;
   phase: Phase;
   isSelected: boolean;
   onSelect: (id: string) => void;
 }) {
   const showFeedback = phase === "feedback";
-  const isCorrect = option.isCorrect;
-  const isLocked = phase === "confidence" || phase === "feedback";
+  const isOptimal = stakeholder.isOptimal;
+  const isLocked = phase === "feedback";
 
-  let borderClass = "border-border hover:border-primary/40";
-  if ((phase === "confidence" || showFeedback) && isSelected) {
-    borderClass = showFeedback
-      ? isCorrect ? "border-success/50 bg-success/5" : "border-red-500/50 bg-red-500/5"
-      : "border-accent/50 bg-accent/5";
+  const colorClass = ROLE_COLORS[stakeholder.role] || "border-border bg-surface";
+  const icon = ROLE_ICONS[stakeholder.role] || "👤";
+
+  let borderOverride = "";
+  if (showFeedback && isSelected) {
+    borderOverride = isOptimal ? "!border-success/50 !bg-success/5" : "!border-red-500/50 !bg-red-500/5";
   }
-  if (showFeedback && !isSelected && isCorrect) borderClass = "border-success/30";
+  if (showFeedback && !isSelected && isOptimal) {
+    borderOverride = "!border-success/30";
+  }
 
   return (
     <motion.button
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.08 }}
-      onClick={() => onSelect(option.id)}
+      onClick={() => onSelect(stakeholder.id)}
       disabled={isLocked}
-      className={`w-full text-left p-4 rounded-lg border transition-all ${borderClass} ${
-        !isLocked ? "cursor-pointer" : "cursor-default"
+      className={`w-full text-left p-4 rounded-lg border transition-all ${colorClass} ${borderOverride} ${
+        !isLocked ? "cursor-pointer hover:scale-[1.01]" : "cursor-default"
       }`}
     >
       <div className="flex items-start gap-3">
-        <span className="font-mono text-xs text-text-secondary/50 mt-0.5 w-5 text-center flex-shrink-0">
-          {String.fromCharCode(65 + index)}
-        </span>
+        <span className="text-lg flex-shrink-0">{icon}</span>
         <div className="flex-1">
-          <p className="text-text-primary font-medium text-sm mb-1">{option.label}</p>
-          <p className="text-text-secondary text-xs leading-relaxed">{option.description}</p>
+          <div className="flex items-center gap-2 mb-1">
+            <p className="text-text-primary font-medium text-sm">{stakeholder.name}</p>
+            <span className="text-text-secondary/60 text-[10px] font-mono">{stakeholder.role}</span>
+          </div>
+          <p className="text-text-secondary text-xs leading-relaxed">{stakeholder.argument}</p>
 
           <AnimatePresence>
-            {showFeedback && (isSelected || isCorrect) && (
+            {showFeedback && (isSelected || isOptimal) && (
               <motion.div
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: "auto" }}
                 className="mt-2 pt-2 border-t border-border/30"
               >
                 <div className="flex items-start gap-1.5">
-                  {isCorrect ? (
+                  {isOptimal ? (
                     <CheckCircle2 size={12} className="text-success flex-shrink-0 mt-0.5" />
                   ) : (
                     <XCircle size={12} className="text-red-400 flex-shrink-0 mt-0.5" />
                   )}
-                  <p className={`text-xs leading-relaxed ${isCorrect ? "text-success/80" : "text-red-400/80"}`}>
-                    {option.feedback}
+                  <p className={`text-xs leading-relaxed ${isOptimal ? "text-success/80" : "text-red-400/80"}`}>
+                    {stakeholder.feedback}
                   </p>
                 </div>
               </motion.div>

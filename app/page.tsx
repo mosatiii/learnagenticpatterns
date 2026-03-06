@@ -335,6 +335,7 @@ function GameStats({
 const PM_GAME_LABELS: Record<string, string> = {
   "pm-ship-or-skip": "Ship or Skip",
   "pm-budget-builder": "Budget Builder",
+  "pm-stakeholder-sim": "Stakeholder Simulator",
 };
 
 function PMGameStats({ scores, totalAttempts }: { scores: PatternScore[]; totalAttempts: number }) {
@@ -377,7 +378,7 @@ function PMGameStats({ scores, totalAttempts }: { scores: PatternScore[]; totalA
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-8">
           {[
             { label: "Avg Score", value: `${avgPercent}%`, accent: avgPercent >= 60 },
-            { label: "Games Played", value: `${pmScores.length}/2`, accent: false },
+            { label: "Games Played", value: `${pmScores.length}/3`, accent: false },
             { label: "Best Score", value: `${Math.max(...pmScores.map((s) => Math.round((s.score_total / s.score_max) * 100)))}%`, accent: true },
           ].map((stat, i) => (
             <motion.div

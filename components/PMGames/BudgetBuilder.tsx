@@ -1,14 +1,16 @@
 "use client";
 
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   DollarSign, Gauge, Clock, Play, ArrowRight,
   RotateCcw, Trophy, CheckCircle2, XCircle, Target,
+  Lightbulb, BadgeDollarSign, Shield,
 } from "lucide-react";
 import { budgetScenarios, calculateBudgetResult } from "@/data/pm-games";
 import type { BudgetScenario } from "@/data/pm-games";
 import { useAuth } from "@/contexts/AuthContext";
+import { trackGameEvent } from "@/lib/game/analytics";
 
 type Phase = "allocating" | "results" | "summary";
 
@@ -17,6 +19,11 @@ interface ScenarioResult {
   totalScore: number;
   maxScore: number;
   passed: boolean;
+  withinBudget: boolean;
+  meetsQuality: boolean;
+  meetsLatency: boolean;
+  monthlyCost: number;
+  budgetRatio: number;
 }
 
 export default function BudgetBuilder() {
@@ -29,6 +36,12 @@ export default function BudgetBuilder() {
 
   const scenario = budgetScenarios[currentIdx];
   const totalScenarios = budgetScenarios.length;
+
+  // Track game start on mount
+  useEffect(() => {
+    trackGameEvent("pm_bb_started", { total_scenarios: totalScenarios });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Initialize allocations when scenario changes
   useMemo(() => {
@@ -46,18 +59,48 @@ export default function BudgetBuilder() {
     [allocations, scenario],
   );
 
-  const handleTierChange = useCallback((componentId: string, tierId: string) => {
-    setAllocations((prev) => ({ ...prev, [componentId]: tierId }));
-  }, []);
+  const handleTierChange = useCallback((componentId: string, fromTier: string, toTier: string) => {
+    setAllocations((prev) => ({ ...prev, [componentId]: toTier }));
+    trackGameEvent("pm_bb_tier_changed", {
+      component_id: componentId,
+      from_tier: fromTier,
+      to_tier: toTier,
+      scenario_id: scenario.id,
+    });
+  }, [scenario.id]);
 
   const handleRun = useCallback(() => {
     const result = calculateBudgetResult(allocations, scenario);
+    const budgetRatio = result.monthlyCost / scenario.monthlyBudget;
     setScenarioResults((prev) => [
       ...prev,
-      { scenarioId: scenario.id, totalScore: result.totalScore, maxScore: result.maxScore, passed: result.passed },
+      {
+        scenarioId: scenario.id,
+        totalScore: result.totalScore,
+        maxScore: result.maxScore,
+        passed: result.passed,
+        withinBudget: result.withinBudget,
+        meetsQuality: result.meetsQuality,
+        meetsLatency: result.meetsLatency,
+        monthlyCost: result.monthlyCost,
+        budgetRatio,
+      },
     ]);
+
+    trackGameEvent("pm_bb_scenario_submitted", {
+      scenario_id: scenario.id,
+      scenario_index: currentIdx,
+      score: result.totalScore,
+      within_budget: result.withinBudget,
+      meets_quality: result.meetsQuality,
+      meets_latency: result.meetsLatency,
+      monthly_cost: result.monthlyCost,
+      budget_ratio: budgetRatio,
+      allocations,
+    });
+
     setPhase("results");
-  }, [allocations, scenario]);
+  }, [allocations, scenario, currentIdx]);
 
   const handleNext = useCallback(() => {
     if (currentIdx + 1 >= totalScenarios) {
@@ -70,23 +113,48 @@ export default function BudgetBuilder() {
   }, [currentIdx, totalScenarios]);
 
   const handleReset = useCallback(() => {
+    trackGameEvent("pm_bb_retry", {
+      previous_score: scenarioResults.length > 0
+        ? Math.round(
+            (scenarioResults.reduce((s, r) => s + r.totalScore, 0) /
+              scenarioResults.reduce((s, r) => s + r.maxScore, 0)) * 100
+          )
+        : 0,
+    });
     setCurrentIdx(0);
     setPhase("allocating");
     setAllocations({});
     setScenarioResults([]);
     setScoreSaved(false);
-  }, []);
+  }, [scenarioResults]);
 
-  // Calculate final score
   const totalScoreSum = scenarioResults.reduce((sum, r) => sum + r.totalScore, 0);
   const totalMaxSum = scenarioResults.reduce((sum, r) => sum + r.maxScore, 0);
   const finalPercent = totalMaxSum > 0 ? Math.round((totalScoreSum / totalMaxSum) * 100) : 0;
   const finalPassed = finalPercent >= 60;
 
+  const allTripleThreat = scenarioResults.length > 0 &&
+    scenarioResults.every((r) => r.withinBudget && r.meetsQuality && r.meetsLatency);
+  const budgetHawk = scenarioResults.length > 0 &&
+    scenarioResults.every((r) => r.budgetRatio <= 0.7 && r.meetsQuality);
+
   // Save on summary
   if (phase === "summary" && !scoreSaved) {
     setScoreSaved(true);
     const avgQuality = Math.round(totalScoreSum / totalScenarios);
+    const scenariosPassed = scenarioResults.filter((r) => r.passed).length;
+
+    trackGameEvent("pm_bb_completed", {
+      total_score: totalScoreSum,
+      total_max: totalMaxSum,
+      percent: finalPercent,
+      passed: finalPassed,
+      scenarios_passed: scenariosPassed,
+      total_scenarios: totalScenarios,
+      triple_threat: allTripleThreat,
+      budget_hawk: budgetHawk,
+    });
+
     saveGameScore({
       patternSlug: "pm-budget-builder",
       scoreTotal: totalScoreSum,
@@ -116,10 +184,39 @@ export default function BudgetBuilder() {
           <p className="text-text-secondary text-sm font-mono">
             {totalScoreSum} / {totalMaxSum} points across {totalScenarios} scenarios
           </p>
+
+          {/* Badges */}
+          <div className="flex items-center justify-center gap-3 mt-4">
+            {allTripleThreat && (
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ type: "spring", delay: 0.3 }}
+                className="inline-flex items-center gap-1.5 bg-success/10 border border-success/30 rounded-full px-3 py-1"
+              >
+                <Shield size={14} className="text-success" />
+                <span className="font-mono text-xs text-success font-bold">Triple Threat</span>
+              </motion.div>
+            )}
+            {budgetHawk && (
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ type: "spring", delay: 0.4 }}
+                className="inline-flex items-center gap-1.5 bg-accent/10 border border-accent/30 rounded-full px-3 py-1"
+              >
+                <BadgeDollarSign size={14} className="text-accent" />
+                <span className="font-mono text-xs text-accent font-bold">Budget Hawk</span>
+              </motion.div>
+            )}
+          </div>
+
           <p className={`mt-3 text-sm ${finalPassed ? "text-success/80" : "text-text-secondary"}`}>
-            {finalPassed
-              ? "Excellent budget sense! You balanced cost, quality, and speed like a pro."
-              : "Budget optimization is an art. Review each scenario to see where you could improve."}
+            {allTripleThreat
+              ? "Exceptional — you nailed cost, quality, and latency on every scenario."
+              : finalPassed
+                ? "Excellent budget sense! You balanced cost, quality, and speed like a pro."
+                : "Budget optimization is an art. Review each scenario to see where you could improve."}
           </p>
         </motion.div>
 
@@ -138,9 +235,14 @@ export default function BudgetBuilder() {
                 <XCircle size={14} className="text-red-400" />
               )}
               <span className="text-text-primary text-sm flex-1">{budgetScenarios[i].title}</span>
-              <span className={`font-mono text-sm font-bold ${result.passed ? "text-success" : "text-red-400"}`}>
-                {result.totalScore}/{result.maxScore}
-              </span>
+              <div className="flex items-center gap-2">
+                {result.withinBudget && result.meetsQuality && result.meetsLatency && (
+                  <span className="text-[10px] font-mono text-success/60">3/3</span>
+                )}
+                <span className={`font-mono text-sm font-bold ${result.passed ? "text-success" : "text-red-400"}`}>
+                  {result.totalScore}/{result.maxScore}
+                </span>
+              </div>
             </motion.div>
           ))}
         </div>
@@ -164,6 +266,22 @@ export default function BudgetBuilder() {
     return (
       <div className="space-y-5">
         <SimulationResult result={result} scenario={scenario} allocations={allocations} />
+
+        {/* Optimization Tip */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="bg-accent/5 border border-accent/20 rounded-lg px-4 py-3"
+        >
+          <p className="text-accent text-xs font-mono mb-1 flex items-center gap-1.5">
+            <Lightbulb size={12} /> Pro Tip
+          </p>
+          <p className="text-text-secondary text-sm leading-relaxed">
+            {scenario.optimizationTip}
+          </p>
+        </motion.div>
+
         <div className="text-center">
           <button
             onClick={handleNext}
@@ -264,7 +382,7 @@ function ComponentAllocator({
   component: { id: string; name: string; description: string; requestsPerMonth: number };
   scenario: BudgetScenario;
   selectedTier: string;
-  onTierChange: (componentId: string, tierId: string) => void;
+  onTierChange: (componentId: string, fromTier: string, toTier: string) => void;
 }) {
   return (
     <div className="bg-surface border border-border rounded-lg p-4">
@@ -278,7 +396,7 @@ function ComponentAllocator({
           return (
             <button
               key={tier.id}
-              onClick={() => onTierChange(component.id, tier.id)}
+              onClick={() => onTierChange(component.id, selectedTier, tier.id)}
               className={`text-left p-2.5 rounded-md border transition-all text-xs ${
                 isSelected
                   ? "border-primary bg-primary/10 text-primary"
@@ -364,6 +482,9 @@ function SimulationResult({
         <p className="text-text-secondary text-xs font-mono mt-1">
           {result.passed ? "Budget allocation approved!" : "Budget needs optimization."}
         </p>
+        {result.withinBudget && result.meetsQuality && result.meetsLatency && (
+          <p className="text-success/60 text-[10px] font-mono mt-1">All 3 constraints met</p>
+        )}
       </div>
 
       {/* Score breakdown */}
