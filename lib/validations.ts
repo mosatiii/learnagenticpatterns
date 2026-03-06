@@ -41,15 +41,8 @@ export const signupSchema = z.object({
     .min(8, "Password must be at least 8 characters")
     .max(100, "Password must be under 100 characters"),
   role: z.enum(
-    [
-      "Senior Developer",
-      "Tech Lead",
-      "Software Architect",
-      "CTO/VP Engineering",
-      "Product Manager",
-      "Other",
-    ],
-    { required_error: "Please select your role" }
+    ["Developer", "Product Manager"],
+    { required_error: "Please select your track" }
   ),
   agreedToTerms: z
     .literal(true, {

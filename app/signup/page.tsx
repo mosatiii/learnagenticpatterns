@@ -4,19 +4,25 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { motion } from "framer-motion";
-import { Loader2, ArrowRight, Eye, EyeOff } from "lucide-react";
+import { Loader2, ArrowRight, Eye, EyeOff, Code2, Briefcase } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { signupSchema, type SignupFormData } from "@/lib/validations";
 import { useAuth } from "@/contexts/AuthContext";
 
-const roles = [
-  "Senior Developer",
-  "Tech Lead",
-  "Software Architect",
-  "CTO/VP Engineering",
-  "Product Manager",
-  "Other",
+const tracks = [
+  {
+    value: "Developer" as const,
+    label: "Developer",
+    description: "21 patterns with code examples & SWE mappings",
+    icon: Code2,
+  },
+  {
+    value: "Product Manager" as const,
+    label: "Product Manager",
+    description: "11 modules with decision frameworks & games",
+    icon: Briefcase,
+  },
 ];
 
 export default function SignupPage() {
@@ -28,10 +34,14 @@ export default function SignupPage() {
   const {
     register,
     handleSubmit,
+    setValue,
+    watch,
     formState: { errors, isSubmitting },
   } = useForm<SignupFormData>({
     resolver: zodResolver(signupSchema),
   });
+
+  const selectedRole = watch("role");
 
   if (user) {
     router.push("/");
@@ -122,22 +132,42 @@ export default function SignupPage() {
             </div>
 
             <div>
-              <label htmlFor="role" className="block font-mono text-sm text-text-secondary mb-1.5">
-                Role
-              </label>
-              <select
-                id="role"
-                {...register("role")}
-                className="w-full bg-code-bg border border-border rounded-md px-4 py-3 text-text-primary focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/30 transition-colors font-sans appearance-none"
-                defaultValue=""
-              >
-                <option value="" disabled>Select your role</option>
-                {roles.map((role) => (
-                  <option key={role} value={role}>{role}</option>
-                ))}
-              </select>
+              <span className="block font-mono text-sm text-text-secondary mb-2.5">
+                I&apos;m a...
+              </span>
+              <input type="hidden" {...register("role")} />
+              <div className="grid grid-cols-2 gap-3">
+                {tracks.map((track) => {
+                  const isSelected = selectedRole === track.value;
+                  return (
+                    <button
+                      key={track.value}
+                      type="button"
+                      onClick={() => setValue("role", track.value, { shouldValidate: true })}
+                      className={`relative flex flex-col items-center gap-2 rounded-lg border px-4 py-4 transition-all text-center cursor-pointer ${
+                        isSelected
+                          ? "border-primary bg-primary/10 shadow-md shadow-primary/10"
+                          : "border-border bg-code-bg hover:border-text-secondary/40"
+                      }`}
+                    >
+                      <track.icon
+                        size={22}
+                        className={isSelected ? "text-primary" : "text-text-secondary"}
+                      />
+                      <span className={`font-mono text-sm font-semibold ${
+                        isSelected ? "text-primary" : "text-text-primary"
+                      }`}>
+                        {track.label}
+                      </span>
+                      <span className="text-text-secondary/70 text-[11px] leading-tight">
+                        {track.description}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
               {errors.role && (
-                <p className="text-red-400 text-xs mt-1 font-mono">{errors.role.message}</p>
+                <p className="text-red-400 text-xs mt-1.5 font-mono">{errors.role.message}</p>
               )}
             </div>
 
