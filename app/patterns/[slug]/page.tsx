@@ -12,6 +12,7 @@ import { formatPatternNumber } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import { PatternArticleJsonLd, BreadcrumbJsonLd, FAQPageJsonLd } from "@/components/JsonLd";
 import AgentBuilder from "@/components/AgentBuilder/AgentBuilder";
+import LessonFeedback from "@/components/LessonFeedback";
 import { hasGameConfig } from "@/data/games";
 import type { Pattern } from "@/data/patterns";
 
@@ -399,6 +400,8 @@ export default function PatternDetailPage() {
                 </div>
               )}
             </div>
+
+            <LessonFeedback lessonSlug={slug} track="developer" />
 
             {/* FAQ section -- crawlable by AI engines */}
             <PatternFAQ pattern={pattern} />

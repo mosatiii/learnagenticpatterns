@@ -50,6 +50,16 @@ async function ensureTables() {
       passed          BOOLEAN NOT NULL DEFAULT FALSE,
       played_at       TIMESTAMPTZ DEFAULT NOW()
     );
+
+    CREATE TABLE IF NOT EXISTS lesson_feedback (
+      id              SERIAL PRIMARY KEY,
+      user_id         INTEGER REFERENCES users(id) ON DELETE CASCADE,
+      lesson_slug     TEXT NOT NULL,
+      track           TEXT NOT NULL DEFAULT 'developer',
+      helpful         BOOLEAN NOT NULL,
+      created_at      TIMESTAMPTZ DEFAULT NOW(),
+      UNIQUE(user_id, lesson_slug)
+    );
   `);
 
   // Add password_hash column if upgrading from the old schema

@@ -13,6 +13,7 @@ import Link from "next/link";
 import { pmModules, getPMModuleBySlug } from "@/data/pm-curriculum";
 import { useAuth } from "@/contexts/AuthContext";
 import PMGameSection from "@/components/PMGames/PMGameSection";
+import LessonFeedback from "@/components/LessonFeedback";
 
 const iconMap = {
   layers: Layers,
@@ -302,6 +303,8 @@ export default function PMModulePage() {
                 <PMGameSection />
               </div>
             </div>
+
+            <LessonFeedback lessonSlug={mod.slug} track="pm" />
 
             {/* Sign-up CTA for unauthenticated users on free modules */}
             {!user && mod.isFree && (

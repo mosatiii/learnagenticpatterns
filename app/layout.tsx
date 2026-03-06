@@ -143,6 +143,8 @@ export default function RootLayout({
         <Providers>
           <AnimatedGrid />
           <NavBar />
+          {/* Spacer for fixed banner (h-7 = 28px) + nav (h-16 = 64px) */}
+          <div className="h-7" aria-hidden />
           <div className="relative z-10">{children}</div>
           <Footer />
         </Providers>
