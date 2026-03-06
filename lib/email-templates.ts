@@ -81,24 +81,38 @@ function button(text: string, href: string): string {
     </table>`;
 }
 
-export function welcomeEmail(firstName: string): string {
+export function welcomeEmail(firstName: string, role: string): string {
   const safeName = esc(firstName);
-  return baseLayout(`
-    <h1 style="color:${TEXT_COLOR};font-size:24px;margin:0 0 8px 0;font-family:monospace;">
-      Welcome, ${safeName}!
-    </h1>
-    <p style="color:${BRAND_COLOR};font-size:14px;font-family:monospace;margin:0 0 24px 0;">
-      You're in. All 21 patterns are unlocked.
-    </p>
-    <p style="color:${TEXT_SECONDARY};font-size:15px;line-height:1.6;margin:0 0 8px 0;">
-      You now have full access to all 21 Agentic Design Patterns, each one mapped to a
-      Software Engineering concept you already know.
-    </p>
-    <p style="color:${TEXT_SECONDARY};font-size:15px;line-height:1.6;margin:0 0 4px 0;">
-      Here's what's waiting for you:
-    </p>
-    <table cellpadding="0" cellspacing="0" style="margin:16px 0;">
+  const isPM = role === "Product Manager";
+
+  const headline = isPM
+    ? "You're in. All 11 PM modules are unlocked."
+    : "You're in. All 21 patterns are unlocked.";
+
+  const intro = isPM
+    ? `You now have full access to all 11 Product Manager modules — decision frameworks,
+      tradeoff analysis, and interactive games designed for PMs who own or influence AI product decisions.`
+    : `You now have full access to all 21 Agentic Design Patterns, each one mapped to a
+      Software Engineering concept you already know.`;
+
+  const features = isPM
+    ? `<tr>
+        <td style="color:${BRAND_COLOR};font-family:monospace;padding:4px 12px 4px 0;vertical-align:top;">›</td>
+        <td style="color:${TEXT_COLOR};font-size:14px;padding:4px 0;">11 decision-focused modules (zero code)</td>
+      </tr>
       <tr>
+        <td style="color:${BRAND_COLOR};font-family:monospace;padding:4px 12px 4px 0;vertical-align:top;">›</td>
+        <td style="color:${TEXT_COLOR};font-size:14px;padding:4px 0;">Tradeoff frameworks: cost vs. quality vs. latency</td>
+      </tr>
+      <tr>
+        <td style="color:${BRAND_COLOR};font-family:monospace;padding:4px 12px 4px 0;vertical-align:top;">›</td>
+        <td style="color:${TEXT_COLOR};font-size:14px;padding:4px 0;">Interactive games: Ship or Skip, Budget Builder, Stakeholder Simulator</td>
+      </tr>
+      <tr>
+        <td style="color:${BRAND_COLOR};font-family:monospace;padding:4px 12px 4px 0;vertical-align:top;">›</td>
+        <td style="color:${TEXT_COLOR};font-size:14px;padding:4px 0;">Questions to ask your engineering team for each pattern</td>
+      </tr>`
+    : `<tr>
         <td style="color:${BRAND_COLOR};font-family:monospace;padding:4px 12px 4px 0;vertical-align:top;">›</td>
         <td style="color:${TEXT_COLOR};font-size:14px;padding:4px 0;">21 patterns with code examples</td>
       </tr>
@@ -113,9 +127,31 @@ export function welcomeEmail(firstName: string): string {
       <tr>
         <td style="color:${BRAND_COLOR};font-family:monospace;padding:4px 12px 4px 0;vertical-align:top;">›</td>
         <td style="color:${TEXT_COLOR};font-size:14px;padding:4px 0;">Progress tracking as you learn</td>
-      </tr>
+      </tr>`;
+
+  const ctaUrl = isPM
+    ? "https://learnagenticpatterns.com/pm/agentic-ai-landscape"
+    : "https://learnagenticpatterns.com/#curriculum";
+
+  const ctaText = isPM ? "Start PM Track" : "Start Learning";
+
+  return baseLayout(`
+    <h1 style="color:${TEXT_COLOR};font-size:24px;margin:0 0 8px 0;font-family:monospace;">
+      Welcome, ${safeName}!
+    </h1>
+    <p style="color:${BRAND_COLOR};font-size:14px;font-family:monospace;margin:0 0 24px 0;">
+      ${headline}
+    </p>
+    <p style="color:${TEXT_SECONDARY};font-size:15px;line-height:1.6;margin:0 0 8px 0;">
+      ${intro}
+    </p>
+    <p style="color:${TEXT_SECONDARY};font-size:15px;line-height:1.6;margin:0 0 4px 0;">
+      Here's what's waiting for you:
+    </p>
+    <table cellpadding="0" cellspacing="0" style="margin:16px 0;">
+      ${features}
     </table>
-    ${button("Start Learning", "https://learnagenticpatterns.com/#curriculum")}
+    ${button(ctaText, ctaUrl)}
     <p style="color:${TEXT_SECONDARY};font-size:14px;margin:0;">
       Mousa
     </p>

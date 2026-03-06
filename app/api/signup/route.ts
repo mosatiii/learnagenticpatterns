@@ -74,7 +74,7 @@ export async function POST(request: Request) {
             from: fromEmail,
             to: userData.email,
             subject: "Welcome to Learn Agentic Patterns!",
-            html: welcomeEmail(userData.firstName),
+            html: welcomeEmail(userData.firstName, userData.role),
           }),
         });
 
