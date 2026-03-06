@@ -155,6 +155,39 @@ export default function SignupPage() {
               />
             </div>
 
+            <div>
+              <label className="flex items-start gap-3 cursor-pointer group">
+                <input
+                  type="checkbox"
+                  {...register("agreedToTerms")}
+                  className="mt-0.5 w-4 h-4 rounded border-border bg-code-bg text-primary focus:ring-primary/30 focus:ring-offset-0 cursor-pointer accent-primary"
+                />
+                <span className="text-text-secondary text-sm leading-relaxed">
+                  I agree to the{" "}
+                  <Link
+                    href="/privacy"
+                    target="_blank"
+                    className="text-primary hover:underline font-mono"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    Privacy Policy
+                  </Link>{" "}
+                  and{" "}
+                  <Link
+                    href="/terms"
+                    target="_blank"
+                    className="text-primary hover:underline font-mono"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    Terms of Service
+                  </Link>
+                </span>
+              </label>
+              {errors.agreedToTerms && (
+                <p className="text-red-400 text-xs mt-1.5 font-mono">{errors.agreedToTerms.message}</p>
+              )}
+            </div>
+
             {serverError && (
               <div className="bg-red-500/10 border border-red-500/30 rounded-md px-4 py-3">
                 <p className="text-red-400 text-sm font-mono">{serverError}</p>

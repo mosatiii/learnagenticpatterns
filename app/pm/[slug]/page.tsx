@@ -14,6 +14,7 @@ import { pmModules, getPMModuleBySlug } from "@/data/pm-curriculum";
 import { useAuth } from "@/contexts/AuthContext";
 import PMGameSection from "@/components/PMGames/PMGameSection";
 import LessonFeedback from "@/components/LessonFeedback";
+import CollapsibleText from "@/components/CollapsibleText";
 
 const iconMap = {
   layers: Layers,
@@ -188,25 +189,42 @@ export default function PMModulePage() {
               {/* Learn Tab */}
               <div className={activeTab === "learn" ? "block" : "hidden"}>
                 <div className="space-y-6">
+                  {/* TL;DR card */}
+                  <div className="bg-primary/5 border border-primary/20 rounded-xl p-5 flex items-start gap-4">
+                    <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <Icon size={18} className="text-primary" />
+                    </div>
+                    <div>
+                      <h3 className="font-mono text-primary text-sm font-bold mb-1">TL;DR</h3>
+                      <p className="text-text-primary text-sm leading-relaxed">
+                        {mod.subtitle}
+                      </p>
+                    </div>
+                  </div>
+
                   <div className="bg-surface border border-border rounded-lg p-6">
                     <h3 className="font-mono text-primary text-sm font-bold mb-3">
                       {">"} Overview
                     </h3>
-                    <p className="text-text-secondary leading-relaxed">
-                      {mod.description}
-                    </p>
+                    <CollapsibleText>
+                      <p className="text-text-secondary leading-relaxed">
+                        {mod.description}
+                      </p>
+                    </CollapsibleText>
                   </div>
 
                   <div className="bg-surface border border-primary/20 rounded-lg p-6 border-glow">
                     <h3 className="font-mono text-primary text-sm font-bold mb-3">
                       {">"} Why This Matters for Your Product
                     </h3>
-                    <p className="text-text-primary leading-relaxed">
-                      {mod.whyItMatters}
-                    </p>
+                    <CollapsibleText>
+                      <p className="text-text-primary leading-relaxed">
+                        {mod.whyItMatters}
+                      </p>
+                    </CollapsibleText>
                   </div>
 
-                  {/* Long-form sections (for deep-dive modules) */}
+                  {/* Long-form sections — collapsible cards */}
                   {mod.sections?.map((section, sIdx) => (
                     <motion.div
                       key={sIdx}
@@ -219,22 +237,24 @@ export default function PMModulePage() {
                       <h3 className="font-mono text-primary text-sm font-bold mb-3">
                         {">"} {section.heading}
                       </h3>
-                      <p className="text-text-secondary leading-relaxed mb-4">
-                        {section.body}
-                      </p>
-                      {section.bullets && section.bullets.length > 0 && (
-                        <ul className="space-y-2">
-                          {section.bullets.map((bullet, bIdx) => (
-                            <li
-                              key={bIdx}
-                              className="flex items-start gap-3 text-text-secondary text-sm leading-relaxed"
-                            >
-                              <span className="font-mono text-primary/60 text-xs mt-0.5 flex-shrink-0">•</span>
-                              {bullet}
-                            </li>
-                          ))}
-                        </ul>
-                      )}
+                      <CollapsibleText>
+                        <p className="text-text-secondary leading-relaxed mb-4">
+                          {section.body}
+                        </p>
+                        {section.bullets && section.bullets.length > 0 && (
+                          <ul className="space-y-2">
+                            {section.bullets.map((bullet, bIdx) => (
+                              <li
+                                key={bIdx}
+                                className="flex items-start gap-3 text-text-secondary text-sm leading-relaxed"
+                              >
+                                <span className="font-mono text-primary/60 text-xs mt-0.5 flex-shrink-0">•</span>
+                                {bullet}
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                      </CollapsibleText>
                     </motion.div>
                   ))}
 

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { query } from "@/lib/db";
-
-// ─── Types ───────────────────────────────────────────────────────────────────
+import { getAuthUser } from "@/lib/jwt";
+import { isValidSlug } from "@/lib/valid-slugs";
 
 interface ScoreRow {
   pattern_slug: string;
@@ -20,34 +20,26 @@ interface LeaderboardRow {
   games_played: number;
 }
 
-// ─── GET /api/game-scores?email=... ──────────────────────────────────────────
-// Returns user's per-pattern scores, overall average, and a global leaderboard.
-
 export async function GET(request: NextRequest) {
   try {
-    const email = request.nextUrl.searchParams.get("email");
-
-    if (!email) {
+    const auth = await getAuthUser(request);
+    if (!auth) {
       return NextResponse.json(
-        { success: false, message: "Email is required." },
-        { status: 400 },
+        { success: false, message: "Unauthorized." },
+        { status: 401 },
       );
     }
-
-    const normalizedEmail = email.toLowerCase().trim();
 
     const scores = await query<ScoreRow>(
       `SELECT gs.pattern_slug, gs.score_total, gs.score_max,
               gs.architecture, gs.resilience, gs.efficiency,
               gs.passed, gs.played_at
        FROM game_scores gs
-       JOIN users u ON u.id = gs.user_id
-       WHERE u.email = $1
+       WHERE gs.user_id = $1
        ORDER BY gs.played_at DESC`,
-      [normalizedEmail],
+      [auth.userId],
     );
 
-    // Best score per pattern (highest total)
     const bestByPattern = new Map<string, ScoreRow>();
     for (const row of scores) {
       const existing = bestByPattern.get(row.pattern_slug);
@@ -56,7 +48,6 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // Average percentage across all attempts
     let avgPercent = 0;
     if (scores.length > 0) {
       const sum = scores.reduce(
@@ -66,7 +57,6 @@ export async function GET(request: NextRequest) {
       avgPercent = Math.round(sum / scores.length);
     }
 
-    // Global leaderboard: top 20 users by average score percentage
     const leaderboard = await query<LeaderboardRow>(
       `SELECT u.first_name,
               ROUND(AVG(gs.score_total::numeric / NULLIF(gs.score_max, 0) * 100)) AS avg_percent,
@@ -79,20 +69,19 @@ export async function GET(request: NextRequest) {
        LIMIT 20`,
     );
 
-    // Find the requesting user's rank
     const rankRows = await query<{ rank: number }>(
       `SELECT rank FROM (
-         SELECT u.email,
+         SELECT u.id,
                 RANK() OVER (
                   ORDER BY AVG(gs.score_total::numeric / NULLIF(gs.score_max, 0) * 100) DESC,
                            COUNT(gs.id) DESC
                 ) AS rank
          FROM game_scores gs
          JOIN users u ON u.id = gs.user_id
-         GROUP BY u.id, u.email
+         GROUP BY u.id
        ) ranked
-       WHERE email = $1`,
-      [normalizedEmail],
+       WHERE id = $1`,
+      [auth.userId],
     );
 
     return NextResponse.json({
@@ -112,28 +101,38 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// ─── POST /api/game-scores ───────────────────────────────────────────────────
-// Saves a single game attempt.
-
 export async function POST(request: Request) {
   try {
-    const body = await request.json();
-    const { email, patternSlug, scoreTotal, scoreMax, architecture, resilience, efficiency, passed } = body;
+    const auth = await getAuthUser(request);
+    if (!auth) {
+      return NextResponse.json(
+        { success: false, message: "Unauthorized." },
+        { status: 401 },
+      );
+    }
 
-    if (!email || !patternSlug || scoreTotal == null || scoreMax == null) {
+    const body = await request.json();
+    const { patternSlug, scoreTotal, scoreMax, architecture, resilience, efficiency, passed } = body;
+
+    if (!patternSlug || scoreTotal == null || scoreMax == null) {
       return NextResponse.json(
         { success: false, message: "Missing required fields." },
         { status: 400 },
       );
     }
 
+    if (!isValidSlug(patternSlug)) {
+      return NextResponse.json(
+        { success: false, message: "Invalid pattern slug." },
+        { status: 400 },
+      );
+    }
+
     await query(
       `INSERT INTO game_scores (user_id, pattern_slug, score_total, score_max, architecture, resilience, efficiency, passed)
-       SELECT u.id, $2, $3, $4, $5, $6, $7, $8
-       FROM users u
-       WHERE u.email = $1`,
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
       [
-        (email as string).toLowerCase().trim(),
+        auth.userId,
         patternSlug,
         scoreTotal,
         scoreMax,

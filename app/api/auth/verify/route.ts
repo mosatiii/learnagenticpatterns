@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 import { query } from "@/lib/db";
+import { getAuthUser } from "@/lib/jwt";
+import { rateLimit, getClientIp } from "@/lib/rate-limit";
 
 interface DbUser {
   id: number;
@@ -10,24 +12,32 @@ interface DbUser {
 
 export async function POST(request: Request) {
   try {
-    const { email } = await request.json();
-
-    if (!email || typeof email !== "string") {
+    const ip = getClientIp(request);
+    const limiter = rateLimit(ip, { maxRequests: 30, windowMs: 15 * 60 * 1000 });
+    if (!limiter.success) {
       return NextResponse.json(
-        { success: false, message: "Email is required." },
-        { status: 400 }
+        { success: false, message: "Too many requests." },
+        { status: 429 }
+      );
+    }
+
+    const auth = await getAuthUser(request);
+    if (!auth) {
+      return NextResponse.json(
+        { success: false, message: "Invalid or expired session." },
+        { status: 401 }
       );
     }
 
     const rows = await query<DbUser>(
-      "SELECT id, email, first_name, role FROM users WHERE email = $1",
-      [email.toLowerCase().trim()]
+      "SELECT id, email, first_name, role FROM users WHERE id = $1 AND email = $2",
+      [auth.userId, auth.email]
     );
 
     if (rows.length === 0) {
       return NextResponse.json(
-        { success: false, message: "Email not found. Please sign up first." },
-        { status: 404 }
+        { success: false, message: "Account not found." },
+        { status: 401 }
       );
     }
 

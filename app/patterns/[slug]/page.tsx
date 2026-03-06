@@ -13,6 +13,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import { PatternArticleJsonLd, BreadcrumbJsonLd, FAQPageJsonLd } from "@/components/JsonLd";
 import AgentBuilder from "@/components/AgentBuilder/AgentBuilder";
 import LessonFeedback from "@/components/LessonFeedback";
+import PatternFlowDiagram from "@/components/PatternFlowDiagram";
+import CollapsibleText from "@/components/CollapsibleText";
 import { hasGameConfig } from "@/data/games";
 import type { Pattern } from "@/data/patterns";
 
@@ -297,21 +299,37 @@ export default function PatternDetailPage() {
             <div>
               <div className={activeTab === "overview" ? "block" : "hidden"}>
                 <div className="space-y-6">
+                  {/* TL;DR summary card */}
+                  <div className="bg-primary/5 border border-primary/20 rounded-xl p-5 flex items-start gap-4">
+                    <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <span className="text-primary font-mono text-sm font-bold">{formatPatternNumber(pattern.number)}</span>
+                    </div>
+                    <div>
+                      <h3 className="font-mono text-primary text-sm font-bold mb-1">TL;DR</h3>
+                      <p className="text-text-primary text-sm leading-relaxed">
+                        {pattern.description}
+                      </p>
+                      <div className="flex items-center gap-2 mt-3">
+                        <span className="inline-flex items-center gap-1 bg-success/10 border border-success/20 text-success text-[10px] font-mono px-2 py-0.5 rounded-full">
+                          SWE: {pattern.sweParallel}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Architecture flow diagram */}
+                  <PatternFlowDiagram patternSlug={slug} />
+
+                  {/* Agentic definition — collapsible for long text */}
                   <div className="bg-surface border border-border rounded-lg p-6">
                     <h3 className="font-mono text-primary text-sm font-bold mb-3">
                       {">"} Agentic Definition
                     </h3>
-                    <p className="text-text-secondary leading-relaxed">
-                      {pattern.agenticDefinition}
-                    </p>
-                  </div>
-                  <div className="bg-surface border border-border rounded-lg p-6">
-                    <h3 className="font-mono text-primary text-sm font-bold mb-3">
-                      {">"} Description
-                    </h3>
-                    <p className="text-text-secondary leading-relaxed">
-                      {pattern.description}
-                    </p>
+                    <CollapsibleText>
+                      <p className="text-text-secondary leading-relaxed">
+                        {pattern.agenticDefinition}
+                      </p>
+                    </CollapsibleText>
                   </div>
                 </div>
               </div>
@@ -343,54 +361,92 @@ export default function PatternDetailPage() {
 
               <div className={activeTab === "mapping" ? "block" : "hidden"}>
                 <div className="space-y-6">
-                  <div className="bg-surface border border-border rounded-lg p-6">
-                    <h3 className="font-mono text-success text-sm font-bold mb-3">
-                      ≈ Similarity
-                    </h3>
-                    <p className="text-text-secondary leading-relaxed">
-                      {pattern.mapping.similarity}
-                    </p>
+                  {/* Visual bridge between SWE and Agentic */}
+                  <div className="bg-code-bg border border-border rounded-xl p-5 flex items-center justify-center gap-4 text-center">
+                    <div className="flex-1">
+                      <p className="font-mono text-xs text-text-secondary mb-1">Traditional SWE</p>
+                      <p className="font-mono text-primary font-bold text-sm">{pattern.sweParallel}</p>
+                    </div>
+                    <div className="flex flex-col items-center gap-1">
+                      <span className="text-primary text-lg">≈</span>
+                      <span className="text-text-secondary/40 text-[10px] font-mono">maps to</span>
+                    </div>
+                    <div className="flex-1">
+                      <p className="font-mono text-xs text-text-secondary mb-1">Agentic Pattern</p>
+                      <p className="font-mono text-accent font-bold text-sm">{pattern.name}</p>
+                    </div>
                   </div>
-                  <div className="bg-surface border border-border rounded-lg p-6">
-                    <h3 className="font-mono text-accent text-sm font-bold mb-3">
-                      ≠ Divergence
+
+                  <div className="bg-surface border border-success/20 rounded-lg p-6">
+                    <h3 className="font-mono text-success text-sm font-bold mb-3 flex items-center gap-2">
+                      <span className="w-6 h-6 rounded bg-success/10 flex items-center justify-center text-xs">≈</span>
+                      How They&apos;re Similar
                     </h3>
-                    <p className="text-text-secondary leading-relaxed">
-                      {pattern.mapping.divergence}
-                    </p>
+                    <CollapsibleText>
+                      <p className="text-text-secondary leading-relaxed">
+                        {pattern.mapping.similarity}
+                      </p>
+                    </CollapsibleText>
+                  </div>
+                  <div className="bg-surface border border-accent/20 rounded-lg p-6">
+                    <h3 className="font-mono text-accent text-sm font-bold mb-3 flex items-center gap-2">
+                      <span className="w-6 h-6 rounded bg-accent/10 flex items-center justify-center text-xs">≠</span>
+                      Key Divergence
+                    </h3>
+                    <CollapsibleText>
+                      <p className="text-text-secondary leading-relaxed">
+                        {pattern.mapping.divergence}
+                      </p>
+                    </CollapsibleText>
                   </div>
                 </div>
               </div>
 
               <div className={activeTab === "production" ? "block" : "hidden"}>
-                <div className="bg-surface border border-border rounded-lg p-6">
-                  <h3 className="font-mono text-primary text-sm font-bold mb-4">
+                <div className="space-y-4">
+                  <h3 className="font-mono text-primary text-sm font-bold">
                     {">"} Production Considerations
                   </h3>
-                  <ul className="space-y-3">
-                    {pattern.productionNotes.map((note, i) => (
-                      <li
-                        key={i}
-                        className="flex gap-3 text-text-secondary leading-relaxed"
-                      >
-                        <span className="font-mono text-primary text-xs mt-1 flex-shrink-0">
-                          [{String(i + 1).padStart(2, "0")}]
+                  {pattern.productionNotes.map((note, i) => (
+                    <motion.div
+                      key={i}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: i * 0.08 }}
+                      className="bg-surface border border-border rounded-lg p-5 flex gap-4"
+                    >
+                      <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                        <span className="font-mono text-primary text-xs font-bold">
+                          {String(i + 1).padStart(2, "0")}
                         </span>
-                        {note}
-                      </li>
-                    ))}
-                  </ul>
+                      </div>
+                      <CollapsibleText maxHeight={80}>
+                        <p className="text-text-secondary leading-relaxed text-sm">
+                          {note}
+                        </p>
+                      </CollapsibleText>
+                    </motion.div>
+                  ))}
                 </div>
               </div>
 
               <div className={activeTab === "takeaway" ? "block" : "hidden"}>
-                <div className="bg-surface border border-primary/20 rounded-lg p-8 border-glow">
-                  <h3 className="font-mono text-primary text-sm font-bold mb-4">
-                    {">"} Key Takeaway
-                  </h3>
-                  <p className="text-text-primary text-lg leading-relaxed">
-                    {pattern.keyTakeaway}
-                  </p>
+                <div className="bg-surface border border-primary/20 rounded-xl p-8 border-glow">
+                  <div className="flex items-center gap-3 mb-5">
+                    <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                      <span className="text-primary text-lg">💡</span>
+                    </div>
+                    <h3 className="font-mono text-primary text-sm font-bold">
+                      Key Takeaway
+                    </h3>
+                  </div>
+                  {pattern.keyTakeaway.split("\n\n").map((paragraph, i) => (
+                    <p key={i} className={`text-text-primary leading-relaxed ${
+                      i === 0 ? "text-lg mb-4" : "text-sm text-text-secondary mb-3"
+                    }`}>
+                      {paragraph}
+                    </p>
+                  ))}
                 </div>
               </div>
 

@@ -33,6 +33,7 @@ export default function NavBar() {
   const [feedbackOpen, setFeedbackOpen] = useState(false);
   const [feedbackMsg, setFeedbackMsg] = useState("");
   const [feedbackStatus, setFeedbackStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
+  const [feedbackError, setFeedbackError] = useState("");
   const { user, isLoading, logout } = useAuth();
   const dropdownRef = useRef<HTMLDivElement>(null);
   const feedbackRef = useRef<HTMLDivElement>(null);
@@ -70,12 +71,16 @@ export default function NavBar() {
   }, []);
 
   async function handleFeedbackSubmit() {
-    if (!feedbackMsg.trim()) return;
+    if (!feedbackMsg.trim() || !user) return;
     setFeedbackStatus("sending");
     try {
+      const token = typeof window !== "undefined" ? localStorage.getItem("lap_token") : null;
       const res = await fetch("/api/feedback", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
         body: JSON.stringify({ message: feedbackMsg.trim() }),
       });
       if (res.ok) {
@@ -86,6 +91,8 @@ export default function NavBar() {
           setFeedbackStatus("idle");
         }, 2000);
       } else {
+        const data = await res.json().catch(() => null);
+        setFeedbackError(data?.message || "Something went wrong. Try again.");
         setFeedbackStatus("error");
       }
     } catch {
@@ -123,7 +130,7 @@ export default function NavBar() {
               {user && (
                 <div className="relative" ref={feedbackRef}>
                   <button
-                    onClick={() => { setFeedbackOpen(!feedbackOpen); setFeedbackStatus("idle"); }}
+                    onClick={() => { setFeedbackOpen(!feedbackOpen); setFeedbackStatus("idle"); setFeedbackError(""); }}
                     className="relative flex items-center gap-1.5 font-mono text-[11px] text-text-secondary/60 hover:text-primary transition-colors"
                     title="Share feedback"
                   >
@@ -157,6 +164,9 @@ export default function NavBar() {
                               rows={3}
                               className="w-full bg-code-bg border border-border rounded-md px-3 py-2 font-mono text-xs text-text-primary placeholder:text-text-secondary/40 resize-none focus:outline-none focus:border-primary/50"
                             />
+                            {feedbackStatus === "error" && feedbackError && (
+                              <p className="text-red-400 text-[10px] font-mono mt-1.5">{feedbackError}</p>
+                            )}
                             <div className="flex items-center justify-between mt-2">
                               <span className="font-mono text-[10px] text-text-secondary/40">
                                 {feedbackMsg.length}/2000

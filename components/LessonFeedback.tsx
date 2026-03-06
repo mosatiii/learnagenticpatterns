@@ -19,7 +19,10 @@ export default function LessonFeedback({ lessonSlug, track = "developer" }: Prop
   // Load existing vote on mount
   useEffect(() => {
     if (!user) return;
-    fetch(`/api/lesson-feedback?userId=${user.id}&lessonSlug=${lessonSlug}`)
+    const token = localStorage.getItem("lap_token");
+    fetch(`/api/lesson-feedback?lessonSlug=${lessonSlug}`, {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    })
       .then((r) => r.json())
       .then((data) => {
         if (data.success && data.feedback) {
@@ -48,11 +51,14 @@ export default function LessonFeedback({ lessonSlug, track = "developer" }: Prop
 
     setSaving(true);
     try {
+      const token = localStorage.getItem("lap_token");
       await fetch("/api/lesson-feedback", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
         body: JSON.stringify({
-          userId: user!.id,
           lessonSlug,
           track,
           helpful: newVote,

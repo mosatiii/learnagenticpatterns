@@ -74,11 +74,12 @@ export default function ExplainChallenge({
         {challenge.options.map((option, i) => {
           const isSelected = selectedId === option.id;
           const showCorrect = answered && option.isCorrect;
-          const showWrong = answered && isSelected && !option.isCorrect;
+          const showWrong = answered && !option.isCorrect;
 
           let borderClass = "border-border hover:border-primary/40";
           if (showCorrect) borderClass = "border-success/50 bg-success/5";
-          if (showWrong) borderClass = "border-red-500/50 bg-red-500/5";
+          if (answered && isSelected && !option.isCorrect) borderClass = "border-red-500/50 bg-red-500/5";
+          if (showWrong && !isSelected) borderClass = "border-red-500/20 bg-red-500/[0.02]";
 
           return (
             <button
@@ -93,16 +94,33 @@ export default function ExplainChallenge({
                 <span className="font-mono text-xs text-text-secondary/50 mt-0.5 w-5 text-center flex-shrink-0">
                   {String.fromCharCode(65 + i)}
                 </span>
-                <span className="text-text-primary text-sm">{option.label}</span>
-                {showCorrect && <CheckCircle2 size={14} className="text-success flex-shrink-0 mt-0.5 ml-auto" />}
-                {showWrong && <XCircle size={14} className="text-red-400 flex-shrink-0 mt-0.5 ml-auto" />}
+                <div className="flex-1">
+                  <div className="flex items-start gap-2">
+                    <span className="text-text-primary text-sm">{option.label}</span>
+                    {showCorrect && <CheckCircle2 size={14} className="text-success flex-shrink-0 mt-0.5 ml-auto" />}
+                    {answered && isSelected && !option.isCorrect && <XCircle size={14} className="text-red-400 flex-shrink-0 mt-0.5 ml-auto" />}
+                  </div>
+                  <AnimatePresence>
+                    {answered && (
+                      <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: "auto" }}
+                        className="mt-1.5"
+                      >
+                        <p className={`text-xs leading-relaxed ${option.isCorrect ? "text-success/80" : "text-red-400/80"}`}>
+                          {option.explanation}
+                        </p>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
               </div>
             </button>
           );
         })}
       </div>
 
-      {/* Explanation after answering */}
+      {/* Overall explanation after answering */}
       <AnimatePresence>
         {answered && (
           <motion.div

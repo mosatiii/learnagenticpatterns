@@ -21,17 +21,16 @@ interface RateLimitConfig {
 }
 
 /**
- * Simple in-memory rate limiter keyed by IP.
+ * In-memory rate limiter. Pass any string key (IP, email, compound key).
  * Returns { success: true } if under limit, { success: false, retryAfterMs } if blocked.
  */
 export function rateLimit(
-  ip: string,
+  key: string,
   config: RateLimitConfig
 ): { success: true } | { success: false; retryAfterMs: number } {
   cleanup();
 
   const now = Date.now();
-  const key = ip;
   const entry = rateLimitMap.get(key);
 
   if (!entry || now > entry.resetTime) {

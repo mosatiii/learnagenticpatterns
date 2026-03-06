@@ -6,7 +6,7 @@ import { POSTHOG_KEY } from "@/lib/posthog-config";
 import { pmModules } from "@/data/pm-curriculum";
 
 const STORAGE_KEY = "lap_auth";
-const NINETY_DAYS_MS = 90 * 24 * 60 * 60 * 1000;
+const TOKEN_KEY = "lap_token";
 
 interface AuthUser {
   id: number;
@@ -19,7 +19,6 @@ interface StoredAuth {
   email: string;
   firstName: string;
   role: string;
-  expiresAt: number;
 }
 
 export interface PatternScore {
@@ -97,23 +96,27 @@ export function AuthProvider({ children, totalPatterns }: { children: ReactNode;
     ? Math.round((pmReadSlugs.length / pmModules.length) * 100)
     : 0;
 
-  const saveToStorage = (email: string, firstName: string, role: string) => {
-    const data: StoredAuth = {
-      email,
-      firstName,
-      role,
-      expiresAt: Date.now() + NINETY_DAYS_MS,
-    };
+  const saveToStorage = (token: string, email: string, firstName: string, role: string) => {
+    localStorage.setItem(TOKEN_KEY, token);
+    const data: StoredAuth = { email, firstName, role };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
   };
 
   const clearStorage = () => {
     localStorage.removeItem(STORAGE_KEY);
+    localStorage.removeItem(TOKEN_KEY);
   };
 
-  const fetchProgress = useCallback(async (email: string) => {
+  /** Build headers with the JWT for authenticated API calls. */
+  function authHeaders(): Record<string, string> {
+    const token = localStorage.getItem(TOKEN_KEY);
+    if (!token) return { "Content-Type": "application/json" };
+    return { "Content-Type": "application/json", Authorization: `Bearer ${token}` };
+  }
+
+  const fetchProgress = useCallback(async () => {
     try {
-      const res = await fetch(`/api/progress?email=${encodeURIComponent(email)}`);
+      const res = await fetch("/api/progress", { headers: authHeaders() });
       if (res.ok) {
         const data = await res.json();
         setReadSlugs(data.progress || []);
@@ -123,9 +126,9 @@ export function AuthProvider({ children, totalPatterns }: { children: ReactNode;
     }
   }, []);
 
-  const fetchGameScores = useCallback(async (email: string) => {
+  const fetchGameScores = useCallback(async () => {
     try {
-      const res = await fetch(`/api/game-scores?email=${encodeURIComponent(email)}`);
+      const res = await fetch("/api/game-scores", { headers: authHeaders() });
       if (res.ok) {
         const data = await res.json();
         setGameScores(data.scores || []);
@@ -139,35 +142,24 @@ export function AuthProvider({ children, totalPatterns }: { children: ReactNode;
     }
   }, []);
 
-  // On mount: check localStorage and verify with DB
+  // On mount: verify saved JWT with the server
   useEffect(() => {
     async function init() {
       try {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        if (!raw) { setIsLoading(false); return; }
-
-        const stored: StoredAuth = JSON.parse(raw);
-
-        if (Date.now() > stored.expiresAt) {
-          clearStorage();
-          setIsLoading(false);
-          return;
-        }
+        const token = localStorage.getItem(TOKEN_KEY);
+        if (!token) { setIsLoading(false); return; }
 
         const res = await fetch("/api/auth/verify", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email: stored.email }),
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         });
 
         if (res.ok) {
           const data = await res.json();
+          const stored: StoredAuth = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
           setUser(data.user);
-          saveToStorage(stored.email, data.user.firstName, data.user.role || stored.role || "Other");
-          await Promise.all([
-            fetchProgress(stored.email),
-            fetchGameScores(stored.email),
-          ]);
+          saveToStorage(token, data.user.email, data.user.firstName, data.user.role || stored.role || "Other");
+          await Promise.all([fetchProgress(), fetchGameScores()]);
         } else {
           clearStorage();
         }
@@ -197,11 +189,8 @@ export function AuthProvider({ children, totalPatterns }: { children: ReactNode;
     if (!res.ok) throw new Error(data.message || "Signup failed");
 
     setUser(data.user);
-    saveToStorage(data.user.email, data.user.firstName, data.user.role || formData.role);
-    await Promise.all([
-      fetchProgress(data.user.email),
-      fetchGameScores(data.user.email),
-    ]);
+    saveToStorage(data.token, data.user.email, data.user.firstName, data.user.role || formData.role);
+    await Promise.all([fetchProgress(), fetchGameScores()]);
 
     if (typeof window !== "undefined" && POSTHOG_KEY) {
       posthog.capture("user_signed_up", { role: formData.role });
@@ -219,11 +208,8 @@ export function AuthProvider({ children, totalPatterns }: { children: ReactNode;
     if (!res.ok) throw new Error(data.message || "Login failed");
 
     setUser(data.user);
-    saveToStorage(data.user.email, data.user.firstName, data.user.role || "Other");
-    await Promise.all([
-      fetchProgress(data.user.email),
-      fetchGameScores(data.user.email),
-    ]);
+    saveToStorage(data.token, data.user.email, data.user.firstName, data.user.role || "Other");
+    await Promise.all([fetchProgress(), fetchGameScores()]);
 
     if (typeof window !== "undefined" && POSTHOG_KEY) {
       posthog.capture("user_logged_in");
@@ -258,10 +244,10 @@ export function AuthProvider({ children, totalPatterns }: { children: ReactNode;
       try {
         await fetch("/api/game-scores", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email: user.email, ...scoreData }),
+          headers: authHeaders(),
+          body: JSON.stringify(scoreData),
         });
-        await fetchGameScores(user.email);
+        await fetchGameScores();
       } catch {
         // Score saving is non-critical
       }
@@ -289,8 +275,8 @@ export function AuthProvider({ children, totalPatterns }: { children: ReactNode;
       });
       fetch("/api/progress", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: user.email, patternSlug: slug }),
+        headers: authHeaders(),
+        body: JSON.stringify({ patternSlug: slug }),
       }).catch(() => {});
     },
     [user]

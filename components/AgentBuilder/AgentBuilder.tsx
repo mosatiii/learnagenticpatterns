@@ -174,11 +174,13 @@ export default function AgentBuilder({ patternSlug }: AgentBuilderProps) {
     };
   }, []);
 
-  // Speed run timer interval
+  // Build timer — always tick while building (speed run uses speedStartRef, normal uses buildStartRef)
   useEffect(() => {
-    if (!speedRun || state.phase !== "building" || !speedStartRef.current) return;
+    if (state.phase !== "building") return;
+    const ref = speedRun ? speedStartRef.current : buildStartRef.current;
+    if (!ref) return;
     const id = setInterval(() => {
-      setElapsedMs(Date.now() - (speedStartRef.current ?? Date.now()));
+      setElapsedMs(Date.now() - ref);
     }, 100);
     return () => clearInterval(id);
   }, [speedRun, state.phase]);
@@ -473,13 +475,22 @@ export default function AgentBuilder({ patternSlug }: AgentBuilderProps) {
             )}
           </div>
 
-          {/* Speed run timer */}
-          {speedRun && state.phase !== "complete" && mode === "build" && (
-            <div className="flex items-center gap-1.5 bg-accent/10 border border-accent/30 rounded-md px-3 py-1.5 flex-shrink-0">
-              <Timer size={12} className="text-accent" />
-              <span className="font-mono text-sm text-accent font-bold tabular-nums">
+          {/* Build timer — always visible during build phase */}
+          {state.phase !== "complete" && mode === "build" && (
+            <div className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 flex-shrink-0 border ${
+              speedRun
+                ? "bg-accent/10 border-accent/30"
+                : "bg-code-bg border-border"
+            }`}>
+              <Timer size={12} className={speedRun ? "text-accent" : "text-text-secondary"} />
+              <span className={`font-mono text-sm font-bold tabular-nums ${
+                speedRun ? "text-accent" : "text-text-secondary"
+              }`}>
                 {formatTimer(elapsedMs)}
               </span>
+              {speedRun && (
+                <span className="text-accent/60 text-[10px] font-mono ml-1">SPEED</span>
+              )}
             </div>
           )}
         </div>

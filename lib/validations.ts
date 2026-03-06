@@ -1,14 +1,41 @@
 import { z } from "zod";
 
+// Strict RFC 5322-style email: local@domain.tld (2+ char TLD, no odd chars)
+const STRICT_EMAIL_RE =
+  /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z]{2,})+$/;
+
+// Patterns commonly used in SQL injection payloads
+const SQL_INJECTION_RE =
+  /('|--|;|\b(SELECT|INSERT|UPDATE|DELETE|DROP|UNION|ALTER|EXEC|EXECUTE|CREATE|TRUNCATE)\b)/i;
+
+/** Rejects strings that contain obvious SQL injection fragments */
+function noSqlInjection(fieldName: string) {
+  return z.string().refine(
+    (val) => !SQL_INJECTION_RE.test(val),
+    { message: `${fieldName} contains invalid characters` }
+  );
+}
+
+/** Strips leading/trailing whitespace and collapses internal runs */
+function sanitize(val: string) {
+  return val.trim().replace(/\s+/g, " ");
+}
+
 export const signupSchema = z.object({
   firstName: z
     .string()
     .min(1, "First name is required")
-    .max(50, "First name must be under 50 characters"),
+    .max(50, "First name must be under 50 characters")
+    .transform(sanitize)
+    .pipe(noSqlInjection("First name"))
+    .pipe(z.string().regex(/^[a-zA-Z\s'-]+$/, "First name can only contain letters, spaces, hyphens, and apostrophes")),
   email: z
     .string()
     .min(1, "Email is required")
-    .email("Please enter a valid email address"),
+    .email("Please enter a valid email address")
+    .transform((val) => val.toLowerCase().trim())
+    .pipe(z.string().regex(STRICT_EMAIL_RE, "Please enter a real email address (e.g. you@company.com)"))
+    .pipe(noSqlInjection("Email")),
   password: z
     .string()
     .min(8, "Password must be at least 8 characters")
@@ -27,8 +54,14 @@ export const signupSchema = z.object({
   challenge: z
     .string()
     .max(500, "Please keep your response under 500 characters")
+    .transform(sanitize)
+    .pipe(noSqlInjection("Challenge"))
     .optional()
     .or(z.literal("")),
+  agreedToTerms: z
+    .literal(true, {
+      errorMap: () => ({ message: "You must agree to the Privacy Policy and Terms of Service" }),
+    }),
 });
 
 export type SignupFormData = z.infer<typeof signupSchema>;
@@ -37,7 +70,10 @@ export const loginSchema = z.object({
   email: z
     .string()
     .min(1, "Email is required")
-    .email("Please enter a valid email address"),
+    .email("Please enter a valid email address")
+    .transform((val) => val.toLowerCase().trim())
+    .pipe(z.string().regex(STRICT_EMAIL_RE, "Please enter a real email address"))
+    .pipe(noSqlInjection("Email")),
   password: z.string().min(1, "Password is required"),
 });
 
@@ -47,7 +83,10 @@ export const forgotPasswordSchema = z.object({
   email: z
     .string()
     .min(1, "Email is required")
-    .email("Please enter a valid email address"),
+    .email("Please enter a valid email address")
+    .transform((val) => val.toLowerCase().trim())
+    .pipe(z.string().regex(STRICT_EMAIL_RE, "Please enter a real email address"))
+    .pipe(noSqlInjection("Email")),
 });
 
 export type ForgotPasswordFormData = z.infer<typeof forgotPasswordSchema>;

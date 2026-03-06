@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs";
 import { loginSchema } from "@/lib/validations";
 import { query } from "@/lib/db";
 import { rateLimit, getClientIp } from "@/lib/rate-limit";
+import { signToken } from "@/lib/jwt";
 
 interface DbUser {
   id: number;
@@ -31,9 +32,11 @@ export async function POST(request: Request) {
       [validated.email.toLowerCase().trim()]
     );
 
+    const GENERIC_AUTH_ERROR = "Invalid email or password.";
+
     if (rows.length === 0) {
       return NextResponse.json(
-        { success: false, message: "No account found with this email." },
+        { success: false, message: GENERIC_AUTH_ERROR },
         { status: 401 }
       );
     }
@@ -43,13 +46,16 @@ export async function POST(request: Request) {
 
     if (!passwordValid) {
       return NextResponse.json(
-        { success: false, message: "Incorrect password." },
+        { success: false, message: GENERIC_AUTH_ERROR },
         { status: 401 }
       );
     }
 
+    const token = await signToken({ userId: user.id, email: user.email });
+
     return NextResponse.json({
       success: true,
+      token,
       user: { id: user.id, email: user.email, firstName: user.first_name, role: user.role },
     });
   } catch (error) {

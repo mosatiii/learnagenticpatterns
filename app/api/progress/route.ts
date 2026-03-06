@@ -1,30 +1,29 @@
 import { NextRequest, NextResponse } from "next/server";
 import { query } from "@/lib/db";
+import { getAuthUser } from "@/lib/jwt";
+import { isValidSlug } from "@/lib/valid-slugs";
 
 interface ProgressRow {
   pattern_slug: string;
   read_at: string;
 }
 
-// GET /api/progress?email=user@example.com — fetch all read patterns for a user
 export async function GET(request: NextRequest) {
   try {
-    const email = request.nextUrl.searchParams.get("email");
-
-    if (!email) {
+    const auth = await getAuthUser(request);
+    if (!auth) {
       return NextResponse.json(
-        { success: false, message: "Email is required." },
-        { status: 400 }
+        { success: false, message: "Unauthorized." },
+        { status: 401 }
       );
     }
 
     const rows = await query<ProgressRow>(
       `SELECT rp.pattern_slug, rp.read_at
        FROM reading_progress rp
-       JOIN users u ON u.id = rp.user_id
-       WHERE u.email = $1
+       WHERE rp.user_id = $1
        ORDER BY rp.read_at ASC`,
-      [email.toLowerCase().trim()]
+      [auth.userId]
     );
 
     return NextResponse.json({
@@ -41,26 +40,37 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// POST /api/progress — mark a pattern as read
 export async function POST(request: Request) {
   try {
-    const { email, patternSlug } = await request.json();
-
-    if (!email || !patternSlug) {
+    const auth = await getAuthUser(request);
+    if (!auth) {
       return NextResponse.json(
-        { success: false, message: "Email and patternSlug are required." },
+        { success: false, message: "Unauthorized." },
+        { status: 401 }
+      );
+    }
+
+    const { patternSlug } = await request.json();
+
+    if (!patternSlug || typeof patternSlug !== "string") {
+      return NextResponse.json(
+        { success: false, message: "patternSlug is required." },
         { status: 400 }
       );
     }
 
-    // Insert reading progress (ignore if already marked)
+    if (!isValidSlug(patternSlug)) {
+      return NextResponse.json(
+        { success: false, message: "Invalid pattern slug." },
+        { status: 400 }
+      );
+    }
+
     await query(
       `INSERT INTO reading_progress (user_id, pattern_slug)
-       SELECT u.id, $2
-       FROM users u
-       WHERE u.email = $1
+       VALUES ($1, $2)
        ON CONFLICT (user_id, pattern_slug) DO NOTHING`,
-      [email.toLowerCase().trim(), patternSlug]
+      [auth.userId, patternSlug]
     );
 
     return NextResponse.json({ success: true });

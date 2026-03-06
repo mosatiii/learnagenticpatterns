@@ -4,12 +4,13 @@ import { useState, useCallback, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   CheckCircle2, XCircle, ArrowRight, RotateCcw,
-  Trophy, Lightbulb, Target, Flame, Crown, Timer,
+  Trophy, Lightbulb, Target, Flame, Crown, Timer, Clock,
 } from "lucide-react";
 import { shipOrSkipRounds } from "@/data/pm-games";
 import type { ShipOrSkipOption } from "@/data/pm-games";
 import { useAuth } from "@/contexts/AuthContext";
 import { trackGameEvent } from "@/lib/game/analytics";
+import { saveDraft, loadDraft, clearDraft } from "@/lib/game/draft-storage";
 
 type Confidence = "guessing" | "fairly-sure" | "very-confident";
 type Phase = "choosing" | "confidence" | "feedback" | "summary";
@@ -39,6 +40,13 @@ function longestStreak(results: RoundResult[]): number {
   return max;
 }
 
+interface SoSDraft {
+  currentRound: number;
+  results: RoundResult[];
+}
+
+const DRAFT_KEY = "pm-ship-or-skip";
+
 export default function ShipOrSkip() {
   const { saveGameScore } = useAuth();
   const [currentRound, setCurrentRound] = useState(0);
@@ -49,8 +57,26 @@ export default function ShipOrSkip() {
   const [pendingConfidence, setPendingConfidence] = useState<Confidence | null>(null);
   const roundStartRef = useRef(Date.now());
 
+  const [roundElapsed, setRoundElapsed] = useState(0);
+
   const round = shipOrSkipRounds[currentRound];
   const totalRounds = shipOrSkipRounds.length;
+
+  // Restore draft on mount
+  useEffect(() => {
+    const draft = loadDraft<SoSDraft>(DRAFT_KEY);
+    if (draft && draft.currentRound > 0 && draft.currentRound < shipOrSkipRounds.length) {
+      setCurrentRound(draft.currentRound);
+      setResults(draft.results);
+    }
+  }, []);
+
+  // Save draft whenever round advances
+  useEffect(() => {
+    if (results.length > 0 && phase === "choosing") {
+      saveDraft<SoSDraft>(DRAFT_KEY, { currentRound, results });
+    }
+  }, [currentRound, results, phase]);
 
   // Track game start on mount
   useEffect(() => {
@@ -61,7 +87,17 @@ export default function ShipOrSkip() {
   // Reset round timer when advancing
   useEffect(() => {
     roundStartRef.current = Date.now();
+    setRoundElapsed(0);
   }, [currentRound]);
+
+  // Tick the visible timer while choosing
+  useEffect(() => {
+    if (phase !== "choosing") return;
+    const id = setInterval(() => {
+      setRoundElapsed(Date.now() - roundStartRef.current);
+    }, 100);
+    return () => clearInterval(id);
+  }, [phase]);
 
   const handleSelect = useCallback((optionId: string) => {
     if (phase !== "choosing") return;
@@ -120,6 +156,7 @@ export default function ShipOrSkip() {
     setPendingConfidence(null);
     setResults([]);
     setScoreSaved(false);
+    clearDraft(DRAFT_KEY);
   }, [results]);
 
   const correctCount = results.filter((r) => r.correct).length;
@@ -133,6 +170,7 @@ export default function ShipOrSkip() {
   // Save score + track completion
   if (phase === "summary" && !scoreSaved) {
     setScoreSaved(true);
+    clearDraft(DRAFT_KEY);
 
     const avgTimeMs = results.length > 0
       ? Math.round(results.reduce((s, r) => s + r.timeMs, 0) / results.length)
@@ -359,6 +397,12 @@ export default function ShipOrSkip() {
             transition={{ duration: 0.4 }}
           />
         </div>
+        <div className="flex items-center gap-1.5 bg-code-bg border border-border rounded-md px-2 py-1 flex-shrink-0">
+          <Clock size={11} className="text-accent" />
+          <span className="font-mono text-xs text-accent tabular-nums">
+            {(roundElapsed / 1000).toFixed(1)}s
+          </span>
+        </div>
         <span className="font-mono text-xs text-accent">{correctCount} ✓</span>
         {liveStreak >= 3 && (
           <motion.span
@@ -495,6 +539,7 @@ function OptionCard({
       : "border-accent/50 bg-accent/5";
   }
   if (showFeedback && !isSelected && isCorrect) borderClass = "border-success/30";
+  if (showFeedback && !isSelected && !isCorrect) borderClass = "border-red-500/20 bg-red-500/[0.02]";
 
   return (
     <motion.button
@@ -516,7 +561,7 @@ function OptionCard({
           <p className="text-text-secondary text-xs leading-relaxed">{option.description}</p>
 
           <AnimatePresence>
-            {showFeedback && (isSelected || isCorrect) && (
+            {showFeedback && (
               <motion.div
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: "auto" }}

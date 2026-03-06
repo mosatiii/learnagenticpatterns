@@ -4,6 +4,7 @@ import { signupSchema } from "@/lib/validations";
 import { query } from "@/lib/db";
 import { rateLimit, getClientIp } from "@/lib/rate-limit";
 import { welcomeEmail, adminNotificationEmail } from "@/lib/email-templates";
+import { signToken } from "@/lib/jwt";
 
 interface DbUser {
   id: number;
@@ -25,18 +26,20 @@ export async function POST(request: Request) {
 
     const body = await request.json();
     const validated = signupSchema.parse(body);
+    // agreedToTerms is validated by the schema but not stored in the database
+    const { agreedToTerms: _, ...userData } = validated;
 
-    const passwordHash = await bcrypt.hash(validated.password, 12);
+    const passwordHash = await bcrypt.hash(userData.password, 12);
 
     // Check if email already exists
     const existing = await query<DbUser>(
       "SELECT id FROM users WHERE email = $1",
-      [validated.email.toLowerCase().trim()]
+      [userData.email.toLowerCase().trim()]
     );
 
     if (existing.length > 0) {
       return NextResponse.json(
-        { success: false, message: "An account with this email already exists. Please log in." },
+        { success: false, message: "Unable to create account. Try logging in instead." },
         { status: 409 }
       );
     }
@@ -46,11 +49,11 @@ export async function POST(request: Request) {
        VALUES ($1, $2, $3, $4, $5)
        RETURNING id, email, first_name, role`,
       [
-        validated.email.toLowerCase().trim(),
-        validated.firstName,
+        userData.email.toLowerCase().trim(),
+        userData.firstName,
         passwordHash,
-        validated.role,
-        validated.challenge || null,
+        userData.role,
+        userData.challenge || null,
       ]
     );
 
@@ -70,9 +73,9 @@ export async function POST(request: Request) {
           },
           body: JSON.stringify({
             from: fromEmail,
-            to: validated.email,
+            to: userData.email,
             subject: "Welcome to Learn Agentic Patterns!",
-            html: welcomeEmail(validated.firstName),
+            html: welcomeEmail(userData.firstName),
           }),
         });
 
@@ -87,12 +90,12 @@ export async function POST(request: Request) {
             body: JSON.stringify({
               from: fromEmail,
               to: adminAddr,
-              subject: `New signup: ${validated.firstName} (${validated.role})`,
+              subject: `New signup: ${userData.firstName} (${userData.role})`,
               html: adminNotificationEmail({
-                firstName: validated.firstName,
-                email: validated.email,
-                role: validated.role,
-                challenge: validated.challenge,
+                firstName: userData.firstName,
+                email: userData.email,
+                role: userData.role,
+                challenge: userData.challenge,
               }),
             }),
           });
@@ -102,8 +105,10 @@ export async function POST(request: Request) {
       }
     }
 
+    const token = await signToken({ userId: user.id, email: user.email });
+
     return NextResponse.json(
-      { success: true, user: { id: user.id, email: user.email, firstName: user.first_name, role: user.role } },
+      { success: true, token, user: { id: user.id, email: user.email, firstName: user.first_name, role: user.role } },
       { status: 200 }
     );
   } catch (error) {

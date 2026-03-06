@@ -118,6 +118,14 @@ export default function Footer() {
 
         <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-text-secondary">
           <p>© 2026 learnagenticpatterns.com</p>
+          <div className="flex items-center gap-4">
+            <Link href="/privacy" className="hover:text-primary transition-colors">
+              Privacy Policy
+            </Link>
+            <Link href="/terms" className="hover:text-primary transition-colors">
+              Terms of Service
+            </Link>
+          </div>
           <p>
             Based on &ldquo;Agentic Design Patterns&rdquo; by Antonio Gull&iacute;
           </p>

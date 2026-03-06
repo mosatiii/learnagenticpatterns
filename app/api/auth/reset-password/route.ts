@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { query } from "@/lib/db";
+import { rateLimit, getClientIp } from "@/lib/rate-limit";
 
 interface ResetRow {
   id: number;
@@ -10,6 +11,15 @@ interface ResetRow {
 
 export async function POST(request: Request) {
   try {
+    const ip = getClientIp(request);
+    const limiter = rateLimit(ip, { maxRequests: 5, windowMs: 15 * 60 * 1000 });
+    if (!limiter.success) {
+      return NextResponse.json(
+        { success: false, message: "Too many attempts. Please try again later." },
+        { status: 429 }
+      );
+    }
+
     const { token, password } = await request.json();
 
     if (!token || !password || typeof password !== "string" || password.length < 8) {

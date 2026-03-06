@@ -3,6 +3,7 @@ import { z } from "zod";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { buildSystemPrompt, buildUserMessage } from "@/lib/assessment-prompt";
 import { assessmentReportEmail } from "@/lib/email-templates";
+import { rateLimit, getClientIp } from "@/lib/rate-limit";
 
 const assessmentSchema = z.object({
   role: z.enum(["product-manager", "developer", "designer", "writer"]),
@@ -12,6 +13,15 @@ const assessmentSchema = z.object({
 
 export async function POST(request: Request) {
   try {
+    const ip = getClientIp(request);
+    const limiter = rateLimit(ip, { maxRequests: 5, windowMs: 60 * 60 * 1000 });
+    if (!limiter.success) {
+      return NextResponse.json(
+        { success: false, error: "Too many assessments. Please try again later." },
+        { status: 429 }
+      );
+    }
+
     const body = await request.json();
     const parsed = assessmentSchema.safeParse(body);
 

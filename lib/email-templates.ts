@@ -5,6 +5,16 @@ const SURFACE_COLOR = "#131829";
 const TEXT_COLOR = "#E8ECF4";
 const TEXT_SECONDARY = "#8B95A5";
 
+/** Escape user/LLM content before embedding in HTML emails. */
+function esc(str: string): string {
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 function baseLayout(content: string): string {
   return `
 <!DOCTYPE html>
@@ -72,9 +82,10 @@ function button(text: string, href: string): string {
 }
 
 export function welcomeEmail(firstName: string): string {
+  const safeName = esc(firstName);
   return baseLayout(`
     <h1 style="color:${TEXT_COLOR};font-size:24px;margin:0 0 8px 0;font-family:monospace;">
-      Welcome, ${firstName}!
+      Welcome, ${safeName}!
     </h1>
     <p style="color:${BRAND_COLOR};font-size:14px;font-family:monospace;margin:0 0 24px 0;">
       You're in. All 21 patterns are unlocked.
@@ -124,19 +135,19 @@ export function adminNotificationEmail(data: {
     <table cellpadding="0" cellspacing="0" style="width:100%;">
       <tr>
         <td style="color:${TEXT_SECONDARY};font-size:13px;font-family:monospace;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.06);">Name</td>
-        <td style="color:${TEXT_COLOR};font-size:14px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.06);text-align:right;">${data.firstName}</td>
+        <td style="color:${TEXT_COLOR};font-size:14px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.06);text-align:right;">${esc(data.firstName)}</td>
       </tr>
       <tr>
         <td style="color:${TEXT_SECONDARY};font-size:13px;font-family:monospace;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.06);">Email</td>
-        <td style="color:${TEXT_COLOR};font-size:14px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.06);text-align:right;">${data.email}</td>
+        <td style="color:${TEXT_COLOR};font-size:14px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.06);text-align:right;">${esc(data.email)}</td>
       </tr>
       <tr>
         <td style="color:${TEXT_SECONDARY};font-size:13px;font-family:monospace;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.06);">Role</td>
-        <td style="color:${TEXT_COLOR};font-size:14px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.06);text-align:right;">${data.role}</td>
+        <td style="color:${TEXT_COLOR};font-size:14px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.06);text-align:right;">${esc(data.role)}</td>
       </tr>
       <tr>
         <td style="color:${TEXT_SECONDARY};font-size:13px;font-family:monospace;padding:8px 0;">Challenge</td>
-        <td style="color:${TEXT_COLOR};font-size:14px;padding:8px 0;text-align:right;">${data.challenge || "Not provided"}</td>
+        <td style="color:${TEXT_COLOR};font-size:14px;padding:8px 0;text-align:right;">${esc(data.challenge || "Not provided")}</td>
       </tr>
     </table>
   `);
@@ -159,7 +170,7 @@ export function assessmentReportEmail(
       (s) => `
       <tr>
         <td style="color:${BRAND_COLOR};font-family:monospace;padding:4px 12px 4px 0;vertical-align:top;">✓</td>
-        <td style="color:${TEXT_COLOR};font-size:14px;padding:4px 0;">${s}</td>
+        <td style="color:${TEXT_COLOR};font-size:14px;padding:4px 0;">${esc(s)}</td>
       </tr>`
     )
     .join("");
@@ -169,7 +180,7 @@ export function assessmentReportEmail(
       (v) => `
       <tr>
         <td style="color:${ACCENT_COLOR};font-family:monospace;padding:4px 12px 4px 0;vertical-align:top;">!</td>
-        <td style="color:${TEXT_COLOR};font-size:14px;padding:4px 0;">${v}</td>
+        <td style="color:${TEXT_COLOR};font-size:14px;padding:4px 0;">${esc(v)}</td>
       </tr>`
     )
     .join("");
@@ -180,9 +191,9 @@ export function assessmentReportEmail(
       <tr>
         <td style="color:${BRAND_COLOR};font-family:monospace;padding:8px 12px 8px 0;vertical-align:top;font-weight:bold;">${a.step}.</td>
         <td style="padding:8px 0;">
-          <p style="color:${TEXT_COLOR};font-size:14px;font-weight:600;margin:0;">${a.title}</p>
-          <p style="color:${TEXT_SECONDARY};font-size:13px;margin:4px 0 0 0;">${a.description}</p>
-          ${a.link ? `<a href="${a.link}" style="color:${BRAND_COLOR};font-size:12px;font-family:monospace;text-decoration:none;">${a.link} →</a>` : ""}
+          <p style="color:${TEXT_COLOR};font-size:14px;font-weight:600;margin:0;">${esc(a.title)}</p>
+          <p style="color:${TEXT_SECONDARY};font-size:13px;margin:4px 0 0 0;">${esc(a.description)}</p>
+          ${a.link ? `<a href="${esc(a.link)}" style="color:${BRAND_COLOR};font-size:12px;font-family:monospace;text-decoration:none;">${esc(a.link)} →</a>` : ""}
         </td>
       </tr>`
     )
@@ -232,7 +243,7 @@ export function assessmentReportEmail(
       <tr>
         <td style="background:rgba(255,255,255,0.05);border-radius:8px;padding:20px;border-left:3px solid ${BRAND_COLOR};">
           <p style="color:${TEXT_COLOR};font-size:14px;line-height:1.6;margin:0;font-style:italic;">
-            "${result.elevatorPitch}"
+            "${esc(result.elevatorPitch)}"
           </p>
         </td>
       </tr>
@@ -255,7 +266,7 @@ export function passwordResetEmail(firstName: string, resetUrl: string): string 
       You requested a password reset.
     </p>
     <p style="color:${TEXT_SECONDARY};font-size:15px;line-height:1.6;margin:0 0 4px 0;">
-      Hi ${firstName},
+      Hi ${esc(firstName)},
     </p>
     <p style="color:${TEXT_SECONDARY};font-size:15px;line-height:1.6;margin:0;">
       Click the button below to set a new password. This link expires in <strong style="color:${TEXT_COLOR};">1 hour</strong>.

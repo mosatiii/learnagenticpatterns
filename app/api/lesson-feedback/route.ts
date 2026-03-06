@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { query } from "@/lib/db";
 import { rateLimit, getClientIp } from "@/lib/rate-limit";
+import { getAuthUser } from "@/lib/jwt";
+import { isValidSlug } from "@/lib/valid-slugs";
 
 interface FeedbackRow {
   id: number;
@@ -18,25 +20,39 @@ export async function POST(request: Request) {
       );
     }
 
-    const { userId, lessonSlug, track, helpful } = await request.json();
+    const auth = await getAuthUser(request);
+    if (!auth) {
+      return NextResponse.json(
+        { success: false, message: "Unauthorized." },
+        { status: 401 }
+      );
+    }
 
-    if (!userId || !lessonSlug || typeof helpful !== "boolean") {
+    const { lessonSlug, track, helpful } = await request.json();
+
+    if (!lessonSlug || typeof helpful !== "boolean") {
       return NextResponse.json(
         { success: false, message: "Missing required fields." },
         { status: 400 }
       );
     }
 
+    if (!isValidSlug(lessonSlug)) {
+      return NextResponse.json(
+        { success: false, message: "Invalid lesson slug." },
+        { status: 400 }
+      );
+    }
+
     const validTrack = track === "pm" ? "pm" : "developer";
 
-    // Upsert: one vote per user per lesson, changeable
     const rows = await query<FeedbackRow>(
       `INSERT INTO lesson_feedback (user_id, lesson_slug, track, helpful)
        VALUES ($1, $2, $3, $4)
        ON CONFLICT (user_id, lesson_slug)
        DO UPDATE SET helpful = $4, created_at = NOW()
        RETURNING id, helpful`,
-      [userId, lessonSlug, validTrack, helpful]
+      [auth.userId, lessonSlug, validTrack, helpful]
     );
 
     return NextResponse.json({ success: true, feedback: rows[0] });
@@ -51,20 +67,27 @@ export async function POST(request: Request) {
 
 export async function GET(request: Request) {
   try {
+    const auth = await getAuthUser(request);
+    if (!auth) {
+      return NextResponse.json(
+        { success: false, message: "Unauthorized." },
+        { status: 401 }
+      );
+    }
+
     const { searchParams } = new URL(request.url);
-    const userId = searchParams.get("userId");
     const lessonSlug = searchParams.get("lessonSlug");
 
-    if (!userId || !lessonSlug) {
+    if (!lessonSlug) {
       return NextResponse.json(
-        { success: false, message: "Missing userId or lessonSlug." },
+        { success: false, message: "Missing lessonSlug." },
         { status: 400 }
       );
     }
 
     const rows = await query<FeedbackRow>(
       `SELECT id, helpful FROM lesson_feedback WHERE user_id = $1 AND lesson_slug = $2`,
-      [userId, lessonSlug]
+      [auth.userId, lessonSlug]
     );
 
     return NextResponse.json({

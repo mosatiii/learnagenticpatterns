@@ -46,6 +46,7 @@ export interface ExplainOption {
   id: string;
   label: string;
   isCorrect: boolean;
+  explanation: string;
 }
 
 export interface ExplainChallenge {
@@ -178,9 +179,9 @@ const promptChainingGame: GameConfig = {
   explainChallenge: {
     question: "Why does the Validation Gate come before the Analysis Agent?",
     options: [
-      { id: "a", label: "It makes the pipeline run faster", isCorrect: false },
-      { id: "b", label: "It catches hallucinated extractions before they propagate downstream", isCorrect: true },
-      { id: "c", label: "The LLM API requires a validation step", isCorrect: false },
+      { id: "a", label: "It makes the pipeline run faster", isCorrect: false, explanation: "Validation gates add latency, not speed. Their purpose is correctness, not performance." },
+      { id: "b", label: "It catches hallucinated extractions before they propagate downstream", isCorrect: true, explanation: "Correct — the gate acts as a quality checkpoint, preventing bad data from contaminating downstream steps." },
+      { id: "c", label: "The LLM API requires a validation step", isCorrect: false, explanation: "LLM APIs have no such requirement. Validation is an architectural choice, not a technical constraint." },
     ],
     explanation: "The Validation Gate acts as a quality checkpoint. If the Extraction Agent hallucinates fields, the gate catches it before bad data contaminates the Analysis and Response steps. This is the Pipe & Filter pattern — each stage validates before passing downstream.",
   },
@@ -276,9 +277,9 @@ const routingGame: GameConfig = {
   explainChallenge: {
     question: "Why must the Intent Classifier come before the specialist agents?",
     options: [
-      { id: "a", label: "It's alphabetically first", isCorrect: false },
-      { id: "b", label: "It determines which specialist should handle the request", isCorrect: true },
-      { id: "c", label: "It generates the final response", isCorrect: false },
+      { id: "a", label: "It's alphabetically first", isCorrect: false, explanation: "Block order is determined by architecture, not naming. Alphabetical order is irrelevant to system design." },
+      { id: "b", label: "It determines which specialist should handle the request", isCorrect: true, explanation: "Correct — the classifier inspects the input semantically and routes to the right specialist, like an API gateway." },
+      { id: "c", label: "It generates the final response", isCorrect: false, explanation: "The classifier doesn't generate responses — it only classifies intent. Specialist agents generate the response." },
     ],
     explanation: "The classifier is the Strategy Pattern — it inspects the input and delegates to the right handler. Without it, requests are randomly routed, causing billing questions to hit the tech team and vice versa.",
   },
@@ -379,9 +380,9 @@ const parallelizationGame: GameConfig = {
   explainChallenge: {
     question: "Why can the three analysis agents be in any order between the Splitter and Merger?",
     options: [
-      { id: "a", label: "Because they all run simultaneously — order doesn't matter for parallel execution", isCorrect: true },
-      { id: "b", label: "Because the Merger sorts them automatically", isCorrect: false },
-      { id: "c", label: "Because they all do the same thing", isCorrect: false },
+      { id: "a", label: "Because they all run simultaneously — order doesn't matter for parallel execution", isCorrect: true, explanation: "Correct — parallel agents are independent. None depends on another's output, so ordering is irrelevant." },
+      { id: "b", label: "Because the Merger sorts them automatically", isCorrect: false, explanation: "The Merger combines outputs but doesn't re-sort or re-order them. The independence of the agents is what makes order irrelevant." },
+      { id: "c", label: "Because they all do the same thing", isCorrect: false, explanation: "Each agent does something different (sentiment, entities, summary). The reason order doesn't matter is that they're independent, not identical." },
     ],
     explanation: "In a scatter-gather (MapReduce) pattern, the parallel agents are independent — none needs the output of another. They execute concurrently, so their order in the pipeline is irrelevant. The Merger collects all outputs once they're done.",
   },
@@ -475,9 +476,9 @@ const reflectionGame: GameConfig = {
   explainChallenge: {
     question: "Why is the Max Retries Gate essential in a reflection loop?",
     options: [
-      { id: "a", label: "It makes the code run faster", isCorrect: false },
-      { id: "b", label: "It prevents infinite loops that burn tokens and never converge", isCorrect: true },
-      { id: "c", label: "It improves the quality of the critic's feedback", isCorrect: false },
+      { id: "a", label: "It makes the code run faster", isCorrect: false, explanation: "The retry gate doesn't speed anything up — it adds a stopping condition. Speed is not the goal; safety is." },
+      { id: "b", label: "It prevents infinite loops that burn tokens and never converge", isCorrect: true, explanation: "Correct — without a limit, the critic can keep finding minor issues forever, causing runaway costs and timeouts." },
+      { id: "c", label: "It improves the quality of the critic's feedback", isCorrect: false, explanation: "The retry gate has no effect on the critic's behavior. It only controls how many times the loop iterates." },
     ],
     explanation: "Without a retry limit, the coder-critic loop can run indefinitely — especially when the critic keeps finding new minor issues. In production, this means runaway token costs and timeouts. The Max Retries Gate is a circuit breaker for the reflection pattern.",
   },
@@ -575,9 +576,9 @@ const toolUseGame: GameConfig = {
   explainChallenge: {
     question: "Why does the Query Planner come before the API and Database adapters?",
     options: [
-      { id: "a", label: "Because it generates the final response", isCorrect: false },
-      { id: "b", label: "Because it decides which tools to call based on the question", isCorrect: true },
-      { id: "c", label: "Because it's the cheapest component to run", isCorrect: false },
+      { id: "a", label: "Because it generates the final response", isCorrect: false, explanation: "The planner doesn't generate responses — that's the synthesizer's job. The planner only decides what tools to call." },
+      { id: "b", label: "Because it decides which tools to call based on the question", isCorrect: true, explanation: "Correct — the planner analyzes the question and creates an execution plan, preventing blind or random tool calls." },
+      { id: "c", label: "Because it's the cheapest component to run", isCorrect: false, explanation: "Cost isn't what determines ordering. The planner comes first because other components need its output to know what to do." },
     ],
     explanation: "The Query Planner is the brain — it analyzes the question and creates an execution plan (which tools, in what order). Without it, the agent blindly calls every tool or picks randomly, wasting resources and returning irrelevant data. This is the Adapter Pattern with a planning layer.",
   },

@@ -5,12 +5,13 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   Users, ArrowRight, RotateCcw, Trophy,
   CheckCircle2, XCircle, Target, Lightbulb,
-  AlertTriangle, Crown, Timer,
+  AlertTriangle, Crown, Timer, Clock,
 } from "lucide-react";
 import { stakeholderRounds } from "@/data/pm-games";
 import type { Stakeholder } from "@/data/pm-games";
 import { useAuth } from "@/contexts/AuthContext";
 import { trackGameEvent } from "@/lib/game/analytics";
+import { saveDraft, loadDraft, clearDraft } from "@/lib/game/draft-storage";
 
 type Phase = "choosing" | "feedback" | "summary";
 
@@ -40,6 +41,13 @@ const ROLE_ICONS: Record<string, string> = {
   "Data Team Lead": "📊",
 };
 
+interface SSDraft {
+  currentRound: number;
+  results: RoundResult[];
+}
+
+const SS_DRAFT_KEY = "pm-stakeholder-sim";
+
 export default function StakeholderSimulator() {
   const { saveGameScore } = useAuth();
   const [currentRound, setCurrentRound] = useState(0);
@@ -49,8 +57,26 @@ export default function StakeholderSimulator() {
   const [scoreSaved, setScoreSaved] = useState(false);
   const roundStartRef = useRef(Date.now());
 
+  const [roundElapsed, setRoundElapsed] = useState(0);
+
   const round = stakeholderRounds[currentRound];
   const totalRounds = stakeholderRounds.length;
+
+  // Restore draft on mount
+  useEffect(() => {
+    const draft = loadDraft<SSDraft>(SS_DRAFT_KEY);
+    if (draft && draft.currentRound > 0 && draft.currentRound < stakeholderRounds.length) {
+      setCurrentRound(draft.currentRound);
+      setResults(draft.results);
+    }
+  }, []);
+
+  // Save draft whenever round advances
+  useEffect(() => {
+    if (results.length > 0 && phase === "choosing") {
+      saveDraft<SSDraft>(SS_DRAFT_KEY, { currentRound, results });
+    }
+  }, [currentRound, results, phase]);
 
   useEffect(() => {
     trackGameEvent("pm_ss_started", { total_rounds: totalRounds });
@@ -59,7 +85,17 @@ export default function StakeholderSimulator() {
 
   useEffect(() => {
     roundStartRef.current = Date.now();
+    setRoundElapsed(0);
   }, [currentRound]);
+
+  // Tick the visible timer while choosing
+  useEffect(() => {
+    if (phase !== "choosing") return;
+    const id = setInterval(() => {
+      setRoundElapsed(Date.now() - roundStartRef.current);
+    }, 100);
+    return () => clearInterval(id);
+  }, [phase]);
 
   const handleSelect = useCallback((stakeholderId: string) => {
     if (phase !== "choosing") return;
@@ -112,6 +148,7 @@ export default function StakeholderSimulator() {
     setSelectedId(null);
     setResults([]);
     setScoreSaved(false);
+    clearDraft(SS_DRAFT_KEY);
   }, [results]);
 
   const correctCount = results.filter((r) => r.correct).length;
@@ -123,6 +160,7 @@ export default function StakeholderSimulator() {
 
   if (phase === "summary" && !scoreSaved) {
     setScoreSaved(true);
+    clearDraft(SS_DRAFT_KEY);
 
     const avgTimeMs = results.length > 0
       ? Math.round(results.reduce((s, r) => s + r.timeMs, 0) / results.length)
@@ -308,6 +346,12 @@ export default function StakeholderSimulator() {
             transition={{ duration: 0.4 }}
           />
         </div>
+        <div className="flex items-center gap-1.5 bg-code-bg border border-border rounded-md px-2 py-1 flex-shrink-0">
+          <Clock size={11} className="text-accent" />
+          <span className="font-mono text-xs text-accent tabular-nums">
+            {(roundElapsed / 1000).toFixed(1)}s
+          </span>
+        </div>
         <span className="font-mono text-xs text-accent">{correctCount} ✓</span>
       </div>
 
@@ -417,6 +461,9 @@ function StakeholderCard({
   if (showFeedback && !isSelected && isOptimal) {
     borderOverride = "!border-success/30";
   }
+  if (showFeedback && !isSelected && !isOptimal) {
+    borderOverride = "!border-red-500/20 !bg-red-500/[0.02]";
+  }
 
   return (
     <motion.button
@@ -439,7 +486,7 @@ function StakeholderCard({
           <p className="text-text-secondary text-xs leading-relaxed">{stakeholder.argument}</p>
 
           <AnimatePresence>
-            {showFeedback && (isSelected || isOptimal) && (
+            {showFeedback && (
               <motion.div
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: "auto" }}
