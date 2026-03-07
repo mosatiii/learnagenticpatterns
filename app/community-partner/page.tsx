@@ -143,6 +143,70 @@ export default function CommunityPartnerPage() {
         </div>
       </section>
 
+      {/* Your Profile on Featured Page */}
+      <section className="py-16 bg-surface/30">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+          >
+            <h2 className="font-mono text-xl text-text-primary font-bold mb-2 text-center">
+              Your Own Profile Card
+            </h2>
+            <p className="text-text-secondary text-sm text-center mb-8 max-w-lg mx-auto">
+              Every partner gets a searchable profile on our{" "}
+              <Link
+                href="/featured-ambassadors"
+                className="text-primary hover:underline font-mono"
+              >
+                Featured Ambassadors
+              </Link>{" "}
+              page — visible to every learner on the platform.
+            </p>
+
+            {/* Preview card */}
+            <div className="max-w-md mx-auto bg-surface border border-dashed border-primary/25 rounded-xl p-6">
+              <div className="flex items-start gap-4">
+                <div className="w-12 h-12 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center flex-shrink-0">
+                  <span className="font-mono text-primary/40 text-lg font-bold">
+                    ?
+                  </span>
+                </div>
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="font-mono text-text-secondary/40 text-sm font-bold">
+                      Your Name
+                    </span>
+                    <span className="inline-flex items-center gap-1 font-mono text-[10px] text-accent border border-accent/30 rounded-full px-2 py-0.5 bg-accent/5">
+                      <Award size={10} /> Partner
+                    </span>
+                  </div>
+                  <p className="font-mono text-primary/30 text-xs mb-2">
+                    your-channel
+                  </p>
+                  <p className="text-text-secondary/30 text-xs leading-relaxed mb-2.5">
+                    Your bio and description will appear here...
+                  </p>
+                  <div className="flex gap-1.5">
+                    <span className="inline-block font-mono text-[10px] text-primary/30 border border-primary/10 rounded-full px-2.5 py-0.5">
+                      AI
+                    </span>
+                    <span className="inline-block font-mono text-[10px] text-primary/30 border border-primary/10 rounded-full px-2.5 py-0.5">
+                      Your Topic
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <p className="text-text-secondary/50 text-xs text-center mt-4 font-mono">
+              Searchable by name, channel, and topic
+            </p>
+          </motion.div>
+        </div>
+      </section>
+
       {/* Why Partner with Us */}
       <section className="py-16 bg-surface/30">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">

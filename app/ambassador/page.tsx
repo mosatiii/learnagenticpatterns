@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import posthog from "posthog-js";
 import { POSTHOG_KEY } from "@/lib/posthog-config";
+import Link from "next/link";
 import { ambassadorSchema, type AmbassadorFormData } from "@/lib/validations";
 
 const platformOptions = [
@@ -207,10 +208,17 @@ export default function AmbassadorPage() {
             viewport={{ once: true }}
           >
             <h2 className="font-mono text-xl text-text-primary font-bold mb-2 text-center">
-              Featured Ambassadors
+              Get Your Own Profile Card
             </h2>
-            <p className="text-text-secondary text-sm text-center mb-8">
-              Your name and channel could be here
+            <p className="text-text-secondary text-sm text-center mb-8 max-w-lg mx-auto">
+              Every ambassador gets a searchable profile on our{" "}
+              <Link
+                href="/featured-ambassadors"
+                className="text-primary hover:underline font-mono"
+              >
+                Featured Ambassadors
+              </Link>{" "}
+              page — visible to every learner on the platform.
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               {[1, 2, 3].map((i) => (
@@ -231,6 +239,14 @@ export default function AmbassadorPage() {
                   </p>
                 </div>
               ))}
+            </div>
+            <div className="text-center mt-6">
+              <Link
+                href="/featured-ambassadors"
+                className="inline-flex items-center gap-2 text-primary font-mono text-sm hover:underline"
+              >
+                View all featured ambassadors <ArrowRight size={14} />
+              </Link>
             </div>
           </motion.div>
         </div>

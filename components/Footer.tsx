@@ -16,6 +16,7 @@ const allFooterLinks = [
   { label: "About", href: "/about" },
   { label: "Ambassador", href: "/ambassador" },
   { label: "Community Partner", href: "/community-partner" },
+  { label: "Featured Ambassadors", href: "/featured-ambassadors" },
   { label: "Sign Up", href: "/signup" },
 ];
 
