@@ -15,6 +15,7 @@ const allFooterLinks = [
   { label: "Career Guide", href: "/guide/from-software-engineer-to-agentic-architect" },
   { label: "About", href: "/about" },
   { label: "Ambassador", href: "/ambassador" },
+  { label: "Community Partner", href: "/community-partner" },
   { label: "Sign Up", href: "/signup" },
 ];
 

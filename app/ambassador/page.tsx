@@ -15,6 +15,8 @@ import {
   MonitorPlay,
   Globe,
 } from "lucide-react";
+import posthog from "posthog-js";
+import { POSTHOG_KEY } from "@/lib/posthog-config";
 import { ambassadorSchema, type AmbassadorFormData } from "@/lib/validations";
 
 const platformOptions = [
@@ -89,6 +91,14 @@ export default function AmbassadorPage() {
       });
       const json = await res.json();
       if (!res.ok) throw new Error(json.message || "Something went wrong");
+
+      if (typeof window !== "undefined" && POSTHOG_KEY) {
+        posthog.capture("ambassador_application_submitted", {
+          platform: data.platform,
+          follower_count: data.followerCount,
+        });
+      }
+
       setSubmitted(true);
     } catch (err) {
       setServerError(
