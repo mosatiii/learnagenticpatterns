@@ -86,6 +86,17 @@ async function ensureTables() {
       created_at      TIMESTAMPTZ DEFAULT NOW()
     );
 
+    CREATE TABLE IF NOT EXISTS community_partner_applications (
+      id              SERIAL PRIMARY KEY,
+      name            TEXT NOT NULL,
+      email           TEXT NOT NULL,
+      channel_url     TEXT NOT NULL,
+      platform        TEXT NOT NULL,
+      why_partner     TEXT NOT NULL,
+      status          TEXT NOT NULL DEFAULT 'pending',
+      created_at      TIMESTAMPTZ DEFAULT NOW()
+    );
+
     CREATE TABLE IF NOT EXISTS ambassadors (
       id              SERIAL PRIMARY KEY,
       name            TEXT NOT NULL,

@@ -1,5 +1,8 @@
 "use client";
 
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { motion } from "framer-motion";
 import posthog from "posthog-js";
 import { POSTHOG_KEY } from "@/lib/posthog-config";
@@ -13,8 +16,25 @@ import {
   BookOpen,
   Users,
   Globe,
+  Loader2,
+  CheckCircle2,
+  Youtube,
+  Instagram,
+  MonitorPlay,
+  Linkedin,
 } from "lucide-react";
-import Link from "next/link";
+import {
+  communityPartnerSchema,
+  type CommunityPartnerFormData,
+} from "@/lib/validations";
+
+const platformOptions = [
+  { value: "YouTube" as const, label: "YouTube", icon: Youtube },
+  { value: "TikTok" as const, label: "TikTok", icon: MonitorPlay },
+  { value: "Instagram" as const, label: "Instagram", icon: Instagram },
+  { value: "LinkedIn" as const, label: "LinkedIn", icon: Linkedin },
+  { value: "Other" as const, label: "Other", icon: Globe },
+];
 
 const perks = [
   {
@@ -71,6 +91,49 @@ const reasons = [
 ];
 
 export default function CommunityPartnerPage() {
+  const [submitted, setSubmitted] = useState(false);
+  const [serverError, setServerError] = useState("");
+
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    watch,
+    formState: { errors, isSubmitting },
+  } = useForm<CommunityPartnerFormData>({
+    resolver: zodResolver(communityPartnerSchema),
+  });
+
+  const selectedPlatform = watch("platform");
+
+  const onSubmit = async (data: CommunityPartnerFormData) => {
+    setServerError("");
+    try {
+      const res = await fetch("/api/community-partner", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.message || "Something went wrong");
+
+      if (typeof window !== "undefined" && POSTHOG_KEY) {
+        posthog.capture("community_partner_application_submitted", {
+          platform: data.platform,
+        });
+      }
+
+      setSubmitted(true);
+    } catch (err) {
+      setServerError(
+        err instanceof Error ? err.message : "Something went wrong"
+      );
+    }
+  };
+
+  const inputClass =
+    "w-full bg-code-bg border border-border rounded-md px-4 py-3 text-text-primary placeholder-text-secondary/50 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/30 transition-colors font-sans text-sm";
+
   return (
     <main className="relative z-10 pt-24">
       {/* Hero */}
@@ -94,17 +157,12 @@ export default function CommunityPartnerPage() {
               permanent visibility, early access, and direct links to your
               content — seen by every learner on our site.
             </p>
-            <Link
-              href="/ambassador#apply"
-              onClick={() => {
-                if (typeof window !== "undefined" && POSTHOG_KEY) {
-                  posthog.capture("community_partner_apply_clicked", { location: "hero" });
-                }
-              }}
+            <a
+              href="#apply"
               className="inline-flex items-center gap-2 bg-accent hover:bg-accent/90 text-white font-sans font-semibold text-sm px-7 py-3 rounded-md transition-all hover:shadow-lg hover:shadow-accent/20 mt-8"
             >
               Apply Now <ArrowRight size={16} />
-            </Link>
+            </a>
           </motion.div>
         </div>
       </section>
@@ -155,14 +213,8 @@ export default function CommunityPartnerPage() {
               Your Own Profile Card
             </h2>
             <p className="text-text-secondary text-sm text-center mb-8 max-w-lg mx-auto">
-              Every partner gets a searchable profile on our{" "}
-              <Link
-                href="/featured-ambassadors"
-                className="text-primary hover:underline font-mono"
-              >
-                Featured Ambassadors
-              </Link>{" "}
-              page — visible to every learner on the platform.
+              Every partner gets a searchable profile card on our platform —
+              visible to every learner on the site.
             </p>
 
             {/* Preview card */}
@@ -208,7 +260,7 @@ export default function CommunityPartnerPage() {
       </section>
 
       {/* Why Partner with Us */}
-      <section className="py-16 bg-surface/30">
+      <section className="py-16">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="font-mono text-xl text-text-primary font-bold mb-2 text-center">
             Why Partner with Us?
@@ -243,35 +295,224 @@ export default function CommunityPartnerPage() {
         </div>
       </section>
 
-      {/* CTA */}
-      <section className="py-24">
-        <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      {/* Application Form */}
+      <section className="py-20 bg-surface/30" id="apply">
+        <div className="max-w-lg mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
           >
-            <h2 className="font-mono text-2xl md:text-3xl text-text-primary font-bold mb-4">
-              Ready to Join?
+            <h2 className="font-mono text-xl text-text-primary font-bold mb-1 text-center">
+              Apply to Become a Partner
             </h2>
-            <p className="text-text-secondary text-sm leading-relaxed mb-8 max-w-md mx-auto">
-              Fill out our short application form and we&apos;ll reach out within
-              a few days to get you set up as a Featured Partner.
+            <p className="text-text-secondary text-sm mb-8 text-center">
+              Takes less than 2 minutes. We&apos;ll get back to you within a few
+              days.
             </p>
-            <Link
-              href="/ambassador#apply"
-              onClick={() => {
-                if (typeof window !== "undefined" && POSTHOG_KEY) {
-                  posthog.capture("community_partner_apply_clicked", { location: "bottom_cta" });
-                }
-              }}
-              className="inline-flex items-center gap-2 bg-accent hover:bg-accent/90 text-white font-sans font-semibold text-sm px-7 py-3 rounded-md transition-all hover:shadow-lg hover:shadow-accent/20"
-            >
-              Apply Now <ArrowRight size={16} />
-            </Link>
-            <p className="text-text-secondary/50 text-xs font-mono mt-4">
-              No commitment — just tell us about your channel
-            </p>
+
+            {submitted ? (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="bg-surface border border-success/30 rounded-xl p-10 text-center"
+              >
+                <CheckCircle2
+                  size={44}
+                  className="text-success mx-auto mb-4"
+                />
+                <h3 className="font-mono text-text-primary font-bold text-lg mb-2">
+                  Application Received
+                </h3>
+                <p className="text-text-secondary text-sm leading-relaxed max-w-xs mx-auto">
+                  Thanks for applying! We&apos;ll review your profile and reach
+                  out soon with next steps.
+                </p>
+              </motion.div>
+            ) : (
+              <div className="bg-surface border border-border rounded-xl p-8">
+                <form
+                  onSubmit={handleSubmit(onSubmit)}
+                  className="space-y-6"
+                >
+                  {/* Name */}
+                  <div>
+                    <label
+                      htmlFor="name"
+                      className="block font-mono text-xs text-text-secondary mb-1.5 uppercase tracking-wider"
+                    >
+                      Name
+                    </label>
+                    <input
+                      id="name"
+                      type="text"
+                      {...register("name")}
+                      className={inputClass}
+                      placeholder="Your full name"
+                    />
+                    {errors.name && (
+                      <p className="text-red-400 text-xs mt-1 font-mono">
+                        {errors.name.message}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Email */}
+                  <div>
+                    <label
+                      htmlFor="email"
+                      className="block font-mono text-xs text-text-secondary mb-1.5 uppercase tracking-wider"
+                    >
+                      Email
+                    </label>
+                    <input
+                      id="email"
+                      type="email"
+                      {...register("email")}
+                      className={inputClass}
+                      placeholder="you@example.com"
+                    />
+                    <p className="text-text-secondary/50 text-xs mt-1.5">
+                      Use the same email associated with your public profile so
+                      we can verify your channel.
+                    </p>
+                    {errors.email && (
+                      <p className="text-red-400 text-xs mt-1 font-mono">
+                        {errors.email.message}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Platform — card selection */}
+                  <div>
+                    <span className="block font-mono text-xs text-text-secondary mb-2.5 uppercase tracking-wider">
+                      Platform
+                    </span>
+                    <input type="hidden" {...register("platform")} />
+                    <div className="grid grid-cols-5 gap-2">
+                      {platformOptions.map((p) => {
+                        const isSelected = selectedPlatform === p.value;
+                        return (
+                          <button
+                            key={p.value}
+                            type="button"
+                            onClick={() =>
+                              setValue("platform", p.value, {
+                                shouldValidate: true,
+                              })
+                            }
+                            className={`flex flex-col items-center gap-1.5 rounded-lg border px-2 py-3 transition-all cursor-pointer ${
+                              isSelected
+                                ? "border-primary bg-primary/10 shadow-md shadow-primary/10"
+                                : "border-border bg-code-bg hover:border-text-secondary/40"
+                            }`}
+                          >
+                            <p.icon
+                              size={18}
+                              className={
+                                isSelected
+                                  ? "text-primary"
+                                  : "text-text-secondary"
+                              }
+                            />
+                            <span
+                              className={`font-mono text-[11px] font-medium ${
+                                isSelected
+                                  ? "text-primary"
+                                  : "text-text-primary"
+                              }`}
+                            >
+                              {p.label}
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                    {errors.platform && (
+                      <p className="text-red-400 text-xs mt-1.5 font-mono">
+                        {errors.platform.message}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Channel URL */}
+                  <div>
+                    <label
+                      htmlFor="channelUrl"
+                      className="block font-mono text-xs text-text-secondary mb-1.5 uppercase tracking-wider"
+                    >
+                      Channel / Profile Link
+                    </label>
+                    <input
+                      id="channelUrl"
+                      type="url"
+                      {...register("channelUrl")}
+                      className={inputClass}
+                      placeholder="https://youtube.com/@yourchannel"
+                    />
+                    {errors.channelUrl && (
+                      <p className="text-red-400 text-xs mt-1 font-mono">
+                        {errors.channelUrl.message}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Why Partner */}
+                  <div>
+                    <label
+                      htmlFor="whyPartner"
+                      className="block font-mono text-xs text-text-secondary mb-1.5 uppercase tracking-wider"
+                    >
+                      Why do you want to partner with us?
+                    </label>
+                    <textarea
+                      id="whyPartner"
+                      rows={4}
+                      {...register("whyPartner")}
+                      className={`${inputClass} resize-none`}
+                      placeholder="Tell us about your content, audience, and what a partnership would look like..."
+                    />
+                    {errors.whyPartner && (
+                      <p className="text-red-400 text-xs mt-1 font-mono">
+                        {errors.whyPartner.message}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Server Error */}
+                  {serverError && (
+                    <div className="bg-red-500/10 border border-red-500/30 rounded-md px-4 py-3">
+                      <p className="text-red-400 text-sm font-mono">
+                        {serverError}
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Submit */}
+                  <button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="w-full bg-accent hover:bg-accent/90 disabled:bg-accent/50 text-white font-sans font-semibold text-sm px-6 py-3.5 rounded-md transition-all hover:shadow-lg hover:shadow-accent/20 flex items-center justify-center gap-2"
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />{" "}
+                        Submitting...
+                      </>
+                    ) : (
+                      <>
+                        Submit Application{" "}
+                        <ArrowRight className="w-4 h-4" />
+                      </>
+                    )}
+                  </button>
+
+                  <p className="text-center text-text-secondary/50 text-xs font-mono">
+                    No commitment until we approve your application
+                  </p>
+                </form>
+              </div>
+            )}
           </motion.div>
         </div>
       </section>

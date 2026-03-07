@@ -129,3 +129,36 @@ export const ambassadorSchema = z.object({
 });
 
 export type AmbassadorFormData = z.infer<typeof ambassadorSchema>;
+
+export const communityPartnerSchema = z.object({
+  name: z
+    .string()
+    .min(1, "Name is required")
+    .max(100, "Name must be under 100 characters")
+    .transform(sanitize)
+    .pipe(noSqlInjection("Name")),
+  email: z
+    .string()
+    .min(1, "Email is required")
+    .email("Please enter a valid email address")
+    .transform((val) => val.toLowerCase().trim())
+    .pipe(z.string().regex(STRICT_EMAIL_RE, "Please enter a real email address"))
+    .pipe(noSqlInjection("Email")),
+  channelUrl: z
+    .string()
+    .min(1, "Channel or profile link is required")
+    .max(500, "URL must be under 500 characters")
+    .url("Please enter a valid URL")
+    .pipe(noSqlInjection("Channel URL")),
+  platform: z.enum(["YouTube", "TikTok", "Instagram", "LinkedIn", "Other"], {
+    required_error: "Please select your platform",
+  }),
+  whyPartner: z
+    .string()
+    .min(20, "Please write at least 20 characters")
+    .max(1000, "Must be under 1000 characters")
+    .transform(sanitize)
+    .pipe(noSqlInjection("Response")),
+});
+
+export type CommunityPartnerFormData = z.infer<typeof communityPartnerSchema>;

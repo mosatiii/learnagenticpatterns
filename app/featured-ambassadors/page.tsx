@@ -279,23 +279,15 @@ export default function FeaturedAmbassadorsPage() {
               Want to Be Featured Here?
             </h2>
             <p className="text-text-secondary text-sm leading-relaxed mb-6 max-w-md mx-auto">
-              Join as a paid ambassador or community partner and get your own
-              searchable profile card on this page.
+              Create a dedicated video about learnagenticpatterns.com and get
+              your own searchable profile card on this page.
             </p>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-              <Link
-                href="/ambassador#apply"
-                className="inline-flex items-center gap-2 bg-accent hover:bg-accent/90 text-white font-sans font-semibold text-sm px-7 py-3 rounded-md transition-all hover:shadow-lg hover:shadow-accent/20"
-              >
-                Become an Ambassador <ArrowRight size={16} />
-              </Link>
-              <Link
-                href="/community-partner"
-                className="inline-flex items-center gap-2 border border-border hover:border-primary/50 text-text-secondary hover:text-primary font-sans font-medium text-sm px-7 py-3 rounded-md transition-all"
-              >
-                Community Partner Program
-              </Link>
-            </div>
+            <Link
+              href="/ambassador#apply"
+              className="inline-flex items-center gap-2 bg-accent hover:bg-accent/90 text-white font-sans font-semibold text-sm px-7 py-3 rounded-md transition-all hover:shadow-lg hover:shadow-accent/20"
+            >
+              Become an Ambassador <ArrowRight size={16} />
+            </Link>
           </motion.div>
         </div>
       </section>
