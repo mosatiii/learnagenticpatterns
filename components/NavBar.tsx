@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, LogOut, User, MessageSquare, Send, Loader2 } from "lucide-react";
+import { Menu, X, LogOut, User, MessageSquare, Send, Loader2, Blocks } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import ProgressBadge from "@/components/ProgressBadge";
@@ -11,6 +11,7 @@ import PracticeNav from "@/components/PracticeNav";
 import CrossDomainAuthModal from "@/components/CrossDomainAuthModal";
 
 const MAIN_DOMAIN = "https://learnagenticpatterns.com";
+const PRACTICE_DOMAIN = "https://practice.learnagenticpatterns.com";
 
 const mainNavLinks = [
   { label: "Home", href: "/" },
@@ -248,12 +249,28 @@ export default function NavBar() {
                                 {user.email}
                               </p>
                             </div>
+                            <a
+                              href={`${PRACTICE_DOMAIN}/profile`}
+                              onClick={() => setDropdownOpen(false)}
+                              className="flex items-center gap-2 px-4 py-3 font-mono text-xs text-text-secondary hover:text-text-primary hover:bg-primary/5 transition-colors"
+                            >
+                              <User size={14} />
+                              Profile
+                            </a>
+                            <a
+                              href={PRACTICE_DOMAIN}
+                              onClick={() => setDropdownOpen(false)}
+                              className="flex items-center gap-2 px-4 py-3 font-mono text-xs text-text-secondary hover:text-text-primary hover:bg-primary/5 transition-colors border-t border-border/50"
+                            >
+                              <Blocks size={14} />
+                              Back to Practice
+                            </a>
                             <button
                               onClick={() => {
                                 setDropdownOpen(false);
                                 logout();
                               }}
-                              className="w-full flex items-center gap-2 px-4 py-3 text-left font-mono text-xs text-text-secondary hover:text-red-400 hover:bg-red-500/5 transition-colors"
+                              className="w-full flex items-center gap-2 px-4 py-3 text-left font-mono text-xs text-text-secondary hover:text-red-400 hover:bg-red-500/5 transition-colors border-t border-border/50"
                             >
                               <LogOut size={14} />
                               Log out
@@ -350,6 +367,22 @@ export default function NavBar() {
                       </div>
                       <ProgressBadge />
                     </div>
+                    <a
+                      href={`${PRACTICE_DOMAIN}/profile`}
+                      onClick={() => setMobileOpen(false)}
+                      className="flex items-center gap-2 font-mono text-xs text-text-secondary hover:text-text-primary transition-colors py-2"
+                    >
+                      <User size={14} />
+                      Profile
+                    </a>
+                    <a
+                      href={PRACTICE_DOMAIN}
+                      onClick={() => setMobileOpen(false)}
+                      className="flex items-center gap-2 font-mono text-xs text-text-secondary hover:text-text-primary transition-colors py-2"
+                    >
+                      <Blocks size={14} />
+                      Back to Practice
+                    </a>
                     <button
                       onClick={() => {
                         setMobileOpen(false);
