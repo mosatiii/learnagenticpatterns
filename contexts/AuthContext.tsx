@@ -32,6 +32,20 @@ function getSharedCookie(): string | null {
   return match ? match[1] : null;
 }
 
+/**
+ * Read a token passed via URL hash (#token=...) from a cross-subdomain
+ * redirect, then strip the hash so it doesn't linger in the address bar.
+ */
+function consumeHashToken(): string | null {
+  if (typeof window === "undefined") return null;
+  const hash = window.location.hash;
+  const match = hash.match(/[#&]token=([^&]+)/);
+  if (!match) return null;
+  const token = decodeURIComponent(match[1]);
+  window.history.replaceState(null, "", window.location.pathname + window.location.search);
+  return token;
+}
+
 interface AuthUser {
   id: number;
   email: string;
@@ -180,11 +194,10 @@ export function AuthProvider({ children, totalPatterns }: { children: ReactNode;
       try {
         let token = localStorage.getItem(TOKEN_KEY);
 
-        // Cross-subdomain: fall back to the shared cookie when
-        // localStorage is empty (e.g. first visit to practice.*)
-        if (!token) {
-          token = getSharedCookie();
-        }
+        // Cross-subdomain: check URL hash first (from login/signup redirect),
+        // then fall back to the shared cookie
+        if (!token) token = consumeHashToken();
+        if (!token) token = getSharedCookie();
 
         if (!token) { setIsLoading(false); return; }
 

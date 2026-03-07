@@ -10,7 +10,16 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { signupSchema, type SignupFormData } from "@/lib/validations";
 import { useAuth } from "@/contexts/AuthContext";
 
-const PRACTICE_URL = "https://practice.learnagenticpatterns.com";
+const PRACTICE_BASE = "https://practice.learnagenticpatterns.com";
+
+function practiceRedirect(): string {
+  const token = typeof window !== "undefined"
+    ? localStorage.getItem("lap_token")
+    : null;
+  return token
+    ? `${PRACTICE_BASE}/#token=${encodeURIComponent(token)}`
+    : PRACTICE_BASE;
+}
 
 const tracks = [
   {
@@ -49,11 +58,10 @@ export default function SignupPage() {
   const selectedRole = watch("role");
 
   if (user) {
-    const dest = fromPractice ? PRACTICE_URL : "/";
     if (fromPractice) {
-      window.location.href = dest;
+      window.location.href = practiceRedirect();
     } else {
-      router.push(dest);
+      router.push("/");
     }
     return (
       <main className="relative z-10 pt-24 min-h-screen flex items-center justify-center">
@@ -72,7 +80,7 @@ export default function SignupPage() {
     try {
       await signup(data);
       if (fromPractice) {
-        window.location.href = PRACTICE_URL;
+        window.location.href = practiceRedirect();
       } else {
         router.push("/");
       }
