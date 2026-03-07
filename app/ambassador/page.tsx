@@ -8,56 +8,59 @@ import {
   Loader2,
   ArrowRight,
   Video,
-  DollarSign,
   CheckCircle2,
-  Users,
   Megaphone,
-  Sparkles,
+  Youtube,
+  Instagram,
+  MonitorPlay,
+  Globe,
 } from "lucide-react";
 import { ambassadorSchema, type AmbassadorFormData } from "@/lib/validations";
 
-const platforms = ["YouTube", "TikTok", "Instagram", "Other"] as const;
+const platformOptions = [
+  { value: "YouTube" as const, label: "YouTube", icon: Youtube },
+  { value: "TikTok" as const, label: "TikTok", icon: MonitorPlay },
+  { value: "Instagram" as const, label: "Instagram", icon: Instagram },
+  { value: "Other" as const, label: "Other", icon: Globe },
+];
 
-const expectations = [
+const tiers = [
+  { range: "Under 5K", payout: "$50", followers: "< 5,000 followers" },
+  { range: "Under 10K", payout: "$75", followers: "5,000 – 9,999 followers" },
+  { range: "Under 15K", payout: "$100", followers: "10,000 – 14,999 followers" },
+];
+
+const steps = [
   {
+    number: "01",
     icon: Video,
     title: "Full Dedicated Video",
     description:
-      "Create a complete video dedicated to learnagenticpatterns.com — not just a mention or shout-out.",
+      "Create a complete video about learnagenticpatterns.com — not a mention or shout-out.",
   },
   {
+    number: "02",
     icon: Megaphone,
     title: "Platform Walkthrough",
     description:
-      "Walk your audience through the platform: the 21 patterns, code examples, and interactive exercises.",
+      "Walk your audience through the 21 patterns, code examples, and interactive exercises.",
   },
   {
+    number: "03",
     icon: CheckCircle2,
     title: "Paid Partnership Disclosure",
     description:
-      'Include a clear disclosure that this is a paid partnership, as required by platform guidelines (e.g. "Includes paid promotion").',
+      'Include a clear disclosure as required by platform guidelines (e.g. "Includes paid promotion").',
   },
 ];
 
-const benefits = [
-  {
-    icon: DollarSign,
-    title: "$50 CAD on Publish",
-    description:
-      "Receive $50 CAD once your dedicated video goes live. No strings attached.",
-  },
-  {
-    icon: Users,
-    title: "Early Access & Support",
-    description:
-      "Get direct access to the founder for any questions about the platform while creating your content.",
-  },
-  {
-    icon: Sparkles,
-    title: "Feature on Our Site",
-    description:
-      "Top ambassador videos may be featured on learnagenticpatterns.com, giving you extra visibility.",
-  },
+const topics = [
+  "AI & Machine Learning",
+  "No-Code / Low-Code",
+  "Product Management",
+  "Tech Education",
+  "Startups",
+  "Career Development",
 ];
 
 export default function AmbassadorPage() {
@@ -67,10 +70,14 @@ export default function AmbassadorPage() {
   const {
     register,
     handleSubmit,
+    setValue,
+    watch,
     formState: { errors, isSubmitting },
   } = useForm<AmbassadorFormData>({
     resolver: zodResolver(ambassadorSchema),
   });
+
+  const selectedPlatform = watch("platform");
 
   const onSubmit = async (data: AmbassadorFormData) => {
     setServerError("");
@@ -91,64 +98,148 @@ export default function AmbassadorPage() {
   };
 
   const inputClass =
-    "w-full bg-code-bg border border-border rounded-md px-4 py-3 text-text-primary placeholder-text-secondary/50 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/30 transition-colors font-sans";
+    "w-full bg-code-bg border border-border rounded-md px-4 py-3 text-text-primary placeholder-text-secondary/50 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/30 transition-colors font-sans text-sm";
 
   return (
     <main className="relative z-10 pt-24">
       {/* Hero */}
-      <section className="py-20">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="py-20 pb-12">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <span className="font-mono text-primary text-sm mb-4 block">
-              {">"} ambassador_program
+            <span className="inline-block font-mono text-primary text-xs tracking-wider uppercase mb-6 border border-primary/20 rounded-full px-4 py-1.5 bg-primary/5">
+              Ambassador Program
             </span>
             <h1 className="font-mono text-4xl md:text-5xl font-bold text-text-primary leading-tight mb-6">
-              Become an{" "}
-              <span className="text-gradient">Ambassador</span>
+              Get Paid to Share{" "}
+              <span className="text-gradient">What You Love</span>
             </h1>
-            <p className="text-text-secondary text-lg leading-relaxed max-w-2xl">
-              We&apos;re looking for micro-influencers in{" "}
-              <span className="text-text-primary font-medium">AI</span>,{" "}
-              <span className="text-text-primary font-medium">no-code</span>,{" "}
-              <span className="text-text-primary font-medium">product management</span>, and{" "}
-              <span className="text-text-primary font-medium">tech education</span> to
-              introduce learnagenticpatterns.com to their audience through a
-              full dedicated video.
+            <p className="text-text-secondary text-lg leading-relaxed max-w-2xl mx-auto">
+              Create a dedicated video introducing learnagenticpatterns.com to
+              your audience and earn up to{" "}
+              <span className="text-accent font-semibold">$100 CAD</span> when
+              it goes live.
             </p>
+            <a
+              href="#apply"
+              className="inline-flex items-center gap-2 bg-accent hover:bg-accent/90 text-white font-sans font-semibold text-sm px-7 py-3 rounded-md transition-all hover:shadow-lg hover:shadow-accent/20 mt-8"
+            >
+              Apply Now <ArrowRight size={16} />
+            </a>
           </motion.div>
         </div>
       </section>
 
-      {/* Who We're Looking For */}
-      <section className="py-16 bg-surface/30">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+      {/* Payout Tiers */}
+      <section className="py-16">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
           >
-            <h2 className="font-mono text-2xl text-text-primary font-bold mb-3">
-              <span className="text-primary">{">"}</span> Who We&apos;re Looking For
+            <h2 className="font-mono text-xl text-text-primary font-bold mb-2 text-center">
+              Payout Tiers
             </h2>
-            <p className="text-text-secondary leading-relaxed mb-6">
-              Creators under 10K subscribers or followers who cover topics like:
+            <p className="text-text-secondary text-sm text-center mb-8">
+              Paid upon publishing your dedicated video
             </p>
-            <div className="flex flex-wrap gap-3">
-              {[
-                "AI & Machine Learning",
-                "No-Code / Low-Code",
-                "Product Management",
-                "Tech Education",
-                "Startups",
-                "Career Development",
-              ].map((topic) => (
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              {tiers.map((tier, i) => {
+                const isMiddle = i === 1;
+                return (
+                  <motion.div
+                    key={tier.range}
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: i * 0.1 }}
+                    className={`relative rounded-xl p-6 text-center transition-all ${
+                      isMiddle
+                        ? "bg-surface border-2 border-primary/40 shadow-lg shadow-primary/5"
+                        : "bg-surface border border-border"
+                    }`}
+                  >
+                    {isMiddle && (
+                      <span className="absolute -top-3 left-1/2 -translate-x-1/2 font-mono text-[10px] uppercase tracking-wider text-primary bg-primary/10 border border-primary/30 rounded-full px-3 py-0.5">
+                        Popular
+                      </span>
+                    )}
+                    <p className="font-mono text-text-secondary text-xs mb-3">
+                      {tier.range}
+                    </p>
+                    <p className="font-mono text-3xl font-bold text-text-primary mb-1">
+                      {tier.payout}
+                      <span className="text-text-secondary text-sm font-normal ml-1">
+                        CAD
+                      </span>
+                    </p>
+                    <p className="text-text-secondary/60 text-xs">
+                      {tier.followers}
+                    </p>
+                  </motion.div>
+                );
+              })}
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Requirements — numbered steps */}
+      <section className="py-16 bg-surface/30">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h2 className="font-mono text-xl text-text-primary font-bold mb-8 text-center">
+            What&apos;s Required
+          </h2>
+          <div className="space-y-4">
+            {steps.map((step, i) => (
+              <motion.div
+                key={step.number}
+                initial={{ opacity: 0, x: -20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.1 }}
+                className="flex items-start gap-5 bg-surface border border-border rounded-lg p-5"
+              >
+                <span className="font-mono text-primary/30 text-2xl font-bold leading-none mt-0.5 select-none">
+                  {step.number}
+                </span>
+                <div>
+                  <h3 className="font-mono text-text-primary font-bold text-sm mb-1">
+                    {step.title}
+                  </h3>
+                  <p className="text-text-secondary text-sm leading-relaxed">
+                    {step.description}
+                  </p>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Who We're Looking For */}
+      <section className="py-16">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+          >
+            <h2 className="font-mono text-xl text-text-primary font-bold mb-2">
+              Who We&apos;re Looking For
+            </h2>
+            <p className="text-text-secondary text-sm mb-6">
+              Creators under 15K followers covering topics like:
+            </p>
+            <div className="flex flex-wrap justify-center gap-2.5">
+              {topics.map((topic) => (
                 <span
                   key={topic}
-                  className="inline-block font-mono text-xs text-primary border border-primary/30 rounded-full px-4 py-1.5"
+                  className="inline-block font-mono text-xs text-primary border border-primary/20 rounded-full px-4 py-1.5 bg-primary/5"
                 >
                   {topic}
                 </span>
@@ -158,81 +249,19 @@ export default function AmbassadorPage() {
         </div>
       </section>
 
-      {/* What's Expected */}
-      <section className="py-16">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="font-mono text-2xl text-text-primary font-bold mb-8">
-            <span className="text-primary">{">"}</span> What&apos;s Expected
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {expectations.map((item, i) => (
-              <motion.div
-                key={item.title}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.1 }}
-                className="bg-surface border border-border rounded-lg p-6"
-              >
-                <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
-                  <item.icon size={20} className="text-primary" />
-                </div>
-                <h3 className="font-mono text-text-primary font-bold text-sm mb-2">
-                  {item.title}
-                </h3>
-                <p className="text-text-secondary text-sm leading-relaxed">
-                  {item.description}
-                </p>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* What You Get */}
-      <section className="py-16 bg-surface/30">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="font-mono text-2xl text-text-primary font-bold mb-8">
-            <span className="text-accent">{">"}</span> What You Get
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {benefits.map((item, i) => (
-              <motion.div
-                key={item.title}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.1 }}
-                className="bg-surface border border-accent/20 rounded-lg p-6"
-              >
-                <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center mb-4">
-                  <item.icon size={20} className="text-accent" />
-                </div>
-                <h3 className="font-mono text-text-primary font-bold text-sm mb-2">
-                  {item.title}
-                </h3>
-                <p className="text-text-secondary text-sm leading-relaxed">
-                  {item.description}
-                </p>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* Application Form */}
-      <section className="py-20" id="apply">
+      <section className="py-20 bg-surface/30" id="apply">
         <div className="max-w-lg mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
           >
-            <h2 className="font-mono text-2xl text-text-primary font-bold mb-2">
-              <span className="text-primary">{">"}</span> Apply Now
+            <h2 className="font-mono text-xl text-text-primary font-bold mb-1 text-center">
+              Apply to the Program
             </h2>
-            <p className="text-text-secondary text-sm mb-8">
-              Fill out the form below and we&apos;ll get back to you within a few
+            <p className="text-text-secondary text-sm mb-8 text-center">
+              Takes less than 2 minutes. We&apos;ll get back to you within a few
               days.
             </p>
 
@@ -240,28 +269,31 @@ export default function AmbassadorPage() {
               <motion.div
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
-                className="bg-surface border border-success/30 rounded-lg p-8 text-center"
+                className="bg-surface border border-success/30 rounded-xl p-10 text-center"
               >
                 <CheckCircle2
-                  size={48}
+                  size={44}
                   className="text-success mx-auto mb-4"
                 />
                 <h3 className="font-mono text-text-primary font-bold text-lg mb-2">
-                  Application Received!
+                  Application Received
                 </h3>
-                <p className="text-text-secondary text-sm leading-relaxed">
-                  Thanks for applying to the Ambassador Program. We&apos;ll review
-                  your application and get back to you soon.
+                <p className="text-text-secondary text-sm leading-relaxed max-w-xs mx-auto">
+                  Thanks for applying! We&apos;ll review your profile and reach
+                  out soon with next steps.
                 </p>
               </motion.div>
             ) : (
-              <div className="bg-surface border border-border rounded-lg p-8">
-                <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+              <div className="bg-surface border border-border rounded-xl p-8">
+                <form
+                  onSubmit={handleSubmit(onSubmit)}
+                  className="space-y-6"
+                >
                   {/* Name */}
                   <div>
                     <label
                       htmlFor="name"
-                      className="block font-mono text-sm text-text-secondary mb-1.5"
+                      className="block font-mono text-xs text-text-secondary mb-1.5 uppercase tracking-wider"
                     >
                       Name
                     </label>
@@ -279,11 +311,63 @@ export default function AmbassadorPage() {
                     )}
                   </div>
 
+                  {/* Platform — card selection */}
+                  <div>
+                    <span className="block font-mono text-xs text-text-secondary mb-2.5 uppercase tracking-wider">
+                      Platform
+                    </span>
+                    <input type="hidden" {...register("platform")} />
+                    <div className="grid grid-cols-4 gap-2.5">
+                      {platformOptions.map((p) => {
+                        const isSelected = selectedPlatform === p.value;
+                        return (
+                          <button
+                            key={p.value}
+                            type="button"
+                            onClick={() =>
+                              setValue("platform", p.value, {
+                                shouldValidate: true,
+                              })
+                            }
+                            className={`flex flex-col items-center gap-1.5 rounded-lg border px-3 py-3.5 transition-all cursor-pointer ${
+                              isSelected
+                                ? "border-primary bg-primary/10 shadow-md shadow-primary/10"
+                                : "border-border bg-code-bg hover:border-text-secondary/40"
+                            }`}
+                          >
+                            <p.icon
+                              size={20}
+                              className={
+                                isSelected
+                                  ? "text-primary"
+                                  : "text-text-secondary"
+                              }
+                            />
+                            <span
+                              className={`font-mono text-xs font-medium ${
+                                isSelected
+                                  ? "text-primary"
+                                  : "text-text-primary"
+                              }`}
+                            >
+                              {p.label}
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                    {errors.platform && (
+                      <p className="text-red-400 text-xs mt-1.5 font-mono">
+                        {errors.platform.message}
+                      </p>
+                    )}
+                  </div>
+
                   {/* Channel URL */}
                   <div>
                     <label
                       htmlFor="channelUrl"
-                      className="block font-mono text-sm text-text-secondary mb-1.5"
+                      className="block font-mono text-xs text-text-secondary mb-1.5 uppercase tracking-wider"
                     >
                       Channel / Profile Link
                     </label>
@@ -301,41 +385,11 @@ export default function AmbassadorPage() {
                     )}
                   </div>
 
-                  {/* Platform */}
-                  <div>
-                    <label
-                      htmlFor="platform"
-                      className="block font-mono text-sm text-text-secondary mb-1.5"
-                    >
-                      Platform
-                    </label>
-                    <select
-                      id="platform"
-                      {...register("platform")}
-                      className={`${inputClass} appearance-none cursor-pointer`}
-                      defaultValue=""
-                    >
-                      <option value="" disabled>
-                        Select your platform
-                      </option>
-                      {platforms.map((p) => (
-                        <option key={p} value={p}>
-                          {p}
-                        </option>
-                      ))}
-                    </select>
-                    {errors.platform && (
-                      <p className="text-red-400 text-xs mt-1 font-mono">
-                        {errors.platform.message}
-                      </p>
-                    )}
-                  </div>
-
                   {/* Follower Count */}
                   <div>
                     <label
                       htmlFor="followerCount"
-                      className="block font-mono text-sm text-text-secondary mb-1.5"
+                      className="block font-mono text-xs text-text-secondary mb-1.5 uppercase tracking-wider"
                     >
                       Subscriber / Follower Count
                     </label>
@@ -357,9 +411,9 @@ export default function AmbassadorPage() {
                   <div>
                     <label
                       htmlFor="whyAudience"
-                      className="block font-mono text-sm text-text-secondary mb-1.5"
+                      className="block font-mono text-xs text-text-secondary mb-1.5 uppercase tracking-wider"
                     >
-                      Why would your audience benefit from the platform?
+                      Why would your audience benefit?
                     </label>
                     <textarea
                       id="whyAudience"
@@ -388,18 +442,24 @@ export default function AmbassadorPage() {
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="w-full bg-accent hover:bg-accent/90 disabled:bg-accent/50 text-white font-sans font-semibold text-base px-6 py-3.5 rounded-md transition-all hover:shadow-lg hover:shadow-accent/20 flex items-center justify-center gap-2"
+                    className="w-full bg-accent hover:bg-accent/90 disabled:bg-accent/50 text-white font-sans font-semibold text-sm px-6 py-3.5 rounded-md transition-all hover:shadow-lg hover:shadow-accent/20 flex items-center justify-center gap-2"
                   >
                     {isSubmitting ? (
                       <>
-                        <Loader2 className="w-5 h-5 animate-spin" /> Submitting...
+                        <Loader2 className="w-4 h-4 animate-spin" />{" "}
+                        Submitting...
                       </>
                     ) : (
                       <>
-                        Submit Application <ArrowRight className="w-5 h-5" />
+                        Submit Application{" "}
+                        <ArrowRight className="w-4 h-4" />
                       </>
                     )}
                   </button>
+
+                  <p className="text-center text-text-secondary/50 text-xs font-mono">
+                    No commitment until we approve your application
+                  </p>
                 </form>
               </div>
             )}
