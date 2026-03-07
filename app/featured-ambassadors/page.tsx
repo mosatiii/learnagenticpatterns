@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Search,
@@ -12,11 +12,22 @@ import {
   Globe,
   Award,
   ExternalLink,
+  Loader2,
 } from "lucide-react";
 import Link from "next/link";
-import { ambassadors, type Ambassador } from "@/data/ambassadors";
 
-const platformIcons: Record<Ambassador["platform"], typeof Youtube> = {
+interface Ambassador {
+  id: number;
+  name: string;
+  platform: string;
+  channelName: string;
+  channelUrl: string;
+  topics: string[];
+  bio: string;
+  tier: string;
+}
+
+const platformIcons: Record<string, typeof Youtube> = {
   YouTube: Youtube,
   TikTok: MonitorPlay,
   Instagram: Instagram,
@@ -27,7 +38,7 @@ const platformIcons: Record<Ambassador["platform"], typeof Youtube> = {
 const filterOptions = ["All", "YouTube", "TikTok", "Instagram", "LinkedIn", "Other"] as const;
 
 function AmbassadorCard({ ambassador }: { ambassador: Ambassador }) {
-  const PlatformIcon = platformIcons[ambassador.platform];
+  const PlatformIcon = platformIcons[ambassador.platform] || Globe;
 
   return (
     <motion.a
@@ -41,7 +52,6 @@ function AmbassadorCard({ ambassador }: { ambassador: Ambassador }) {
       className="group bg-surface border border-border rounded-xl p-6 hover:border-primary/30 transition-all block"
     >
       <div className="flex items-start gap-4">
-        {/* Avatar */}
         <div className="w-12 h-12 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center flex-shrink-0">
           <span className="font-mono text-primary text-lg font-bold">
             {ambassador.name.charAt(0).toUpperCase()}
@@ -49,7 +59,6 @@ function AmbassadorCard({ ambassador }: { ambassador: Ambassador }) {
         </div>
 
         <div className="flex-1 min-w-0">
-          {/* Name + badge */}
           <div className="flex items-center gap-2 mb-1">
             <h3 className="font-mono text-text-primary font-bold text-sm truncate">
               {ambassador.name}
@@ -61,7 +70,6 @@ function AmbassadorCard({ ambassador }: { ambassador: Ambassador }) {
             )}
           </div>
 
-          {/* Channel + platform */}
           <div className="flex items-center gap-2 mb-2.5">
             <PlatformIcon size={14} className="text-text-secondary flex-shrink-0" />
             <span className="font-mono text-primary/70 text-xs truncate">
@@ -73,12 +81,10 @@ function AmbassadorCard({ ambassador }: { ambassador: Ambassador }) {
             />
           </div>
 
-          {/* Bio */}
           <p className="text-text-secondary text-xs leading-relaxed mb-3 line-clamp-2">
             {ambassador.bio}
           </p>
 
-          {/* Topics */}
           <div className="flex flex-wrap gap-1.5">
             {ambassador.topics.map((topic) => (
               <span
@@ -141,8 +147,20 @@ function NoResults({ query }: { query: string }) {
 }
 
 export default function FeaturedAmbassadorsPage() {
+  const [ambassadors, setAmbassadors] = useState<Ambassador[]>([]);
+  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [platformFilter, setPlatformFilter] = useState<string>("All");
+
+  useEffect(() => {
+    fetch("/api/ambassadors")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success) setAmbassadors(data.ambassadors);
+      })
+      .catch(console.error)
+      .finally(() => setLoading(false));
+  }, []);
 
   const filtered = useMemo(() => {
     const q = search.toLowerCase().trim();
@@ -156,9 +174,7 @@ export default function FeaturedAmbassadorsPage() {
         a.topics.some((t) => t.toLowerCase().includes(q))
       );
     });
-  }, [search, platformFilter]);
-
-  const hasAmbassadors = ambassadors.length > 0;
+  }, [ambassadors, search, platformFilter]);
 
   return (
     <main className="relative z-10 pt-24">
@@ -188,7 +204,11 @@ export default function FeaturedAmbassadorsPage() {
       {/* Search + Filter + Grid */}
       <section className="py-16 bg-surface/30">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          {hasAmbassadors ? (
+          {loading ? (
+            <div className="flex items-center justify-center py-20">
+              <Loader2 className="w-6 h-6 animate-spin text-primary" />
+            </div>
+          ) : ambassadors.length > 0 ? (
             <>
               {/* Search + Platform filter */}
               <div className="flex flex-col sm:flex-row gap-3 mb-8">
@@ -222,18 +242,16 @@ export default function FeaturedAmbassadorsPage() {
                 </div>
               </div>
 
-              {/* Results count */}
               <p className="text-text-secondary/50 text-xs font-mono mb-4">
                 {filtered.length} ambassador{filtered.length !== 1 ? "s" : ""}
               </p>
 
-              {/* Grid */}
               {filtered.length > 0 ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <AnimatePresence mode="popLayout">
                     {filtered.map((ambassador) => (
                       <AmbassadorCard
-                        key={ambassador.channelUrl}
+                        key={ambassador.id}
                         ambassador={ambassador}
                       />
                     ))}

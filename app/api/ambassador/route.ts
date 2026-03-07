@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { rateLimit, getClientIp } from "@/lib/rate-limit";
+import { query } from "@/lib/db";
 import { ambassadorSchema } from "@/lib/validations";
 
 const MAX_APPLICATIONS_PER_DAY = 3;
@@ -51,6 +52,12 @@ export async function POST(request: Request) {
         { status: 500 }
       );
     }
+
+    await query(
+      `INSERT INTO ambassador_applications (name, email, channel_url, platform, follower_count, why_audience)
+       VALUES ($1, $2, $3, $4, $5, $6)`,
+      [name, email, channelUrl, platform, followerCount, whyAudience]
+    );
 
     const esc = (s: string) => s.replace(/</g, "&lt;").replace(/>/g, "&gt;");
 

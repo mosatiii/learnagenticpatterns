@@ -73,6 +73,31 @@ async function ensureTables() {
       metadata        JSONB DEFAULT '{}',
       played_at       TIMESTAMPTZ DEFAULT NOW()
     );
+
+    CREATE TABLE IF NOT EXISTS ambassador_applications (
+      id              SERIAL PRIMARY KEY,
+      name            TEXT NOT NULL,
+      email           TEXT NOT NULL,
+      channel_url     TEXT NOT NULL,
+      platform        TEXT NOT NULL,
+      follower_count  TEXT NOT NULL,
+      why_audience    TEXT NOT NULL,
+      status          TEXT NOT NULL DEFAULT 'pending',
+      created_at      TIMESTAMPTZ DEFAULT NOW()
+    );
+
+    CREATE TABLE IF NOT EXISTS ambassadors (
+      id              SERIAL PRIMARY KEY,
+      name            TEXT NOT NULL,
+      platform        TEXT NOT NULL,
+      channel_name    TEXT NOT NULL,
+      channel_url     TEXT UNIQUE NOT NULL,
+      topics          TEXT[] DEFAULT '{}',
+      bio             TEXT NOT NULL DEFAULT '',
+      tier            TEXT NOT NULL DEFAULT 'ambassador',
+      visible         BOOLEAN NOT NULL DEFAULT TRUE,
+      created_at      TIMESTAMPTZ DEFAULT NOW()
+    );
   `);
 
   // Add password_hash column if upgrading from the old schema
