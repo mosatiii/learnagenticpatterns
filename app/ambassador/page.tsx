@@ -349,6 +349,32 @@ export default function AmbassadorPage() {
                     )}
                   </div>
 
+                  {/* Email */}
+                  <div>
+                    <label
+                      htmlFor="email"
+                      className="block font-mono text-xs text-text-secondary mb-1.5 uppercase tracking-wider"
+                    >
+                      Email
+                    </label>
+                    <input
+                      id="email"
+                      type="email"
+                      {...register("email")}
+                      className={inputClass}
+                      placeholder="you@example.com"
+                    />
+                    <p className="text-text-secondary/50 text-xs mt-1.5">
+                      Use the same email associated with your public profile so
+                      we can verify your channel.
+                    </p>
+                    {errors.email && (
+                      <p className="text-red-400 text-xs mt-1 font-mono">
+                        {errors.email.message}
+                      </p>
+                    )}
+                  </div>
+
                   {/* Platform — card selection */}
                   <div>
                     <span className="block font-mono text-xs text-text-secondary mb-2.5 uppercase tracking-wider">

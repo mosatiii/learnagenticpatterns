@@ -99,6 +99,13 @@ export const ambassadorSchema = z.object({
     .max(100, "Name must be under 100 characters")
     .transform(sanitize)
     .pipe(noSqlInjection("Name")),
+  email: z
+    .string()
+    .min(1, "Email is required")
+    .email("Please enter a valid email address")
+    .transform((val) => val.toLowerCase().trim())
+    .pipe(z.string().regex(STRICT_EMAIL_RE, "Please enter a real email address"))
+    .pipe(noSqlInjection("Email")),
   channelUrl: z
     .string()
     .min(1, "Channel or profile link is required")

@@ -26,7 +26,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const { name, channelUrl, platform, followerCount, whyAudience } = parsed.data;
+    const { name, email, channelUrl, platform, followerCount, whyAudience } = parsed.data;
 
     const dailyKey = `ambassador:${ip}`;
     const dailyLimiter = rateLimit(dailyKey, {
@@ -72,6 +72,10 @@ export async function POST(request: Request) {
                 <tr>
                   <td style="padding:8px 12px 8px 0;color:#64748B;white-space:nowrap;vertical-align:top">Name</td>
                   <td style="padding:8px 0">${esc(name)}</td>
+                </tr>
+                <tr>
+                  <td style="padding:8px 12px 8px 0;color:#64748B;white-space:nowrap;vertical-align:top">Email</td>
+                  <td style="padding:8px 0"><a href="mailto:${esc(email)}" style="color:#00D4FF">${esc(email)}</a></td>
                 </tr>
                 <tr>
                   <td style="padding:8px 12px 8px 0;color:#64748B;white-space:nowrap;vertical-align:top">Platform</td>
