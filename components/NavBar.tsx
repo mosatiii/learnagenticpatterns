@@ -8,6 +8,7 @@ import { usePathname } from "next/navigation";
 import ProgressBadge from "@/components/ProgressBadge";
 import { useAuth } from "@/contexts/AuthContext";
 import PracticeNav from "@/components/PracticeNav";
+import CrossDomainAuthModal from "@/components/CrossDomainAuthModal";
 
 const MAIN_DOMAIN = "https://learnagenticpatterns.com";
 
@@ -72,7 +73,12 @@ export default function NavBar() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  if (isPractice) return <PracticeNav />;
+  if (isPractice) return (
+    <>
+      <CrossDomainAuthModal />
+      <PracticeNav />
+    </>
+  );
 
   async function handleFeedbackSubmit() {
     if (!feedbackMsg.trim() || !user) return;

@@ -80,6 +80,9 @@ interface AuthContextValue {
   user: AuthUser | null;
   isLoading: boolean;
   isProductManager: boolean;
+  /** True when user was auto-signed-in via cross-subdomain token (hash/cookie). */
+  crossDomainAutoLogin: boolean;
+  dismissAutoLogin: () => void;
   readSlugs: string[];
   pmReadSlugs: string[];
   pmProgressPercent: number;
@@ -115,6 +118,7 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 export function AuthProvider({ children, totalPatterns }: { children: ReactNode; totalPatterns: number }) {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [crossDomainAutoLogin, setCrossDomainAutoLogin] = useState(false);
   const [readSlugs, setReadSlugs] = useState<string[]>([]);
   const [gameScores, setGameScores] = useState<PatternScore[]>([]);
   const [totalAttempts, setTotalAttempts] = useState(0);
@@ -188,16 +192,25 @@ export function AuthProvider({ children, totalPatterns }: { children: ReactNode;
     }
   }, []);
 
+  const dismissAutoLogin = useCallback(() => setCrossDomainAutoLogin(false), []);
+
   // On mount: verify saved JWT with the server
   useEffect(() => {
     async function init() {
       try {
         let token = localStorage.getItem(TOKEN_KEY);
+        let fromCrossDomain = false;
 
         // Cross-subdomain: check URL hash first (from login/signup redirect),
         // then fall back to the shared cookie
-        if (!token) token = consumeHashToken();
-        if (!token) token = getSharedCookie();
+        if (!token) {
+          token = consumeHashToken();
+          if (token) fromCrossDomain = true;
+        }
+        if (!token) {
+          token = getSharedCookie();
+          if (token) fromCrossDomain = true;
+        }
 
         if (!token) { setIsLoading(false); return; }
 
@@ -210,6 +223,7 @@ export function AuthProvider({ children, totalPatterns }: { children: ReactNode;
           const data = await res.json();
           setUser(data.user);
           saveToStorage(token, data.user.email, data.user.firstName, data.user.role || "Other");
+          if (fromCrossDomain) setCrossDomainAutoLogin(true);
           await Promise.all([fetchProgress(), fetchGameScores()]);
         } else if (res.status === 401) {
           // Token is genuinely invalid/expired — clear everything
@@ -341,7 +355,8 @@ export function AuthProvider({ children, totalPatterns }: { children: ReactNode;
   return (
     <AuthContext.Provider
       value={{
-        user, isLoading, isProductManager, readSlugs, pmReadSlugs, pmProgressPercent, signup, login, logout, markRead, progressPercent,
+        user, isLoading, isProductManager, crossDomainAutoLogin, dismissAutoLogin,
+        readSlugs, pmReadSlugs, pmProgressPercent, signup, login, logout, markRead, progressPercent,
         gameScores, totalAttempts, avgPercent, leaderboard, userRank, saveGameScore,
       }}
     >
