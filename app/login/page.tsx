@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { motion } from "framer-motion";
@@ -24,13 +24,23 @@ function practiceRedirect(): string {
 }
 
 export default function LoginPage() {
-  const { user, login } = useAuth();
+  const { user, login, logout } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
   const [serverError, setServerError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [switchingAccount, setSwitchingAccount] = useState(false);
 
   const fromPractice = searchParams.get("from") === "practice";
+  const isSwitchAccount = searchParams.get("switchAccount") === "true";
+
+  // "Use a different account" flow: force logout on main domain first
+  useEffect(() => {
+    if (isSwitchAccount && user && !switchingAccount) {
+      setSwitchingAccount(true);
+      logout();
+    }
+  }, [isSwitchAccount, user, logout, switchingAccount]);
 
   const {
     register,
@@ -40,8 +50,8 @@ export default function LoginPage() {
     resolver: zodResolver(loginSchema),
   });
 
-  // Already logged in — redirect
-  if (user) {
+  // Already logged in — redirect (skip if user is switching accounts)
+  if (user && !isSwitchAccount) {
     if (fromPractice) {
       window.location.href = practiceRedirect();
     } else {

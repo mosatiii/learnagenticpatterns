@@ -6,7 +6,7 @@ import { CheckCircle2, LogOut, ArrowRight } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 
 const AUTO_DISMISS_MS = 5000;
-const LOGIN_URL = "https://learnagenticpatterns.com/login?from=practice";
+const LOGIN_URL = "https://learnagenticpatterns.com/login?from=practice&switchAccount=true";
 
 export default function CrossDomainAuthModal() {
   const { user, crossDomainAutoLogin, dismissAutoLogin, logout } = useAuth();
