@@ -91,3 +91,34 @@ export const resetPasswordSchema = z
   });
 
 export type ResetPasswordFormData = z.infer<typeof resetPasswordSchema>;
+
+export const ambassadorSchema = z.object({
+  name: z
+    .string()
+    .min(1, "Name is required")
+    .max(100, "Name must be under 100 characters")
+    .transform(sanitize)
+    .pipe(noSqlInjection("Name")),
+  channelUrl: z
+    .string()
+    .min(1, "Channel or profile link is required")
+    .max(500, "URL must be under 500 characters")
+    .url("Please enter a valid URL")
+    .pipe(noSqlInjection("Channel URL")),
+  platform: z.enum(["YouTube", "TikTok", "Instagram", "Other"], {
+    required_error: "Please select your platform",
+  }),
+  followerCount: z
+    .string()
+    .min(1, "Subscriber/follower count is required")
+    .max(20, "Must be under 20 characters")
+    .regex(/^[\d,.\s]+$/, "Please enter a number (e.g. 5,000)"),
+  whyAudience: z
+    .string()
+    .min(20, "Please write at least 20 characters")
+    .max(1000, "Must be under 1000 characters")
+    .transform(sanitize)
+    .pipe(noSqlInjection("Response")),
+});
+
+export type AmbassadorFormData = z.infer<typeof ambassadorSchema>;
