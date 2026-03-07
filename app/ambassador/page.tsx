@@ -188,6 +188,44 @@ export default function AmbassadorPage() {
         </div>
       </section>
 
+      {/* Featured Ambassadors Preview */}
+      <section className="py-16 bg-surface/30">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+          >
+            <h2 className="font-mono text-xl text-text-primary font-bold mb-2 text-center">
+              Featured Ambassadors
+            </h2>
+            <p className="text-text-secondary text-sm text-center mb-8">
+              Your name and channel could be here
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              {[1, 2, 3].map((i) => (
+                <div
+                  key={i}
+                  className="relative bg-surface border border-dashed border-primary/20 rounded-xl p-6 flex flex-col items-center text-center"
+                >
+                  <div className="w-12 h-12 rounded-full bg-primary/5 border border-primary/15 flex items-center justify-center mb-3">
+                    <span className="font-mono text-primary/30 text-lg font-bold">
+                      ?
+                    </span>
+                  </div>
+                  <p className="font-mono text-text-secondary/40 text-sm font-medium mb-1">
+                    Your Name
+                  </p>
+                  <p className="font-mono text-primary/30 text-xs">
+                    your-channel
+                  </p>
+                </div>
+              ))}
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
       {/* Requirements — numbered steps */}
       <section className="py-16 bg-surface/30">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
