@@ -18,6 +18,8 @@ export interface PMModule {
   icon: "layers" | "compass" | "zap" | "shield-check" | "plug" | "users" | "brain" | "bar-chart" | "git-branch" | "search" | "terminal";
   /** If true, this module is accessible without sign-up */
   isFree?: boolean;
+  /** If true, do not show the "Free" badge on the card (module can still be free to access) */
+  hideFreeBadge?: boolean;
   /** Optional long-form sections for deep-dive modules */
   sections?: PMModuleSection[];
 }
@@ -283,6 +285,7 @@ pmModules.unshift({
     subtitle: "What agents and MCP actually are — and why every PM needs to understand them now",
     icon: "terminal",
     isFree: true,
+    hideFreeBadge: true,
     description:
       "Before diving into patterns, tools, and architectures, you need a rock-solid foundation. This module answers the three questions every PM is quietly Googling: What exactly is an AI agent? What is MCP (Model Context Protocol) and why does everyone keep talking about it? And what does it actually mean to become 'AI-native' as a product organization? No jargon, no hype — just the mental models you need to lead confidently in this space.",
     whyItMatters:

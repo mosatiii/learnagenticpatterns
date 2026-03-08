@@ -54,7 +54,7 @@ export default function PMModuleCard({ module, index }: PMModuleCardProps) {
                 <Check size={10} className="text-success" />
               </span>
             )}
-            {module.isFree && (
+            {module.isFree && !module.hideFreeBadge && (
               <span className="font-mono text-[10px] text-accent border border-accent/30 bg-accent/5 rounded-full px-2 py-0.5 uppercase tracking-wider">
                 Free
               </span>
