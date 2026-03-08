@@ -74,10 +74,10 @@ export default function LandingTracks() {
             </div>
 
             <Link
-              href="#curriculum"
+              href="/signup"
               className="inline-flex items-center gap-2 text-primary font-mono text-sm hover:underline"
             >
-              Preview patterns →
+              Sign up to unlock →
             </Link>
           </motion.div>
 
