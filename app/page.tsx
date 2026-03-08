@@ -2,12 +2,14 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import SectionHeader from "@/components/SectionHeader";
 import PatternCard from "@/components/PatternCard";
+import PMModuleCard from "@/components/PMModuleCard";
 import HomePageShell from "@/components/HomePageShell";
 import LandingHero from "@/components/landing/LandingHero";
 import LandingTracks from "@/components/landing/LandingTracks";
 import FAQAccordion from "@/components/landing/FAQAccordion";
 import { CourseJsonLd, FAQPageJsonLd } from "@/components/JsonLd";
 import { patterns } from "@/data/patterns";
+import { pmModules } from "@/data/pm-curriculum";
 
 // ─── FAQ data (static, used by both the accordion and JSON-LD) ──
 const faqs = [
@@ -105,25 +107,39 @@ export default function HomePage() {
         {/* Two Tracks — client component for scroll-reveal */}
         <LandingTracks />
 
-        {/* Curriculum Preview */}
+        {/* Curriculum Preview — 3 for dev, 3 for PM */}
         <section id="curriculum" className="py-20">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <SectionHeader
-              title="Preview the Patterns"
-              subtitle="5 of 21 patterns shown. Sign up free to unlock everything."
+              title="Preview the curriculum"
+              subtitle="3 patterns + 3 PM modules shown. Sign up free to unlock everything."
               decorator="$"
             />
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 mt-8">
-              {patterns.slice(0, 5).map((pattern, i) => (
+
+            <h3 className="font-mono text-lg text-primary font-bold mt-8 mb-4">
+              For Developers — 3 of 21 patterns
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+              {patterns.slice(0, 3).map((pattern, i) => (
                 <PatternCard key={pattern.id} pattern={pattern} index={i} />
               ))}
             </div>
+
+            <h3 className="font-mono text-lg text-accent font-bold mt-12 mb-4">
+              For Product Managers — 3 of 11 modules
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+              {pmModules.slice(0, 3).map((mod, i) => (
+                <PMModuleCard key={mod.id} module={mod} index={i} />
+              ))}
+            </div>
+
             <div className="text-center mt-10">
               <Link
                 href="/signup"
                 className="inline-flex items-center gap-2 bg-accent hover:bg-accent/90 text-white font-sans font-semibold text-base px-8 py-3.5 rounded-md transition-all hover:shadow-lg hover:shadow-accent/20"
               >
-                Unlock All 21 Patterns — Free
+                Unlock all 21 patterns + 11 PM modules — Free
                 <ArrowRight size={18} />
               </Link>
             </div>
