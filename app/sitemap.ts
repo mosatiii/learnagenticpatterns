@@ -1,14 +1,23 @@
 import { MetadataRoute } from "next";
 import { patterns } from "@/data/patterns";
+import { pmModules } from "@/data/pm-curriculum";
 import { getAllBlogPosts } from "@/data/blog";
 
 const LAST_CONTENT_UPDATE = new Date("2026-03-05");
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = "https://learnagenticpatterns.com";
+  const practiceUrl = "https://practice.learnagenticpatterns.com";
 
   const patternPages = patterns.map((p) => ({
     url: `${baseUrl}/patterns/${p.slug}`,
+    lastModified: LAST_CONTENT_UPDATE,
+    changeFrequency: "daily" as const,
+    priority: 0.9,
+  }));
+
+  const pmPages = pmModules.map((m) => ({
+    url: `${baseUrl}/pm/${m.slug}`,
     lastModified: LAST_CONTENT_UPDATE,
     changeFrequency: "daily" as const,
     priority: 0.9,
@@ -20,6 +29,33 @@ export default function sitemap(): MetadataRoute.Sitemap {
     changeFrequency: "weekly" as const,
     priority: 0.8,
   }));
+
+  const practicePages: MetadataRoute.Sitemap = [
+    {
+      url: practiceUrl,
+      lastModified: LAST_CONTENT_UPDATE,
+      changeFrequency: "daily" as const,
+      priority: 0.8,
+    },
+    {
+      url: `${practiceUrl}/leaderboard`,
+      lastModified: LAST_CONTENT_UPDATE,
+      changeFrequency: "daily" as const,
+      priority: 0.8,
+    },
+    ...patterns.map((p) => ({
+      url: `${practiceUrl}/patterns/${p.slug}`,
+      lastModified: LAST_CONTENT_UPDATE,
+      changeFrequency: "daily" as const,
+      priority: 0.8,
+    })),
+    ...pmModules.map((m) => ({
+      url: `${practiceUrl}/pm/${m.slug}`,
+      lastModified: LAST_CONTENT_UPDATE,
+      changeFrequency: "daily" as const,
+      priority: 0.8,
+    })),
+  ];
 
   return [
     {
@@ -65,6 +101,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.9,
     },
     ...patternPages,
+    ...pmPages,
     ...blogPages,
+    ...practicePages,
   ];
 }

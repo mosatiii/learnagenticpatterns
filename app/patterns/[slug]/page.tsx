@@ -8,6 +8,7 @@ import Link from "next/link";
 import CodeBlock from "@/components/CodeBlock";
 import ProgressCircle from "@/components/ProgressCircle";
 import { patterns, getPatternBySlug } from "@/data/patterns";
+import { getBlogPostsByPatternSlug } from "@/data/blog";
 import { formatPatternNumber } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import { PatternArticleJsonLd, BreadcrumbJsonLd, FAQPageJsonLd } from "@/components/JsonLd";
@@ -479,6 +480,9 @@ export default function PatternDetailPage() {
             {/* FAQ section -- crawlable by AI engines */}
             <PatternFAQ pattern={pattern} />
 
+            {/* Related blog posts — internal linking for SEO */}
+            <RelatedBlogPosts patternSlug={slug} patternName={pattern.name} />
+
             {/* Next pattern CTA */}
             {nextPattern && (
               <div className="mt-12 pt-8 border-t border-border">
@@ -566,6 +570,50 @@ function PatternFAQ({ pattern }: { pattern: Pattern }) {
               </p>
             </div>
           </details>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function RelatedBlogPosts({
+  patternSlug,
+  patternName,
+}: {
+  patternSlug: string;
+  patternName: string;
+}) {
+  const posts = getBlogPostsByPatternSlug(patternSlug);
+  if (posts.length === 0) return null;
+
+  return (
+    <div className="mt-12 pt-8 border-t border-border">
+      <h2 className="font-mono text-lg font-bold text-text-primary mb-6">
+        Further Reading
+      </h2>
+      <div className="space-y-3">
+        {posts.map((post) => (
+          <Link
+            key={post.slug}
+            href={`/blog/${post.slug}`}
+            className="flex items-center justify-between bg-surface border border-border rounded-lg p-5 hover:border-primary/30 transition-all group"
+          >
+            <div className="min-w-0 flex-1">
+              <span className="font-mono text-[10px] text-text-secondary uppercase tracking-wider">
+                Blog · {post.readingTime} min read
+              </span>
+              <h4 className="font-sans text-text-primary font-semibold mt-1 group-hover:text-primary transition-colors line-clamp-1">
+                {post.title}
+              </h4>
+              <p className="text-text-secondary text-sm mt-1 line-clamp-1">
+                {post.description}
+              </p>
+            </div>
+            <ArrowRight
+              size={16}
+              className="text-text-secondary group-hover:text-primary transition-colors flex-shrink-0 ml-4"
+            />
+          </Link>
         ))}
       </div>
     </div>

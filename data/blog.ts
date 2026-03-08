@@ -497,3 +497,7 @@ export function getAllTags(): string[] {
   blogPosts.forEach((post) => post.tags.forEach((tag) => tags.add(tag)));
   return Array.from(tags).sort();
 }
+
+export function getBlogPostsByPatternSlug(patternSlug: string): BlogPost[] {
+  return blogPosts.filter((post) => post.relatedPatternSlug === patternSlug);
+}
