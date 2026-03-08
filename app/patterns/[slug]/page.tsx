@@ -11,7 +11,7 @@ import { patterns, getPatternBySlug } from "@/data/patterns";
 import { getBlogPostsByPatternSlug } from "@/data/blog";
 import { formatPatternNumber } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
-import { PatternArticleJsonLd, BreadcrumbJsonLd, FAQPageJsonLd } from "@/components/JsonLd";
+import { PatternArticleJsonLd, BreadcrumbJsonLd } from "@/components/JsonLd";
 import LessonFeedback from "@/components/LessonFeedback";
 import PatternFlowDiagram from "@/components/PatternFlowDiagram";
 import CollapsibleText from "@/components/CollapsibleText";
@@ -553,7 +553,7 @@ function PatternFAQ({ pattern }: { pattern: Pattern }) {
 
   return (
     <div className="mt-12 pt-8 border-t border-border">
-      <FAQPageJsonLd faqs={faqs} />
+      {/* FAQPage JSON-LD is emitted once in patterns/[slug]/layout.tsx to avoid duplicate schema */}
       <h2 className="font-mono text-lg font-bold text-text-primary mb-6">
         Frequently Asked Questions
       </h2>

@@ -1,9 +1,18 @@
 import type { Metadata } from "next";
 import { getPatternBySlug, patterns } from "@/data/patterns";
+import { FAQPageJsonLd } from "@/components/JsonLd";
 
 interface Props {
   params: { slug: string };
   children: React.ReactNode;
+}
+
+function buildPatternFaqs(pattern: { name: string; agenticDefinition: string; sweParallelFull: string; mapping: { similarity: string; divergence: string }; productionNotes: string[] }) {
+  return [
+    { question: `When should I use the ${pattern.name} pattern?`, answer: pattern.agenticDefinition },
+    { question: `How does ${pattern.name} relate to ${pattern.sweParallelFull}?`, answer: `${pattern.mapping.similarity} However, there is a key divergence: ${pattern.mapping.divergence}` },
+    { question: `What are the production trade-offs of ${pattern.name}?`, answer: pattern.productionNotes.join(" ") },
+  ];
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -66,6 +75,14 @@ export async function generateStaticParams() {
   return patterns.map((p) => ({ slug: p.slug }));
 }
 
-export default function PatternLayout({ children }: Props) {
-  return children;
+export default async function PatternLayout({ children, params }: Props) {
+  const pattern = getPatternBySlug(params.slug);
+  const faqs = pattern ? buildPatternFaqs(pattern) : [];
+
+  return (
+    <>
+      {faqs.length > 0 && <FAQPageJsonLd faqs={faqs} />}
+      {children}
+    </>
+  );
 }
