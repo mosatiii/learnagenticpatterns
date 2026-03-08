@@ -28,7 +28,7 @@ const platformOptions = [
 ];
 
 const tiers = [
-  { range: "Under 5K", payout: "$50", followers: "< 5,000 followers" },
+  { range: "3K – 5K", payout: "$50", followers: "3,000 – 4,999 followers" },
   { range: "Under 10K", payout: "$75", followers: "5,000 – 9,999 followers" },
   { range: "Under 15K", payout: "$100", followers: "10,000 – 14,999 followers" },
 ];
