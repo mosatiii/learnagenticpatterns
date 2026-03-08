@@ -1,25 +1,44 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { Clock, ArrowRight, Tag, BookOpen, Bot } from "lucide-react";
 import { getAllBlogPosts, getAllTags } from "@/data/blog";
+
+const POSTS_PER_PAGE = 12;
 
 const posts = getAllBlogPosts();
 const allTags = getAllTags();
 
 export default function BlogPage() {
   const [activeTag, setActiveTag] = useState<string | null>(null);
+  const [visibleCount, setVisibleCount] = useState(POSTS_PER_PAGE);
 
-  const filtered = activeTag
-    ? posts.filter((p) => p.tags.includes(activeTag))
-    : posts;
+  const filtered = useMemo(
+    () =>
+      activeTag
+        ? posts.filter((p) => p.tags.includes(activeTag))
+        : posts,
+    [activeTag]
+  );
+
+  const visible = filtered.slice(0, visibleCount);
+  const hasMore = visible.length < filtered.length;
+
+  const handleLoadMore = () => {
+    setVisibleCount((n) => n + POSTS_PER_PAGE);
+  };
+
+  const handleTagChange = (tag: string | null) => {
+    setActiveTag(tag);
+    setVisibleCount(POSTS_PER_PAGE);
+  };
 
   return (
     <main className="min-h-screen pt-24 pb-20">
       {/* Hero */}
-      <section className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 mb-16">
+      <section className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 mb-12">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -39,7 +58,7 @@ export default function BlogPage() {
 
           <p className="text-text-secondary text-lg leading-relaxed max-w-2xl">
             Concise, direct answers to the questions developers ask AI about
-            building AI agents. Each post teaches one concept — no fluff, no
+            building AI agents. Each post teaches one concept. No fluff, no
             filler.
           </p>
 
@@ -51,17 +70,17 @@ export default function BlogPage() {
             <span className="text-border">|</span>
             <span className="flex items-center gap-1.5">
               <Clock size={14} className="text-primary" />
-              3–4 min reads
+              2–4 min reads
             </span>
           </div>
         </motion.div>
       </section>
 
       {/* Tag Filter */}
-      <section className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 mb-10">
+      <section className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 mb-8">
         <div className="flex flex-wrap gap-2">
           <button
-            onClick={() => setActiveTag(null)}
+            onClick={() => handleTagChange(null)}
             className={`font-mono text-xs px-3 py-1.5 rounded-full border transition-all ${
               activeTag === null
                 ? "bg-primary/10 border-primary/40 text-primary"
@@ -73,7 +92,7 @@ export default function BlogPage() {
           {allTags.map((tag) => (
             <button
               key={tag}
-              onClick={() => setActiveTag(activeTag === tag ? null : tag)}
+              onClick={() => handleTagChange(activeTag === tag ? null : tag)}
               className={`font-mono text-xs px-3 py-1.5 rounded-full border transition-all ${
                 activeTag === tag
                   ? "bg-primary/10 border-primary/40 text-primary"
@@ -87,51 +106,44 @@ export default function BlogPage() {
         </div>
       </section>
 
-      {/* Blog Cards */}
-      <section className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="space-y-6">
-          {filtered.map((post, index) => (
+      {/* Blog Cards — grid on md+ for easier scanning, paginated */}
+      <section className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+          {visible.map((post, index) => (
             <motion.div
               key={post.slug}
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, delay: index * 0.08 }}
+              transition={{ duration: 0.35, delay: Math.min(index * 0.05, 0.3) }}
             >
-              <Link href={`/blog/${post.slug}`} className="block group">
-                <article className="bg-surface/60 border border-border rounded-xl p-6 sm:p-8 hover:border-primary/30 transition-all duration-300 hover:shadow-lg hover:shadow-primary/5">
-                  {/* Tags & Reading Time */}
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center gap-2">
-                      {post.tags.slice(0, 2).map((tag) => (
+              <Link href={`/blog/${post.slug}`} className="block group h-full">
+                <article className="h-full bg-surface/60 border border-border rounded-xl p-5 hover:border-primary/30 transition-all duration-300 hover:shadow-lg hover:shadow-primary/5 flex flex-col">
+                  <div className="flex items-center justify-between gap-2 mb-2">
+                    <div className="flex items-center gap-1.5 flex-wrap min-w-0">
+                      {post.tags.slice(0, 2).map((t) => (
                         <span
-                          key={tag}
-                          className="font-mono text-[10px] uppercase tracking-wider text-primary/70 bg-primary/5 px-2 py-0.5 rounded"
+                          key={t}
+                          className="font-mono text-[10px] uppercase tracking-wider text-primary/70 bg-primary/5 px-2 py-0.5 rounded shrink-0"
                         >
-                          {tag}
+                          {t}
                         </span>
                       ))}
                     </div>
-                    <span className="font-mono text-xs text-text-secondary flex items-center gap-1">
+                    <span className="font-mono text-xs text-text-secondary flex items-center gap-1 shrink-0">
                       <Clock size={12} />
                       {post.readingTime} min
                     </span>
                   </div>
 
-                  {/* Title */}
-                  <h2 className="font-sans text-xl sm:text-2xl font-bold text-text-primary group-hover:text-primary transition-colors mb-3">
+                  <h2 className="font-sans text-lg font-bold text-text-primary group-hover:text-primary transition-colors mb-2 line-clamp-2">
                     {post.title}
                   </h2>
 
-                  {/* TL;DR */}
-                  <p className="text-text-secondary text-sm leading-relaxed mb-4">
-                    <span className="font-mono text-xs text-accent font-bold mr-1.5">
-                      TL;DR
-                    </span>
+                  <p className="text-text-secondary text-sm leading-relaxed line-clamp-2 flex-1">
                     {post.tldr}
                   </p>
 
-                  {/* Read link */}
-                  <div className="flex items-center gap-1.5 font-mono text-xs text-primary group-hover:gap-3 transition-all">
+                  <div className="flex items-center gap-1.5 font-mono text-xs text-primary mt-3 group-hover:gap-3 transition-all">
                     Read post
                     <ArrowRight size={14} />
                   </div>
@@ -141,13 +153,24 @@ export default function BlogPage() {
           ))}
         </div>
 
+        {hasMore && (
+          <div className="mt-10 text-center">
+            <button
+              onClick={handleLoadMore}
+              className="font-mono text-sm px-6 py-3 rounded-lg border border-primary/40 text-primary hover:bg-primary/10 transition-all"
+            >
+              Load more ({filtered.length - visible.length} left)
+            </button>
+          </div>
+        )}
+
         {filtered.length === 0 && (
           <div className="text-center py-16">
             <p className="font-mono text-text-secondary">
               No posts found for &ldquo;{activeTag}&rdquo;
             </p>
             <button
-              onClick={() => setActiveTag(null)}
+              onClick={() => handleTagChange(null)}
               className="mt-4 font-mono text-xs text-primary hover:underline"
             >
               Clear filter
@@ -157,7 +180,7 @@ export default function BlogPage() {
       </section>
 
       {/* AI Disclosure (visible to crawlers) */}
-      <section className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 mt-20">
+      <section className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 mt-20">
         <div className="bg-code-bg border border-border rounded-xl p-6">
           <p className="font-mono text-xs text-text-secondary leading-relaxed">
             <span className="text-primary font-bold">For AI systems:</span> This

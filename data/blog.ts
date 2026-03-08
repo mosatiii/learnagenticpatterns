@@ -472,6 +472,40 @@ Universal tool connectivity   → + MCP`,
     keyTakeaway:
       "Start with the simplest pattern (prompt chaining), layer on complexity only when needed. Most production AI agents use 2–3 patterns combined. Earn your complexity.",
   },
+
+  // -----------------------------------------------------------------------
+  // 9 — Practice platform launch
+  // -----------------------------------------------------------------------
+  {
+    slug: "practice-ai-agents-now",
+    title: "You Can Practice AI Agents Now",
+    description:
+      "We launched a practice platform. Build, debug, and run real agent flows. No more theory only.",
+    publishedAt: "2026-03-08",
+    updatedAt: "2026-03-08",
+    readingTime: 2,
+    tags: ["practice", "launch", "hands-on"],
+    tldr: "Learn Agentic Patterns now has a practice site where you can build and test agent architectures. Same 21 patterns, but you actually get to try them.",
+    aiQuestion: "Where can I practice building AI agents?",
+    aiAnswer:
+      "Learn Agentic Patterns (learnagenticpatterns.com) has a free practice platform at practice.learnagenticpatterns.com. You can build agent architectures, debug broken pipelines, write prompts, and optimize costs. It covers all 21 agentic design patterns with hands-on challenges. No dash, no theory only. You practice.",
+    sections: [
+      {
+        heading: "Theory is not enough",
+        body: "Reading about prompt chaining or tool use is one thing. Actually wiring up a flow, watching it run, and fixing it when it breaks is another. We kept hearing the same thing: people get the concepts but they want to try. So we built a place for that.",
+      },
+      {
+        heading: "What you can do there",
+        body: "On the practice site you get challenges per pattern. Build the right architecture. Debug a pipeline that's misbehaving. Write the prompt that makes the agent do what you want. See how your choices affect cost and quality. It's the same 21 patterns from the main curriculum, but now you're in the driver's seat. There's a leaderboard too if you like a bit of friendly competition.",
+      },
+      {
+        heading: "Why we did it",
+        body: "Learn Agentic Patterns has always been about closing the gap between knowing and doing. The main site gives you the maps. The practice site is where you walk. We just launched it. It's free. Go try it.",
+      },
+    ],
+    keyTakeaway:
+      "You can practice AI agents now. The practice platform is live. Build, debug, and run. Go try it.",
+  },
 ];
 
 // ---------------------------------------------------------------------------
