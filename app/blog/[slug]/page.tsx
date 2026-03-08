@@ -9,6 +9,7 @@ import {
   BookOpen,
   Zap,
   Share2,
+  Play,
 } from "lucide-react";
 import { getAllBlogPosts, getBlogPostBySlug } from "@/data/blog";
 import { getPatternBySlug } from "@/data/patterns";
@@ -164,6 +165,24 @@ export default async function BlogPostPage({
               {post.keyTakeaway}
             </p>
           </div>
+
+          {/* Practice now CTA (practice launch post only) */}
+          {post.slug === "practice-ai-agents-now" && (
+            <div className="mt-10 bg-surface border border-accent/30 rounded-xl p-6 text-center">
+              <p className="text-text-primary font-sans font-medium mb-4">
+                Ready to try?
+              </p>
+              <a
+                href="https://practice.learnagenticpatterns.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 bg-accent hover:bg-accent/90 text-white font-sans font-semibold text-base px-6 py-3 rounded-lg transition-all hover:shadow-lg hover:shadow-accent/20"
+              >
+                <Play size={18} />
+                Practice now
+              </a>
+            </div>
+          )}
 
           {/* Related Pattern CTA */}
           {relatedPattern && (
