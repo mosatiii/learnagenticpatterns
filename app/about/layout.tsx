@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "About Mousa Al-Jawaheri | Learn Agentic Patterns",
+  title: "About Mousa Al-Jawaheri",
   description:
     "Meet Mousa Al-Jawaheri, the creator of Learn Agentic Patterns. A Technical Product Leader with an MBET from the University of Waterloo, specializing in Agentic AI Design Patterns and multi-agent orchestration.",
   alternates: {
