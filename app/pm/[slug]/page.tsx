@@ -15,6 +15,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import PMGameSection from "@/components/PMGames/PMGameSection";
 import LessonFeedback from "@/components/LessonFeedback";
 import CollapsibleText from "@/components/CollapsibleText";
+import ModuleSpecificContent from "@/components/pm-module-ui/ModuleSpecificContent";
 
 const iconMap = {
   layers: Layers,
@@ -257,6 +258,14 @@ export default function PMModulePage() {
                       </CollapsibleText>
                     </motion.div>
                   ))}
+
+                  {/* Module-specific UI (v2 curriculum: interactives, diagrams, checklists) */}
+                  <div className="space-y-4">
+                    <h3 className="font-mono text-primary text-sm font-bold">
+                      {">"} Interactive &amp; tools
+                    </h3>
+                    <ModuleSpecificContent slug={slug} module={mod} />
+                  </div>
 
                   {/* Related engineering patterns */}
                   <div className="bg-surface border border-border rounded-lg p-6">

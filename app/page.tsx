@@ -79,12 +79,12 @@ const faqsForJsonLd = [
   {
     question: "Is there a track for Product Managers?",
     answer:
-      "Yes. The PM Track has 11 decision-focused modules (zero code required) that reframe the 21 engineering patterns through a product lens. You learn tradeoff frameworks (cost vs. quality vs. latency), key product decisions for each pattern, questions to ask your engineering team, and practice with interactive games: Ship or Skip, Budget Builder, and Stakeholder Simulator.",
+      "Yes. The PM Track has 15 decision-focused modules (zero code required) that reframe the 21 engineering patterns through a product lens. You learn tradeoff frameworks (cost vs. quality vs. latency), key product decisions for each pattern, questions to ask your engineering team, and practice with interactive games: Ship or Skip, Budget Builder, and Stakeholder Simulator.",
   },
   {
     question: "Is this really free?",
     answer:
-      "Yes. Both the Developer and Product Manager tracks are completely free. 7 developer patterns are open without sign-up. Create a free account (no credit card) to unlock all 21 developer patterns, all 11 PM modules, and all interactive games.",
+      "Yes. Both the Developer and Product Manager tracks are completely free. 7 developer patterns are open without sign-up. Create a free account (no credit card) to unlock all 21 developer patterns, all 15 PM modules, and all interactive games.",
   },
   {
     question: "Who is Antonio Gullí?",
@@ -126,7 +126,7 @@ export default function HomePage() {
             </div>
 
             <h3 className="font-mono text-lg text-accent font-bold mt-12 mb-4">
-              For Product Managers — 3 of 11 modules
+              For Product Managers — 3 of 15 modules
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
               {pmModules.slice(0, 3).map((mod, i) => (
@@ -139,7 +139,7 @@ export default function HomePage() {
                 href="/signup"
                 className="inline-flex items-center gap-2 bg-accent hover:bg-accent/90 text-white font-sans font-semibold text-base px-8 py-3.5 rounded-md transition-all hover:shadow-lg hover:shadow-accent/20"
               >
-                Unlock all 21 patterns + 11 PM modules — Free
+                Unlock all 21 patterns + 15 PM modules — Free
                 <ArrowRight size={18} />
               </Link>
             </div>
@@ -153,7 +153,7 @@ export default function HomePage() {
               Ready to start?
             </h2>
             <p className="text-text-secondary mb-8 font-mono text-sm">
-              All 21 patterns, all 11 PM modules, all games. No credit card.
+              All 21 patterns, all 15 PM modules, all games. No credit card.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <Link

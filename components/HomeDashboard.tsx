@@ -471,13 +471,13 @@ export default function HomeDashboard({
               {isProductManager ? (
                 pmReadSlugs.length === 0 ? (
                   <p className="text-text-secondary text-lg mb-8 max-w-lg">
-                    11 modules covering everything you need to make smart
+                    {pmModules.length} modules covering everything you need to make smart
                     product decisions about agentic AI — no code required.
                     Click any module below to dive in.
                   </p>
                 ) : pmReadSlugs.length === pmModules.length ? (
                   <p className="text-text-secondary text-lg mb-8 max-w-lg">
-                    You&apos;ve completed all 11 modules. Revisit any module
+                    You&apos;ve completed all {pmModules.length} modules. Revisit any module
                     to refresh your understanding.
                   </p>
                 ) : (
@@ -486,7 +486,7 @@ export default function HomeDashboard({
                     <span className="text-primary font-mono font-bold">
                       {pmReadSlugs.length}
                     </span>{" "}
-                    of 11 modules. Pick up where you left off.
+                    of {pmModules.length} modules. Pick up where you left off.
                   </p>
                 )
               ) : readSlugs.length === 0 ? (
@@ -620,8 +620,8 @@ export default function HomeDashboard({
               title="Your PM Curriculum"
               subtitle={
                 pmReadSlugs.length === 0
-                  ? "11 modules unlocked. Click any module to dive in and play the decision games."
-                  : `${pmReadSlugs.length} of 11 modules completed. Modules you've read are marked with a checkmark.`
+                  ? `${pmModules.length} modules unlocked. Click any module to dive in and play the decision games.`
+                  : `${pmReadSlugs.length} of ${pmModules.length} modules completed. Modules you've read are marked with a checkmark.`
               }
               decorator="PM"
             />
