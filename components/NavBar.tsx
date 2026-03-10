@@ -17,7 +17,7 @@ const mainNavLinks = [
   { label: "Home", href: "/" },
   { label: "Curriculum", href: "/#curriculum" },
   { label: "Blog", href: "/blog" },
-  { label: "Assessment", href: "/assessment" },
+  { label: "Will AI Replace Me?", href: "/assessment", highlight: true },
   { label: "About", href: "/about" },
 ];
 
@@ -25,7 +25,7 @@ const practiceNavLinks = [
   { label: "Home", href: "/" },
   { label: "Curriculum", href: `${MAIN_DOMAIN}/#curriculum` },
   { label: "Blog", href: `${MAIN_DOMAIN}/blog` },
-  { label: "Assessment", href: `${MAIN_DOMAIN}/assessment` },
+  { label: "Will AI Replace Me?", href: `${MAIN_DOMAIN}/assessment`, highlight: true },
   { label: "About", href: `${MAIN_DOMAIN}/about` },
 ];
 
@@ -52,7 +52,7 @@ export default function NavBar() {
 
   const baseLinks = isPractice ? practiceNavLinks : mainNavLinks;
   const navLinks = user
-    ? baseLinks.filter((link) => link.label !== "Assessment" && link.label !== "Curriculum" && link.label !== "About")
+    ? baseLinks.filter((link) => link.label !== "Will AI Replace Me?" && link.label !== "Curriculum" && link.label !== "About")
     : baseLinks;
 
   useEffect(() => {
@@ -210,7 +210,11 @@ export default function NavBar() {
                   <Tag
                     key={link.href}
                     href={link.href}
-                    className="font-mono text-sm text-text-secondary hover:text-primary transition-colors"
+                    className={
+                      link.highlight
+                        ? "font-mono text-sm text-accent font-semibold hover:text-accent/80 transition-colors bg-accent/10 border border-accent/30 rounded-full px-3 py-1 hover:bg-accent/20"
+                        : "font-mono text-sm text-text-secondary hover:text-primary transition-colors"
+                    }
                   >
                     {link.label}
                   </Tag>
@@ -348,9 +352,13 @@ export default function NavBar() {
                     key={link.href}
                     href={link.href}
                     onClick={() => setMobileOpen(false)}
-                    className="block font-mono text-sm text-text-secondary hover:text-primary transition-colors py-2"
+                    className={
+                      link.highlight
+                        ? "block font-mono text-sm text-accent font-semibold py-2 bg-accent/10 border border-accent/30 rounded-md px-3 text-center"
+                        : "block font-mono text-sm text-text-secondary hover:text-primary transition-colors py-2"
+                    }
                   >
-                    {">"} {link.label}
+                    {link.highlight ? link.label : `> ${link.label}`}
                   </Tag>
                 );
               })}

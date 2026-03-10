@@ -426,12 +426,28 @@ function Results({
     setTimeout(() => setCopied(false), 2000);
   }
 
+  const [linkCopied, setLinkCopied] = useState(false);
+
   function handleShareLinkedIn() {
     const text = `I just took the "Will AI Replace Me?" assessment and scored ${result.score}%.\n\n${result.elevatorPitch}\n\nTake yours → https://learnagenticpatterns.com/assessment`;
     window.open(
       `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent("https://learnagenticpatterns.com/assessment")}&summary=${encodeURIComponent(text)}`,
       "_blank"
     );
+  }
+
+  function handleShareTwitter() {
+    const text = `I scored ${result.score}% on the "Will AI Replace Me?" assessment.\n\nFind out your AI-proof score → learnagenticpatterns.com/assessment`;
+    window.open(
+      `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`,
+      "_blank"
+    );
+  }
+
+  function handleCopyLink() {
+    navigator.clipboard.writeText("https://learnagenticpatterns.com/assessment");
+    setLinkCopied(true);
+    setTimeout(() => setLinkCopied(false), 2000);
   }
 
   async function handleSendEmail() {
@@ -647,52 +663,91 @@ function Results({
           transition={{ delay: 1.0 }}
           className="space-y-6"
         >
-          {/* Share buttons */}
-          <div className="flex flex-col sm:flex-row gap-3">
-            <button
-              onClick={handleShareLinkedIn}
-              className="flex-1 flex items-center justify-center gap-2 bg-[#0A66C2] hover:bg-[#0A66C2]/90 text-white font-sans font-semibold text-sm px-6 py-3 rounded-md transition-all"
-            >
-              <Linkedin size={16} />
-              Share on LinkedIn
-            </button>
+          {/* Share prompt */}
+          <div className="bg-surface border border-primary/20 rounded-xl p-5 text-center">
+            <p className="font-mono text-sm text-text-primary font-semibold mb-1">
+              Challenge your colleagues
+            </p>
+            <p className="text-text-secondary text-xs mb-4">
+              Share your score and see if they can beat it
+            </p>
+            <div className="flex flex-col sm:flex-row gap-3">
+              <button
+                onClick={handleShareLinkedIn}
+                className="flex-1 flex items-center justify-center gap-2 bg-[#0A66C2] hover:bg-[#0A66C2]/90 text-white font-sans font-semibold text-sm px-5 py-2.5 rounded-md transition-all"
+              >
+                <Linkedin size={16} />
+                LinkedIn
+              </button>
+              <button
+                onClick={handleShareTwitter}
+                className="flex-1 flex items-center justify-center gap-2 bg-[#1DA1F2] hover:bg-[#1DA1F2]/90 text-white font-sans font-semibold text-sm px-5 py-2.5 rounded-md transition-all"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                Post on X
+              </button>
+              <button
+                onClick={handleCopyLink}
+                className="flex-1 flex items-center justify-center gap-2 border border-border hover:border-primary/50 text-text-secondary hover:text-primary font-sans font-medium text-sm px-5 py-2.5 rounded-md transition-all"
+              >
+                {linkCopied ? <Check size={16} /> : <Copy size={16} />}
+                {linkCopied ? "Copied!" : "Copy Link"}
+              </button>
+            </div>
+          </div>
+
+          {/* Retake */}
+          <div className="text-center">
             <button
               onClick={onRetake}
-              className="flex-1 flex items-center justify-center gap-2 border border-border hover:border-primary/50 text-text-secondary hover:text-primary font-sans font-medium text-sm px-6 py-3 rounded-md transition-all"
+              className="inline-flex items-center gap-2 text-text-secondary hover:text-primary font-mono text-sm transition-colors"
             >
-              <Sparkles size={16} />
+              <Sparkles size={14} />
               Retake Assessment
             </button>
           </div>
 
-          {/* Email report */}
+          {/* Email report + sign-up nudge */}
           {!emailSent ? (
-            <div className="bg-code-bg border border-border rounded-lg p-4 flex items-center gap-3">
-              <Mail size={16} className="text-text-secondary flex-shrink-0" />
-              <input
-                type="email"
-                placeholder="Email me my results"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="flex-1 bg-transparent text-sm text-text-primary placeholder:text-text-secondary/50 focus:outline-none min-w-0"
-              />
-              <button
-                onClick={handleSendEmail}
-                disabled={!email || emailSending}
-                className={`font-sans font-semibold text-sm px-4 py-2 rounded-md transition-all whitespace-nowrap ${
-                  email && !emailSending
-                    ? "bg-accent hover:bg-accent/90 text-white"
-                    : "text-text-secondary/40 cursor-not-allowed"
-                }`}
-              >
-                {emailSending ? "..." : "Send"}
-              </button>
+            <div className="bg-code-bg border border-primary/20 rounded-xl p-5">
+              <div className="flex items-center gap-2 mb-2">
+                <Mail size={16} className="text-primary" />
+                <p className="font-mono text-sm text-text-primary font-semibold">
+                  Get your full report + pattern recommendations
+                </p>
+              </div>
+              <p className="text-text-secondary text-xs mb-3">
+                We&apos;ll email your results and suggest which of the 21 patterns to learn first based on your score.
+              </p>
+              <div className="flex items-center gap-3">
+                <input
+                  type="email"
+                  placeholder="your@email.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="flex-1 bg-surface border border-border rounded-md px-3 py-2.5 text-sm text-text-primary placeholder:text-text-secondary/50 focus:outline-none focus:border-primary min-w-0"
+                />
+                <button
+                  onClick={handleSendEmail}
+                  disabled={!email || emailSending}
+                  className={`font-sans font-semibold text-sm px-5 py-2.5 rounded-md transition-all whitespace-nowrap ${
+                    email && !emailSending
+                      ? "bg-accent hover:bg-accent/90 text-white"
+                      : "bg-surface text-text-secondary/40 cursor-not-allowed border border-border"
+                  }`}
+                >
+                  {emailSending ? "Sending..." : "Send Report"}
+                </button>
+              </div>
             </div>
           ) : (
-            <div className="bg-code-bg border border-success/30 rounded-lg p-4 flex items-center justify-center gap-2">
-              <Check size={16} className="text-success" />
-              <p className="font-mono text-sm text-text-primary">
-                Sent! Check your inbox.
+            <div className="bg-code-bg border border-success/30 rounded-xl p-5 text-center">
+              <Check size={20} className="text-success mx-auto mb-2" />
+              <p className="font-mono text-sm text-text-primary font-semibold">
+                Report sent!
+              </p>
+              <p className="text-text-secondary text-xs mt-1">
+                Check your inbox for your results and pattern recommendations.
               </p>
             </div>
           )}

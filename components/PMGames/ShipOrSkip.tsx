@@ -4,7 +4,7 @@ import { useState, useCallback, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   CheckCircle2, XCircle, ArrowRight, RotateCcw,
-  Trophy, Lightbulb, Target, Flame, Crown, Timer, Clock,
+  Trophy, Lightbulb, Target, Flame, Crown, Timer, Clock, Share2,
 } from "lucide-react";
 import { shipOrSkipRounds } from "@/data/pm-games";
 import type { ShipOrSkipOption } from "@/data/pm-games";
@@ -271,20 +271,20 @@ export default function ShipOrSkip() {
         </motion.div>
 
         {/* Stats row */}
-        <div className="grid grid-cols-3 gap-3">
-          <div className="bg-code-bg border border-border rounded-lg p-3 text-center">
+        <div className="grid grid-cols-3 gap-2 sm:gap-3">
+          <div className="bg-code-bg border border-border rounded-lg p-2 sm:p-3 text-center">
             <Timer size={14} className="text-accent mx-auto mb-1" />
-            <p className="font-mono text-lg font-bold text-text-primary">{(avgTimeMs / 1000).toFixed(1)}s</p>
+            <p className="font-mono text-base sm:text-lg font-bold text-text-primary">{(avgTimeMs / 1000).toFixed(1)}s</p>
             <p className="text-text-secondary text-[10px]">Avg Decision Time</p>
           </div>
-          <div className="bg-code-bg border border-border rounded-lg p-3 text-center">
+          <div className="bg-code-bg border border-border rounded-lg p-2 sm:p-3 text-center">
             <Flame size={14} className="text-red-400 mx-auto mb-1" />
-            <p className="font-mono text-lg font-bold text-text-primary">{streak}</p>
+            <p className="font-mono text-base sm:text-lg font-bold text-text-primary">{streak}</p>
             <p className="text-text-secondary text-[10px]">Best Streak</p>
           </div>
-          <div className="bg-code-bg border border-border rounded-lg p-3 text-center">
+          <div className="bg-code-bg border border-border rounded-lg p-2 sm:p-3 text-center">
             <Target size={14} className="text-primary mx-auto mb-1" />
-            <p className="font-mono text-lg font-bold text-text-primary">
+            <p className="font-mono text-base sm:text-lg font-bold text-text-primary">
               {confTotal > 0 ? `${Math.round((confCorrect / confTotal) * 100)}%` : "—"}
             </p>
             <p className="text-text-secondary text-[10px]">Confident & Correct</p>
@@ -359,7 +359,19 @@ export default function ShipOrSkip() {
           })}
         </div>
 
-        <div className="text-center">
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+          {passed && (
+            <button
+              onClick={() => {
+                const text = `I scored ${percent}% on the Ship or Skip challenge on LearnAgenticPatterns! ${isPerfect ? "Perfect Instincts!" : ""}\n\nCan you beat my score? → practice.learnagenticpatterns.com`;
+                window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`, "_blank");
+              }}
+              className="inline-flex items-center gap-2 bg-primary/20 hover:bg-primary/30 text-primary font-mono text-sm px-6 py-2.5 rounded-md transition-all border border-primary/30"
+            >
+              <Share2 size={14} />
+              Share Score
+            </button>
+          )}
           <button
             onClick={handleReset}
             className="inline-flex items-center gap-2 bg-accent/20 hover:bg-accent/30 text-accent font-mono text-sm px-6 py-2.5 rounded-md transition-all border border-accent/30"

@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Trophy, RotateCcw, CheckCircle2, XCircle, AlertTriangle, Zap, Timer } from "lucide-react";
+import { Trophy, RotateCcw, CheckCircle2, XCircle, AlertTriangle, Zap, Timer, Share2 } from "lucide-react";
 import type { Score } from "@/lib/game/simulation-engine";
 import type { BlockDefinition, SimulationEvent, ExplainChallenge as ExplainChallengeType } from "@/data/games";
 import ExplainChallenge from "./ExplainChallenge";
@@ -119,7 +119,7 @@ export default function ScoreCard({
       </div>
 
       {/* Score breakdown */}
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-3 gap-2 sm:gap-3">
         {SCORE_CATEGORIES.map((cat, i) => {
           const value = score[cat.key];
           const max = cat.key === "architecture" ? 40 : cat.key === "resilience" ? 40 : 20;
@@ -130,7 +130,7 @@ export default function ScoreCard({
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4 + i * 0.1 }}
-              className={`bg-code-bg border rounded-lg p-3 text-center ${
+              className={`bg-code-bg border rounded-lg p-2 sm:p-3 text-center ${
                 full ? "border-success/30" : "border-border"
               }`}
             >
@@ -193,8 +193,20 @@ export default function ScoreCard({
         </div>
       </div>
 
-      {/* Retry button */}
-      <div className="text-center">
+      {/* Share + Retry */}
+      <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+        {passed && (
+          <button
+            onClick={() => {
+              const text = `I scored ${percent}% on the ${patternSlug ? patternSlug.replace(/-/g, " ") : "Agent Builder"} challenge on LearnAgenticPatterns!\n\nCan you beat my score? → practice.learnagenticpatterns.com`;
+              window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`, "_blank");
+            }}
+            className="inline-flex items-center gap-2 bg-primary/20 hover:bg-primary/30 text-primary font-mono text-sm px-6 py-2.5 rounded-md transition-all border border-primary/30"
+          >
+            <Share2 size={14} />
+            Share Score
+          </button>
+        )}
         <button
           onClick={onRetry}
           className="inline-flex items-center gap-2 bg-accent/20 hover:bg-accent/30 text-accent font-mono text-sm px-6 py-2.5 rounded-md transition-all border border-accent/30"

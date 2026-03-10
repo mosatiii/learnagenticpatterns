@@ -23,7 +23,7 @@ export default function SectionHeader({
       transition={{ duration: 0.5 }}
       className={`mb-12 ${centered ? "text-center" : ""}`}
     >
-      <span className="font-mono text-primary text-sm tracking-wider mb-3 block">
+      <span className="font-mono text-primary text-sm tracking-wider mb-3 block cursor-default select-none">
         {decorator} {decorator === ">" ? "_" : ""}
       </span>
       <h2 className="font-mono text-2xl md:text-3xl lg:text-4xl font-bold text-text-primary leading-tight mb-4">

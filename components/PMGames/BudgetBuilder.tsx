@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   DollarSign, Gauge, Clock, Play, ArrowRight,
   RotateCcw, Trophy, CheckCircle2, XCircle, Target,
-  Lightbulb, BadgeDollarSign, Shield,
+  Lightbulb, BadgeDollarSign, Shield, Share2,
 } from "lucide-react";
 import { budgetScenarios, calculateBudgetResult } from "@/data/pm-games";
 import type { BudgetScenario } from "@/data/pm-games";
@@ -273,7 +273,19 @@ export default function BudgetBuilder() {
           ))}
         </div>
 
-        <div className="text-center">
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+          {finalPassed && (
+            <button
+              onClick={() => {
+                const text = `I scored ${finalPercent}% on the Budget Builder challenge on LearnAgenticPatterns! ${allTripleThreat ? "Triple Threat badge!" : ""}\n\nCan you beat my score? → practice.learnagenticpatterns.com`;
+                window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`, "_blank");
+              }}
+              className="inline-flex items-center gap-2 bg-primary/20 hover:bg-primary/30 text-primary font-mono text-sm px-6 py-2.5 rounded-md transition-all border border-primary/30"
+            >
+              <Share2 size={14} />
+              Share Score
+            </button>
+          )}
           <button
             onClick={handleReset}
             className="inline-flex items-center gap-2 bg-accent/20 hover:bg-accent/30 text-accent font-mono text-sm px-6 py-2.5 rounded-md transition-all border border-accent/30"
@@ -350,20 +362,20 @@ export default function BudgetBuilder() {
       </div>
 
       {/* Budget + Targets */}
-      <div className="grid grid-cols-3 gap-3">
-        <div className="bg-code-bg border border-border rounded-lg p-3 text-center">
+      <div className="grid grid-cols-3 sm:grid-cols-3 gap-2 sm:gap-3">
+        <div className="bg-code-bg border border-border rounded-lg p-2 sm:p-3 text-center">
           <DollarSign size={16} className="text-accent mx-auto mb-1" />
-          <p className="font-mono text-lg font-bold text-text-primary">${scenario.monthlyBudget.toLocaleString()}</p>
+          <p className="font-mono text-base sm:text-lg font-bold text-text-primary">${scenario.monthlyBudget.toLocaleString()}</p>
           <p className="text-text-secondary text-[10px]">Monthly Budget</p>
         </div>
-        <div className="bg-code-bg border border-border rounded-lg p-3 text-center">
+        <div className="bg-code-bg border border-border rounded-lg p-2 sm:p-3 text-center">
           <Gauge size={16} className="text-primary mx-auto mb-1" />
-          <p className="font-mono text-lg font-bold text-text-primary">{scenario.qualityThreshold}%+</p>
+          <p className="font-mono text-base sm:text-lg font-bold text-text-primary">{scenario.qualityThreshold}%+</p>
           <p className="text-text-secondary text-[10px]">Quality Target</p>
         </div>
-        <div className="bg-code-bg border border-border rounded-lg p-3 text-center">
+        <div className="bg-code-bg border border-border rounded-lg p-2 sm:p-3 text-center">
           <Clock size={16} className="text-success mx-auto mb-1" />
-          <p className="font-mono text-lg font-bold text-text-primary">{(scenario.latencyTarget / 1000).toFixed(1)}s</p>
+          <p className="font-mono text-base sm:text-lg font-bold text-text-primary">{(scenario.latencyTarget / 1000).toFixed(1)}s</p>
           <p className="text-text-secondary text-[10px]">Latency Target</p>
         </div>
       </div>
@@ -416,7 +428,7 @@ function ComponentAllocator({
         <p className="text-text-primary text-sm font-medium">{component.name}</p>
         <p className="text-text-secondary text-xs">{component.description} · {component.requestsPerMonth}K req/mo</p>
       </div>
-      <div className="grid grid-cols-3 gap-2">
+      <div className="grid grid-cols-3 gap-1.5 sm:gap-2">
         {scenario.modelTiers.map((tier) => {
           const isSelected = selectedTier === tier.id;
           return (
@@ -455,9 +467,9 @@ function LivePreview({
   return (
     <div className="bg-code-bg border border-border/50 rounded-lg p-4">
       <p className="font-mono text-xs text-text-secondary mb-3">Live Estimate</p>
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-3 gap-2 sm:gap-4">
         <div>
-          <p className={`font-mono text-lg font-bold ${result.withinBudget ? "text-success" : "text-red-400"}`}>
+          <p className={`font-mono text-base sm:text-lg font-bold ${result.withinBudget ? "text-success" : "text-red-400"}`}>
             ${result.monthlyCost.toLocaleString()}
           </p>
           <p className="text-text-secondary text-[10px]">
@@ -465,13 +477,13 @@ function LivePreview({
           </p>
         </div>
         <div>
-          <p className={`font-mono text-lg font-bold ${result.meetsQuality ? "text-success" : "text-red-400"}`}>
+          <p className={`font-mono text-base sm:text-lg font-bold ${result.meetsQuality ? "text-success" : "text-red-400"}`}>
             {result.avgQuality}%
           </p>
           <p className="text-text-secondary text-[10px]">Avg Quality</p>
         </div>
         <div>
-          <p className={`font-mono text-lg font-bold ${result.meetsLatency ? "text-success" : "text-red-400"}`}>
+          <p className={`font-mono text-base sm:text-lg font-bold ${result.meetsLatency ? "text-success" : "text-red-400"}`}>
             {(result.avgLatency / 1000).toFixed(1)}s
           </p>
           <p className="text-text-secondary text-[10px]">Avg Latency</p>
@@ -514,7 +526,7 @@ function SimulationResult({
       </div>
 
       {/* Score breakdown */}
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-3 gap-2 sm:gap-3">
         {[
           { label: "Quality", score: result.qualityScore, max: 40, met: result.meetsQuality, icon: Gauge },
           { label: "Cost Efficiency", score: result.costScore, max: 40, met: result.withinBudget, icon: DollarSign },
@@ -522,7 +534,7 @@ function SimulationResult({
         ].map((cat) => (
           <div
             key={cat.label}
-            className={`bg-code-bg border rounded-lg p-3 text-center ${
+            className={`bg-code-bg border rounded-lg p-2 sm:p-3 text-center ${
               cat.met ? "border-success/20" : "border-red-500/20"
             }`}
           >

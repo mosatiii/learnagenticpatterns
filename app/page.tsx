@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Sparkles, Gamepad2, Users, Trophy } from "lucide-react";
 import SectionHeader from "@/components/SectionHeader";
 import PatternCard from "@/components/PatternCard";
 import PMModuleCard from "@/components/PMModuleCard";
@@ -103,6 +103,85 @@ export default function HomePage() {
 
         {/* Hero — client component for stagger animations */}
         <LandingHero />
+
+        {/* Quick-start cards: Assessment + Games — zero-friction entry points */}
+        <section className="pb-16 -mt-4">
+          <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              {/* Assessment card */}
+              <Link
+                href="/assessment"
+                className="group bg-surface border border-accent/30 rounded-xl p-6 hover:border-accent/60 transition-all hover:shadow-xl hover:shadow-accent/10"
+              >
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 bg-accent/10 border border-accent/20 rounded-lg flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
+                    <Sparkles size={24} className="text-accent" />
+                  </div>
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2 mb-1">
+                      <h3 className="font-mono text-base text-text-primary font-bold">
+                        Will AI Replace Me?
+                      </h3>
+                      <span className="font-mono text-[10px] text-accent bg-accent/10 border border-accent/20 rounded-full px-2 py-0.5 uppercase tracking-wider">
+                        Popular
+                      </span>
+                    </div>
+                    <p className="text-text-secondary text-sm leading-relaxed">
+                      3-minute AI career assessment. No sign-up needed. Get your AI-proof score and personalized action plan.
+                    </p>
+                    <span className="inline-flex items-center gap-1 font-sans font-semibold text-sm text-accent mt-3 group-hover:translate-x-1 transition-transform">
+                      Take the assessment <ArrowRight size={14} />
+                    </span>
+                  </div>
+                </div>
+              </Link>
+
+              {/* Games card */}
+              <a
+                href="https://practice.learnagenticpatterns.com"
+                className="group bg-surface border border-primary/30 rounded-xl p-6 hover:border-primary/60 transition-all hover:shadow-xl hover:shadow-primary/10"
+              >
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 bg-primary/10 border border-primary/20 rounded-lg flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
+                    <Gamepad2 size={24} className="text-primary" />
+                  </div>
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2 mb-1">
+                      <h3 className="font-mono text-base text-text-primary font-bold">
+                        Play Interactive Games
+                      </h3>
+                      <span className="font-mono text-[10px] text-primary bg-primary/10 border border-primary/20 rounded-full px-2 py-0.5 uppercase tracking-wider">
+                        Free
+                      </span>
+                    </div>
+                    <p className="text-text-secondary text-sm leading-relaxed">
+                      Drag-and-drop agent building, architecture decisions, budget optimization. Leaderboard + scoring.
+                    </p>
+                    <span className="inline-flex items-center gap-1 font-sans font-semibold text-sm text-primary mt-3 group-hover:translate-x-1 transition-transform">
+                      Try a game <ArrowRight size={14} />
+                    </span>
+                  </div>
+                </div>
+              </a>
+            </div>
+
+            {/* Social proof bar */}
+            <div className="flex items-center justify-center gap-6 mt-6 text-text-secondary/60 cursor-default select-none">
+              <div className="flex items-center gap-1.5 font-mono text-xs">
+                <Users size={12} />
+                <span>22+ learners signed up</span>
+              </div>
+              <div className="hidden sm:flex items-center gap-1.5 font-mono text-xs">
+                <Trophy size={12} />
+                <span>4 interactive games</span>
+              </div>
+              <div className="hidden sm:flex items-center gap-1.5 font-mono text-xs">
+                <Gamepad2 size={12} />
+                <span>21 patterns + 15 PM modules</span>
+              </div>
+            </div>
+          </div>
+        </section>
 
         {/* Two Tracks — client component for scroll-reveal */}
         <LandingTracks />

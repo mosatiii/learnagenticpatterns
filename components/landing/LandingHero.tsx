@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ArrowRight, Gamepad2 } from "lucide-react";
+import { ArrowRight, Gamepad2, Sparkles } from "lucide-react";
 import Link from "next/link";
 
 const stagger = {
@@ -21,35 +21,37 @@ export default function LandingHero() {
           initial="hidden"
           animate="visible"
         >
-          <motion.span
-            variants={stagger.item}
-            className="inline-block font-mono text-xs text-primary border border-primary/30 rounded-full px-3 py-1 mb-6"
-          >
-            Based on Antonio Gull&iacute;&apos;s 21 Agentic Design Patterns
-          </motion.span>
+          <motion.div variants={stagger.item} className="mb-6">
+            <a
+              href="https://www.amazon.com/dp/B0F3HMV1FG"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-block font-mono text-xs text-primary border border-primary/30 rounded-full px-3 py-1 hover:bg-primary/10 hover:border-primary/50 transition-all cursor-pointer"
+            >
+              Based on Antonio Gull&iacute;&apos;s 21 Agentic Design Patterns ↗
+            </a>
+          </motion.div>
 
           <motion.h1
             variants={stagger.item}
             className="font-mono text-4xl md:text-5xl lg:text-6xl font-bold text-text-primary leading-tight mb-6"
           >
-            Don&apos;t fear AI agents.{" "}
-            <span className="text-gradient">Build them.</span>
+            Practice agentic AI patterns.{" "}
+            <span className="text-gradient">Like LeetCode, but for AI agents.</span>
           </motion.h1>
 
           <motion.p
             variants={stagger.item}
             className="text-text-secondary text-lg md:text-xl leading-relaxed mb-4 max-w-2xl mx-auto"
           >
-            Open source and LeetCode-like for AI agents.
+            Free interactive games, two learning tracks, and a 3-minute AI career assessment.
           </motion.p>
 
           <motion.p
             variants={stagger.item}
             className="text-text-secondary/80 text-base leading-relaxed mb-10 max-w-2xl mx-auto"
           >
-            Free curriculum. Two tracks. Interactive games.
-            <br className="hidden sm:block" />
-            Pick the one that matches how you work.
+            No sign-up required to start. Find out if AI will replace you.
           </motion.p>
 
           <motion.div
@@ -57,24 +59,25 @@ export default function LandingHero() {
             className="flex flex-col sm:flex-row items-center justify-center gap-4"
           >
             <Link
-              href="/signup"
-              className="inline-flex items-center justify-center gap-2 bg-accent hover:bg-accent/90 text-white font-sans font-semibold text-base px-8 py-3.5 rounded-md transition-all hover:shadow-lg hover:shadow-accent/20"
+              href="/assessment"
+              className="inline-flex items-center justify-center gap-2 bg-accent hover:bg-accent/90 text-white font-sans font-semibold text-base px-8 py-3.5 rounded-md transition-all hover:shadow-lg hover:shadow-accent/20 animate-pulse-subtle"
             >
-              Start Free
-              <ArrowRight size={18} />
+              <Sparkles size={18} />
+              Will AI Replace Me?
             </Link>
             <a
               href="https://practice.learnagenticpatterns.com"
               className="inline-flex items-center justify-center gap-2 border border-primary/40 hover:border-primary bg-primary/5 hover:bg-primary/10 text-primary font-sans font-semibold text-base px-8 py-3.5 rounded-md transition-all"
             >
               <Gamepad2 size={18} />
-              Practice
+              Play a Game
             </a>
             <Link
-              href="#tracks"
+              href="/signup"
               className="inline-flex items-center justify-center gap-2 border border-border hover:border-primary/50 text-text-secondary hover:text-primary font-sans font-medium text-base px-8 py-3.5 rounded-md transition-all"
             >
-              See what&apos;s inside
+              Sign Up Free
+              <ArrowRight size={18} />
             </Link>
           </motion.div>
         </motion.div>
