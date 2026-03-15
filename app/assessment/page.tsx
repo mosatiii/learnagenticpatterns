@@ -451,13 +451,13 @@ function Results({
   }
 
   async function handleSendEmail() {
-    if (!email) return;
+    if (!email || !result) return;
     setEmailSending(true);
     try {
-      await fetch("/api/assessment", {
+      await fetch("/api/assessment/email", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ role, answers: {}, email }),
+        body: JSON.stringify({ role, email, result }),
       });
       setEmailSent(true);
     } catch {
@@ -476,7 +476,7 @@ function Results({
           transition={{ duration: 0.5 }}
           className="text-center mb-12"
         >
-          <span className="inline-block font-mono text-xs text-primary border border-primary/30 rounded-full px-3 py-1 mb-6">
+          <span className="block font-mono text-xs text-primary border border-primary/30 rounded-full px-3 py-1 mb-6 w-fit mx-auto">
             Your Assessment Results
           </span>
           <div className="relative inline-block mb-4">
