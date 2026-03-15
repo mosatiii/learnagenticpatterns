@@ -12,15 +12,8 @@ import { useAuth } from "@/contexts/AuthContext";
 
 const PRACTICE_BASE = "https://practice.learnagenticpatterns.com";
 
-/** Build the practice redirect URL, embedding the JWT in the hash so
- *  the practice subdomain can pick it up without relying on cookies. */
 function practiceRedirect(): string {
-  const token = typeof window !== "undefined"
-    ? localStorage.getItem("lap_token")
-    : null;
-  return token
-    ? `${PRACTICE_BASE}/#token=${encodeURIComponent(token)}`
-    : PRACTICE_BASE;
+  return PRACTICE_BASE;
 }
 
 export default function LoginPage() {

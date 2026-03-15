@@ -37,8 +37,15 @@ export async function POST(request: Request) {
     const systemPrompt = buildSystemPrompt(role);
     const userMessage = buildUserMessage(role, answers);
 
-    // Initialize Gemini at runtime so the key isn't needed at build time
-    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
+    const geminiKey = process.env.GEMINI_API_KEY;
+    if (!geminiKey) {
+      console.error("GEMINI_API_KEY is not configured");
+      return NextResponse.json(
+        { success: false, error: "AI service not configured." },
+        { status: 503 }
+      );
+    }
+    const genAI = new GoogleGenerativeAI(geminiKey);
     const model = genAI.getGenerativeModel({
       model: "gemini-2.5-pro",
       generationConfig: {

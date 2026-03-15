@@ -85,13 +85,10 @@ export default function NavBar() {
     if (!feedbackMsg.trim() || !user) return;
     setFeedbackStatus("sending");
     try {
-      const token = typeof window !== "undefined" ? localStorage.getItem("lap_token") : null;
       const res = await fetch("/api/feedback", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        },
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({ message: feedbackMsg.trim() }),
       });
       if (res.ok) {

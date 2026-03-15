@@ -74,7 +74,6 @@ export default function PromptLab({ config, patternSlug, patternName }: PromptLa
     setResults([]);
     setSubmissionCount((c) => c + 1);
 
-    const token = typeof window !== "undefined" ? localStorage.getItem("lap_token") : null;
     const newResults: TestResult[] = [];
 
     for (let i = 0; i < config.testCases.length; i++) {
@@ -84,10 +83,8 @@ export default function PromptLab({ config, patternSlug, patternName }: PromptLa
       try {
         const res = await fetch("/api/prompt-evaluate", {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            ...(token ? { Authorization: `Bearer ${token}` } : {}),
-          },
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
           body: JSON.stringify({
             patternSlug,
             userPrompt: prompt,

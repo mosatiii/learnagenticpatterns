@@ -16,7 +16,7 @@ interface DbUser {
 export async function POST(request: Request) {
   try {
     const ip = getClientIp(request);
-    const limiter = rateLimit(ip, { maxRequests: 10, windowMs: 15 * 60 * 1000 });
+    const limiter = rateLimit(ip, { maxRequests: 5, windowMs: 15 * 60 * 1000 });
     if (!limiter.success) {
       return NextResponse.json(
         { success: false, message: "Too many login attempts. Please try again later." },

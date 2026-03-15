@@ -65,7 +65,12 @@ export async function POST(request: Request) {
       );
     }
 
-    const sanitizedEmail = email.toLowerCase().trim().replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    const sanitizedEmail = email
+      .toLowerCase()
+      .trim()
+      .replace(/[\r\n]/g, "")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
 
     await fetch("https://api.resend.com/emails", {
       method: "POST",

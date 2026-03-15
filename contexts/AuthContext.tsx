@@ -6,45 +6,6 @@ import { POSTHOG_KEY } from "@/lib/posthog-config";
 import { pmModules } from "@/data/pm-curriculum";
 
 const STORAGE_KEY = "lap_auth";
-const TOKEN_KEY = "lap_token";
-const COOKIE_NAME = "lap_token_shared";
-const TOKEN_MAX_AGE = 14 * 24 * 60 * 60; // 14 days, matches JWT TTL
-
-/** Set a cookie readable across all *.learnagenticpatterns.com subdomains. */
-function setSharedCookie(token: string) {
-  if (typeof document === "undefined") return;
-  const isLocalhost = window.location.hostname === "localhost";
-  const domain = isLocalhost ? "" : "; domain=.learnagenticpatterns.com";
-  const secure = isLocalhost ? "" : "; secure";
-  document.cookie = `${COOKIE_NAME}=${token}${domain}; path=/; max-age=${TOKEN_MAX_AGE}; samesite=lax${secure}`;
-}
-
-function clearSharedCookie() {
-  if (typeof document === "undefined") return;
-  const isLocalhost = window.location.hostname === "localhost";
-  const domain = isLocalhost ? "" : "; domain=.learnagenticpatterns.com";
-  document.cookie = `${COOKIE_NAME}=; path=/; max-age=0${domain}`;
-}
-
-function getSharedCookie(): string | null {
-  if (typeof document === "undefined") return null;
-  const match = document.cookie.match(new RegExp(`(?:^|; )${COOKIE_NAME}=([^;]*)`));
-  return match ? match[1] : null;
-}
-
-/**
- * Read a token passed via URL hash (#token=...) from a cross-subdomain
- * redirect, then strip the hash so it doesn't linger in the address bar.
- */
-function consumeHashToken(): string | null {
-  if (typeof window === "undefined") return null;
-  const hash = window.location.hash;
-  const match = hash.match(/[#&]token=([^&]+)/);
-  if (!match) return null;
-  const token = decodeURIComponent(match[1]);
-  window.history.replaceState(null, "", window.location.pathname + window.location.search);
-  return token;
-}
 
 interface AuthUser {
   id: number;
@@ -80,7 +41,7 @@ interface AuthContextValue {
   user: AuthUser | null;
   isLoading: boolean;
   isProductManager: boolean;
-  /** True when user was auto-signed-in via cross-subdomain token (hash/cookie). */
+  /** True when user was auto-signed-in via cross-subdomain cookie. */
   crossDomainAutoLogin: boolean;
   dismissAutoLogin: () => void;
   readSlugs: string[];
@@ -115,6 +76,12 @@ interface AuthContextValue {
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
+/** Common fetch options — cookies sent automatically via httpOnly cookie. */
+const jsonFetchOpts: RequestInit = {
+  headers: { "Content-Type": "application/json" },
+  credentials: "include",
+};
+
 export function AuthProvider({ children, totalPatterns }: { children: ReactNode; totalPatterns: number }) {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -138,35 +105,18 @@ export function AuthProvider({ children, totalPatterns }: { children: ReactNode;
     ? Math.round((pmReadSlugs.length / pmModules.length) * 100)
     : 0;
 
-  const saveToStorage = (token: string, email: string, firstName: string, role: string) => {
-    localStorage.setItem(TOKEN_KEY, token);
+  const saveToStorage = (email: string, firstName: string, role: string) => {
     const data: StoredAuth = { email, firstName, role };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-    setSharedCookie(token);
   };
 
-  /** Clear local session only (keeps cross-subdomain cookie for retries). */
-  const clearLocal = () => {
-    localStorage.removeItem(STORAGE_KEY);
-    localStorage.removeItem(TOKEN_KEY);
-  };
-
-  /** Full logout: clear everything including the cross-subdomain cookie. */
   const clearStorage = () => {
-    clearLocal();
-    clearSharedCookie();
+    localStorage.removeItem(STORAGE_KEY);
   };
-
-  /** Build headers with the JWT for authenticated API calls. */
-  function authHeaders(): Record<string, string> {
-    const token = localStorage.getItem(TOKEN_KEY);
-    if (!token) return { "Content-Type": "application/json" };
-    return { "Content-Type": "application/json", Authorization: `Bearer ${token}` };
-  }
 
   const fetchProgress = useCallback(async () => {
     try {
-      const res = await fetch("/api/progress", { headers: authHeaders() });
+      const res = await fetch("/api/progress", { credentials: "include" });
       if (res.ok) {
         const data = await res.json();
         setReadSlugs(data.progress || []);
@@ -178,7 +128,7 @@ export function AuthProvider({ children, totalPatterns }: { children: ReactNode;
 
   const fetchGameScores = useCallback(async () => {
     try {
-      const res = await fetch("/api/game-scores", { headers: authHeaders() });
+      const res = await fetch("/api/game-scores", { credentials: "include" });
       if (res.ok) {
         const data = await res.json();
         setGameScores(data.scores || []);
@@ -194,47 +144,28 @@ export function AuthProvider({ children, totalPatterns }: { children: ReactNode;
 
   const dismissAutoLogin = useCallback(() => setCrossDomainAutoLogin(false), []);
 
-  // On mount: verify saved JWT with the server
+  // On mount: verify session via httpOnly cookie
   useEffect(() => {
     async function init() {
       try {
-        let token = localStorage.getItem(TOKEN_KEY);
-        let fromCrossDomain = false;
-
-        // Cross-subdomain: check URL hash first (from login/signup redirect),
-        // then fall back to the shared cookie
-        if (!token) {
-          token = consumeHashToken();
-          if (token) fromCrossDomain = true;
-        }
-        if (!token) {
-          token = getSharedCookie();
-          if (token) fromCrossDomain = true;
-        }
-
-        if (!token) { setIsLoading(false); return; }
+        const hadLocalData = !!localStorage.getItem(STORAGE_KEY);
 
         const res = await fetch("/api/auth/verify", {
           method: "POST",
-          headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+          ...jsonFetchOpts,
         });
 
         if (res.ok) {
           const data = await res.json();
           setUser(data.user);
-          saveToStorage(token, data.user.email, data.user.firstName, data.user.role || "Other");
-          if (fromCrossDomain) setCrossDomainAutoLogin(true);
+          saveToStorage(data.user.email, data.user.firstName, data.user.role || "Other");
+          if (!hadLocalData) setCrossDomainAutoLogin(true);
           await Promise.all([fetchProgress(), fetchGameScores()]);
         } else if (res.status === 401) {
-          // Token is genuinely invalid/expired — clear everything
           clearStorage();
-        } else {
-          // Server error (5xx) — only clear local, keep cookie for retry
-          clearLocal();
         }
       } catch {
-        // Network error — only clear local, keep cookie for retry
-        clearLocal();
+        // Network error — don't clear storage, allow retry
       } finally {
         setIsLoading(false);
       }
@@ -251,7 +182,7 @@ export function AuthProvider({ children, totalPatterns }: { children: ReactNode;
   }) => {
     const res = await fetch("/api/signup", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      ...jsonFetchOpts,
       body: JSON.stringify(formData),
     });
 
@@ -259,7 +190,7 @@ export function AuthProvider({ children, totalPatterns }: { children: ReactNode;
     if (!res.ok) throw new Error(data.message || "Signup failed");
 
     setUser(data.user);
-    saveToStorage(data.token, data.user.email, data.user.firstName, data.user.role || formData.role);
+    saveToStorage(data.user.email, data.user.firstName, data.user.role || formData.role);
     await Promise.all([fetchProgress(), fetchGameScores()]);
 
     if (typeof window !== "undefined" && POSTHOG_KEY) {
@@ -270,7 +201,7 @@ export function AuthProvider({ children, totalPatterns }: { children: ReactNode;
   const login = async (email: string, password: string) => {
     const res = await fetch("/api/auth/login", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      ...jsonFetchOpts,
       body: JSON.stringify({ email, password }),
     });
 
@@ -278,7 +209,7 @@ export function AuthProvider({ children, totalPatterns }: { children: ReactNode;
     if (!res.ok) throw new Error(data.message || "Login failed");
 
     setUser(data.user);
-    saveToStorage(data.token, data.user.email, data.user.firstName, data.user.role || "Other");
+    saveToStorage(data.user.email, data.user.firstName, data.user.role || "Other");
     await Promise.all([fetchProgress(), fetchGameScores()]);
 
     if (typeof window !== "undefined" && POSTHOG_KEY) {
@@ -286,7 +217,12 @@ export function AuthProvider({ children, totalPatterns }: { children: ReactNode;
     }
   };
 
-  const logout = () => {
+  const logout = async () => {
+    try {
+      await fetch("/api/auth/logout", { method: "POST", credentials: "include" });
+    } catch {
+      // Best-effort
+    }
     clearStorage();
     setUser(null);
     setReadSlugs([]);
@@ -314,7 +250,7 @@ export function AuthProvider({ children, totalPatterns }: { children: ReactNode;
       try {
         await fetch("/api/game-scores", {
           method: "POST",
-          headers: authHeaders(),
+          ...jsonFetchOpts,
           body: JSON.stringify(scoreData),
         });
         await fetchGameScores();
@@ -345,7 +281,7 @@ export function AuthProvider({ children, totalPatterns }: { children: ReactNode;
       });
       fetch("/api/progress", {
         method: "POST",
-        headers: authHeaders(),
+        ...jsonFetchOpts,
         body: JSON.stringify({ patternSlug: slug }),
       }).catch(() => {});
     },

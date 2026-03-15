@@ -50,13 +50,37 @@ export async function verifyToken(headerValue: string | null): Promise<TokenPayl
   }
 }
 
-/** Convenience: extract + verify from a Request's Authorization header. */
-export async function getAuthUser(request: Request): Promise<TokenPayload | null> {
-  return verifyToken(request.headers.get("authorization"));
+/** Parse the auth cookie value from a Request's Cookie header. */
+function getTokenFromCookie(request: Request): string | null {
+  const cookieHeader = request.headers.get("cookie");
+  if (!cookieHeader) return null;
+  const match = cookieHeader.match(new RegExp(`(?:^|; )${COOKIE_NAME}=([^;]*)`));
+  return match ? match[1] : null;
 }
 
 /**
- * Attach a Set-Cookie header so the JWT is readable across all
+ * Extract + verify auth from Authorization header first, then fall back
+ * to the httpOnly cookie. Works for both API calls and page navigations.
+ */
+export async function getAuthUser(request: Request): Promise<TokenPayload | null> {
+  const fromHeader = await verifyToken(request.headers.get("authorization"));
+  if (fromHeader) return fromHeader;
+
+  const cookieToken = getTokenFromCookie(request);
+  return verifyToken(cookieToken);
+}
+
+/** Get the raw token string from the request (header or cookie). */
+export function getRawToken(request: Request): string | null {
+  const authHeader = request.headers.get("authorization");
+  if (authHeader) {
+    return authHeader.startsWith("Bearer ") ? authHeader.slice(7) : authHeader;
+  }
+  return getTokenFromCookie(request);
+}
+
+/**
+ * Attach a Set-Cookie header so the JWT is shared across all
  * *.learnagenticpatterns.com subdomains (practice.*, www.*, etc.).
  */
 export function setAuthCookie(response: NextResponse, token: string): NextResponse {
@@ -66,7 +90,21 @@ export function setAuthCookie(response: NextResponse, token: string): NextRespon
     maxAge: COOKIE_MAX_AGE,
     sameSite: "lax",
     secure: isProd,
-    httpOnly: false, // needs to be readable by client-side AuthContext
+    httpOnly: true,
+    ...(isProd ? { domain: ".learnagenticpatterns.com" } : {}),
+  });
+  return response;
+}
+
+/** Clear the auth cookie (for logout). */
+export function clearAuthCookie(response: NextResponse): NextResponse {
+  const isProd = process.env.NODE_ENV === "production";
+  response.cookies.set(COOKIE_NAME, "", {
+    path: "/",
+    maxAge: 0,
+    sameSite: "lax",
+    secure: isProd,
+    httpOnly: true,
     ...(isProd ? { domain: ".learnagenticpatterns.com" } : {}),
   });
   return response;

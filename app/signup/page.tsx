@@ -13,12 +13,7 @@ import { useAuth } from "@/contexts/AuthContext";
 const PRACTICE_BASE = "https://practice.learnagenticpatterns.com";
 
 function practiceRedirect(): string {
-  const token = typeof window !== "undefined"
-    ? localStorage.getItem("lap_token")
-    : null;
-  return token
-    ? `${PRACTICE_BASE}/#token=${encodeURIComponent(token)}`
-    : PRACTICE_BASE;
+  return PRACTICE_BASE;
 }
 
 const tracks = [
