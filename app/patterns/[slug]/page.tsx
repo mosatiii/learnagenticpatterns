@@ -142,38 +142,50 @@ export default function PatternDetailPage() {
             </div>
           </div>
 
+          {/* Blurred teaser of code + production notes */}
+          <div className="relative mb-10">
+            <div className="space-y-6 select-none pointer-events-none" aria-hidden="true">
+              <div className="bg-surface border border-border rounded-lg p-6 blur-[6px]">
+                <h2 className="font-mono text-primary text-sm font-bold mb-3">The Code</h2>
+                <div className="bg-code-bg rounded-lg p-4 h-32" />
+              </div>
+              <div className="bg-surface border border-border rounded-lg p-6 blur-[6px]">
+                <h2 className="font-mono text-primary text-sm font-bold mb-3">Production Notes</h2>
+                <div className="space-y-2">
+                  <div className="h-4 bg-code-bg rounded w-full" />
+                  <div className="h-4 bg-code-bg rounded w-4/5" />
+                  <div className="h-4 bg-code-bg rounded w-3/5" />
+                </div>
+              </div>
+            </div>
+            {/* Overlay CTA */}
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="text-center bg-background/80 backdrop-blur-sm border border-border rounded-xl px-8 py-8 shadow-2xl max-w-md mx-4">
+                <Lock className="w-10 h-10 text-primary/60 mx-auto mb-3" />
+                <h3 className="font-mono text-lg text-text-primary font-bold mb-2">
+                  Unlock code examples &amp; production notes
+                </h3>
+                <p className="text-text-secondary text-sm mb-5">
+                  Free account — no credit card required.
+                </p>
+                <Link
+                  href="/signup"
+                  className="inline-flex items-center gap-2 bg-accent hover:bg-accent/90 text-white font-sans font-semibold px-8 py-3 rounded-md transition-all hover:shadow-lg hover:shadow-accent/20"
+                >
+                  Sign Up Free
+                  <ArrowRight size={18} />
+                </Link>
+                <p className="mt-3">
+                  <Link href="/login" className="text-text-secondary hover:text-primary font-mono text-xs transition-colors">
+                    Already have an account? Log in
+                  </Link>
+                </p>
+              </div>
+            </div>
+          </div>
+
           {/* FAQ section -- crawlable on locked pages too */}
           <PatternFAQ pattern={pattern} />
-
-          {/* Signup gate */}
-          <div className="text-center py-10 bg-surface/50 border border-border rounded-xl">
-            <Lock className="w-12 h-12 text-text-secondary/40 mx-auto mb-4" />
-            <h3 className="font-mono text-xl text-text-primary font-bold mb-2">
-              Sign up to unlock code examples &amp; production notes
-            </h3>
-            <p className="text-text-secondary mb-6 max-w-lg mx-auto text-sm">
-              Get full access to all 21 patterns with code comparisons,
-              production considerations, and architecture diagrams.
-            </p>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Link
-                href="/signup"
-                className="inline-flex items-center gap-2 bg-accent hover:bg-accent/90 text-white font-sans font-semibold px-8 py-3.5 rounded-md transition-all hover:shadow-lg hover:shadow-accent/20"
-              >
-                Sign Up Free
-                <ArrowRight size={18} />
-              </Link>
-              <Link
-                href="/login"
-                className="inline-flex items-center gap-2 border border-border hover:border-primary/50 text-text-secondary hover:text-primary font-sans font-medium px-8 py-3.5 rounded-md transition-all"
-              >
-                Already have an account? Log in
-              </Link>
-            </div>
-            <p className="text-text-secondary/50 text-xs mt-4 font-mono">
-              No credit card required.
-            </p>
-          </div>
         </div>
       </main>
     );
@@ -331,6 +343,27 @@ export default function PatternDetailPage() {
                       </p>
                     </CollapsibleText>
                   </div>
+
+                  {/* Inline practice CTA — prominent, not buried in Build tab */}
+                  {gameAvailable && (
+                    <a
+                      href={`https://practice.learnagenticpatterns.com/patterns/${slug}`}
+                      className="flex items-center gap-4 bg-accent/5 border border-accent/20 rounded-xl p-5 hover:border-accent/40 hover:bg-accent/10 transition-all group"
+                    >
+                      <div className="w-12 h-12 rounded-xl bg-accent/10 border border-accent/20 flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
+                        <Play size={22} className="text-accent" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h4 className="font-mono text-sm text-text-primary font-bold group-hover:text-accent transition-colors">
+                          Practice {pattern.name}
+                        </h4>
+                        <p className="text-text-secondary text-xs mt-0.5">
+                          Build, debug, prompt, and optimize — 3 difficulty tiers
+                        </p>
+                      </div>
+                      <ArrowRight size={18} className="text-accent flex-shrink-0 group-hover:translate-x-1 transition-transform" />
+                    </a>
+                  )}
                 </div>
               </div>
 
@@ -362,7 +395,7 @@ export default function PatternDetailPage() {
               <div className={activeTab === "mapping" ? "block" : "hidden"}>
                 <div className="space-y-6">
                   {/* Visual bridge between SWE and Agentic */}
-                  <div className="bg-code-bg border border-border rounded-xl p-5 flex items-center justify-center gap-4 text-center">
+                  <div className="bg-code-bg border border-border rounded-xl p-5 flex items-center justify-center gap-4 text-center select-none cursor-default">
                     <div className="flex-1">
                       <p className="font-mono text-xs text-text-secondary mb-1">Traditional SWE</p>
                       <p className="font-mono text-primary font-bold text-sm">{pattern.sweParallel}</p>

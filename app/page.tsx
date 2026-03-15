@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, Sparkles, Gamepad2, Users, Trophy } from "lucide-react";
+import { ArrowRight, Sparkles, Gamepad2, Trophy } from "lucide-react";
 import SectionHeader from "@/components/SectionHeader";
 import PatternCard from "@/components/PatternCard";
 import PMModuleCard from "@/components/PMModuleCard";
@@ -7,6 +7,7 @@ import HomePageShell from "@/components/HomePageShell";
 import LandingHero from "@/components/landing/LandingHero";
 import LandingTracks from "@/components/landing/LandingTracks";
 import FAQAccordion from "@/components/landing/FAQAccordion";
+import StickyAssessmentCTA from "@/components/landing/StickyAssessmentCTA";
 import { CourseJsonLd, FAQPageJsonLd } from "@/components/JsonLd";
 import { patterns } from "@/data/patterns";
 import { pmModules } from "@/data/pm-curriculum";
@@ -168,8 +169,8 @@ export default function HomePage() {
             {/* Social proof bar */}
             <div className="flex items-center justify-center gap-6 mt-6 text-text-secondary/60 cursor-default select-none">
               <div className="flex items-center gap-1.5 font-mono text-xs">
-                <Users size={12} />
-                <span>22+ learners signed up</span>
+                <Sparkles size={12} />
+                <span>21 agentic patterns</span>
               </div>
               <div className="hidden sm:flex items-center gap-1.5 font-mono text-xs">
                 <Trophy size={12} />
@@ -177,7 +178,7 @@ export default function HomePage() {
               </div>
               <div className="hidden sm:flex items-center gap-1.5 font-mono text-xs">
                 <Gamepad2 size={12} />
-                <span>21 patterns + 15 PM modules</span>
+                <span>15 PM decision modules</span>
               </div>
             </div>
           </div>
@@ -225,28 +226,35 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* CTA — fully server-rendered static HTML */}
+        {/* CTA — inline email capture */}
         <section className="py-20 bg-code-bg">
-          <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <div className="max-w-xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <h2 className="font-mono text-2xl md:text-3xl text-text-primary font-bold mb-3">
-              Ready to start?
+              Not sure yet? Try the assessment first.
             </h2>
             <p className="text-text-secondary mb-8 font-mono text-sm">
-              All 21 patterns, all 15 PM modules, all games. No credit card.
+              No sign-up required. Find out if AI will replace you in 3 minutes.
             </p>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <Link
+              href="/assessment"
+              className="inline-flex items-center gap-2 bg-accent hover:bg-accent/90 text-white font-sans font-semibold text-base px-8 py-3.5 rounded-md transition-all hover:shadow-lg hover:shadow-accent/20"
+            >
+              <Sparkles size={18} />
+              Take the Free Assessment
+            </Link>
+            <div className="flex items-center gap-4 mt-6 justify-center">
               <Link
                 href="/signup"
-                className="inline-flex items-center gap-2 bg-accent hover:bg-accent/90 text-white font-sans font-semibold text-base px-8 py-3.5 rounded-md transition-all hover:shadow-lg hover:shadow-accent/20"
+                className="text-primary font-mono text-sm hover:underline"
               >
-                Create Free Account
-                <ArrowRight size={18} />
+                Or create a free account
               </Link>
+              <span className="text-text-secondary/30">|</span>
               <Link
                 href="/login"
-                className="inline-flex items-center gap-2 border border-border hover:border-primary/50 text-text-secondary hover:text-primary font-sans font-medium text-base px-8 py-3.5 rounded-md transition-all"
+                className="text-text-secondary hover:text-primary font-mono text-sm transition-colors"
               >
-                Already have an account? Log in
+                Log in
               </Link>
             </div>
           </div>
@@ -254,6 +262,9 @@ export default function HomePage() {
 
         {/* FAQ — client component for accordion state */}
         <FAQAccordion faqs={faqs} />
+
+        {/* Sticky scroll CTA — appears after scrolling past hero */}
+        <StickyAssessmentCTA />
       </main>
     </HomePageShell>
   );

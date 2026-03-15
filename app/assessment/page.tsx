@@ -752,23 +752,27 @@ function Results({
             </div>
           )}
 
-          {/* CTA to curriculum */}
+          {/* CTA to signup — action-oriented based on results */}
           {(role === "developer" || role === "product-manager") && (
             <Link
-              href="/#curriculum"
-              className="flex items-center justify-between bg-surface border border-border rounded-xl p-5 hover:border-primary/40 transition-all group"
+              href="/signup"
+              className="flex items-center justify-between bg-accent/5 border border-accent/30 rounded-xl p-6 hover:border-accent/60 transition-all group hover:shadow-lg hover:shadow-accent/10"
             >
               <div>
-                <p className="font-mono text-sm text-text-primary font-semibold">
+                <p className="font-mono text-base text-text-primary font-bold">
+                  {result.score < 50
+                    ? "Start closing the gaps today"
+                    : "Level up your strengths"}
+                </p>
+                <p className="text-text-secondary text-sm mt-1">
                   {role === "product-manager"
-                    ? "Learn the patterns behind AI products"
-                    : "Close the gaps — start learning"}
+                    ? "15 PM decision modules with interactive games — free"
+                    : "21 patterns with code examples and practice labs — free"}
                 </p>
-                <p className="text-text-secondary text-xs mt-0.5">
-                  21 patterns · Free · No credit card
-                </p>
+                <span className="inline-flex items-center gap-1 font-sans font-semibold text-sm text-accent mt-3 group-hover:translate-x-1 transition-transform">
+                  Create Free Account <ArrowRight size={14} />
+                </span>
               </div>
-              <ArrowRight size={18} className="text-primary group-hover:translate-x-1 transition-transform flex-shrink-0" />
             </Link>
           )}
 

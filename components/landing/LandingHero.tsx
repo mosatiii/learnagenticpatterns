@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ArrowRight, Gamepad2, Sparkles } from "lucide-react";
+import { Sparkles } from "lucide-react";
 import Link from "next/link";
 
 const stagger = {
@@ -56,29 +56,18 @@ export default function LandingHero() {
 
           <motion.div
             variants={stagger.item}
-            className="flex flex-col sm:flex-row items-center justify-center gap-4"
+            className="flex flex-col items-center gap-4"
           >
             <Link
               href="/assessment"
-              className="inline-flex items-center justify-center gap-2 bg-accent hover:bg-accent/90 text-white font-sans font-semibold text-base px-8 py-3.5 rounded-md transition-all hover:shadow-lg hover:shadow-accent/20 animate-pulse-subtle"
+              className="inline-flex items-center justify-center gap-2 bg-accent hover:bg-accent/90 text-white font-sans font-semibold text-lg px-10 py-4 rounded-md transition-all hover:shadow-lg hover:shadow-accent/20 animate-pulse-subtle"
             >
-              <Sparkles size={18} />
-              Will AI Replace Me?
+              <Sparkles size={20} />
+              Will AI Replace Me? — Free Assessment
             </Link>
-            <a
-              href="https://practice.learnagenticpatterns.com"
-              className="inline-flex items-center justify-center gap-2 border border-primary/40 hover:border-primary bg-primary/5 hover:bg-primary/10 text-primary font-sans font-semibold text-base px-8 py-3.5 rounded-md transition-all"
-            >
-              <Gamepad2 size={18} />
-              Play a Game
-            </a>
-            <Link
-              href="/signup"
-              className="inline-flex items-center justify-center gap-2 border border-border hover:border-primary/50 text-text-secondary hover:text-primary font-sans font-medium text-base px-8 py-3.5 rounded-md transition-all"
-            >
-              Sign Up Free
-              <ArrowRight size={18} />
-            </Link>
+            <span className="text-text-secondary/50 font-mono text-xs">
+              No sign-up required · 3 minutes · Personalized action plan
+            </span>
           </motion.div>
         </motion.div>
       </div>

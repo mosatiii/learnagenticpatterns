@@ -133,7 +133,7 @@ export default function PatternFlowDiagram({ patternSlug }: Props) {
   });
 
   return (
-    <div className="bg-code-bg border border-border rounded-xl p-4 mb-6 overflow-x-auto">
+    <div className="bg-code-bg border border-border rounded-xl p-4 mb-6 overflow-x-auto select-none cursor-default">
       <div className="flex items-center gap-2 mb-3">
         <span className="font-mono text-xs text-primary font-bold">Architecture Flow</span>
         <div className="flex gap-3 ml-auto">
@@ -147,7 +147,7 @@ export default function PatternFlowDiagram({ patternSlug }: Props) {
       </div>
       <svg
         viewBox={`0 0 ${totalWidth} ${totalHeight}`}
-        className="w-full"
+        className="w-full pointer-events-none"
         style={{ maxHeight: useTwoRows ? 200 : 130 }}
       >
         <defs>
