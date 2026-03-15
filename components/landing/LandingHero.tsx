@@ -23,7 +23,7 @@ export default function LandingHero() {
         >
           <motion.div variants={stagger.item} className="mb-6">
             <a
-              href="https://www.amazon.com/dp/B0F3HMV1FG"
+              href="https://www.amazon.ca/Agentic-Design-Patterns-Hands-Intelligent/dp/3032014018"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-block font-mono text-xs text-primary border border-primary/30 rounded-full px-3 py-1 hover:bg-primary/10 hover:border-primary/50 transition-all cursor-pointer"
