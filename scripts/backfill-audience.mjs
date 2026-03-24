@@ -31,7 +31,8 @@ let failed = 0;
 
 for (const user of users) {
   try {
-    const res = await fetch(
+    // Create/update contact
+    const createRes = await fetch(
       `https://api.resend.com/audiences/${RESEND_AUDIENCE_ID}/contacts`,
       {
         method: "POST",
@@ -43,19 +44,31 @@ for (const user of users) {
           email: user.email,
           first_name: user.first_name,
           unsubscribed: false,
-          ...(user.role && { properties: { role: user.role } }),
         }),
       }
     );
 
-    if (res.ok) {
-      console.log(`  OK  ${user.email}`);
-      succeeded++;
-    } else {
-      const body = await res.text();
-      console.error(`  FAIL ${user.email} — ${res.status}: ${body}`);
+    if (!createRes.ok) {
+      const body = await createRes.text();
+      console.error(`  FAIL ${user.email} — ${createRes.status}: ${body}`);
       failed++;
+      continue;
     }
+
+    // Set role property via PATCH
+    if (user.role) {
+      await fetch(`https://api.resend.com/contacts/${user.email}`, {
+        method: "PATCH",
+        headers: {
+          Authorization: `Bearer ${RESEND_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ properties: { role: user.role } }),
+      });
+    }
+
+    console.log(`  OK  ${user.email} (${user.role})`);
+    succeeded++;
   } catch (err) {
     console.error(`  ERR  ${user.email} — ${err.message}`);
     failed++;

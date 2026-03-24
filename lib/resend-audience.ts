@@ -16,7 +16,8 @@ export async function addContactToAudience({
 
   if (!apiKey || apiKey === "your_resend_key" || !audienceId) return;
 
-  const res = await fetch(
+  // Create/update contact in audience
+  const createRes = await fetch(
     `https://api.resend.com/audiences/${audienceId}/contacts`,
     {
       method: "POST",
@@ -28,12 +29,31 @@ export async function addContactToAudience({
         email,
         first_name: firstName,
         unsubscribed: false,
-        ...(role && { properties: { role } }),
       }),
     }
   );
 
-  if (!res.ok) {
-    console.error("Resend audience sync failed:", res.status, await res.text());
+  if (!createRes.ok) {
+    console.error("Resend audience sync failed:", createRes.status, await createRes.text());
+    return;
+  }
+
+  // Set role property (requires separate PATCH call)
+  if (role) {
+    const patchRes = await fetch(
+      `https://api.resend.com/contacts/${email}`,
+      {
+        method: "PATCH",
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ properties: { role } }),
+      }
+    );
+
+    if (!patchRes.ok) {
+      console.error("Resend role update failed:", patchRes.status, await patchRes.text());
+    }
   }
 }
