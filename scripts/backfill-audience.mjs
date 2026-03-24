@@ -21,7 +21,7 @@ if (!DATABASE_URL || !RESEND_API_KEY || !RESEND_AUDIENCE_ID) {
 const pool = new pg.Pool({ connectionString: DATABASE_URL });
 
 const { rows: users } = await pool.query(
-  "SELECT email, first_name FROM users ORDER BY id"
+  "SELECT email, first_name, role FROM users ORDER BY id"
 );
 
 console.log(`Found ${users.length} users to sync.\n`);
@@ -43,6 +43,7 @@ for (const user of users) {
           email: user.email,
           first_name: user.first_name,
           unsubscribed: false,
+          ...(user.role && { properties: { role: user.role } }),
         }),
       }
     );

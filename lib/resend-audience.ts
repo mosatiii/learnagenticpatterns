@@ -5,9 +5,11 @@
 export async function addContactToAudience({
   email,
   firstName,
+  role,
 }: {
   email: string;
   firstName: string;
+  role?: string;
 }): Promise<void> {
   const apiKey = process.env.RESEND_API_KEY;
   const audienceId = process.env.RESEND_AUDIENCE_ID;
@@ -26,6 +28,7 @@ export async function addContactToAudience({
         email,
         first_name: firstName,
         unsubscribed: false,
+        ...(role && { properties: { role } }),
       }),
     }
   );

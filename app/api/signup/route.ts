@@ -100,7 +100,7 @@ export async function POST(request: Request) {
 
     // Sync to Resend Audience for newsletters (fire-and-forget, never blocks signup)
     try {
-      addContactToAudience({ email: userData.email, firstName: userData.firstName });
+      addContactToAudience({ email: userData.email, firstName: userData.firstName, role: userData.role });
     } catch (audienceErr) {
       console.error("Audience sync failed (non-blocking):", audienceErr);
     }
