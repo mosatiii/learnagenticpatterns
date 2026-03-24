@@ -5,6 +5,7 @@ import { query } from "@/lib/db";
 import { rateLimit, getClientIp } from "@/lib/rate-limit";
 import { welcomeEmail, adminNotificationEmail } from "@/lib/email-templates";
 import { signToken, setAuthCookie } from "@/lib/jwt";
+import { addContactToAudience } from "@/lib/resend-audience";
 
 interface DbUser {
   id: number;
@@ -101,6 +102,13 @@ export async function POST(request: Request) {
       } catch (emailErr) {
         console.error("Email sending failed:", emailErr);
       }
+    }
+
+    // Sync to Resend Audience for newsletters (fire-and-forget, never blocks signup)
+    try {
+      addContactToAudience({ email: userData.email, firstName: userData.firstName });
+    } catch (audienceErr) {
+      console.error("Audience sync failed (non-blocking):", audienceErr);
     }
 
     const token = await signToken({ userId: user.id, email: user.email });
