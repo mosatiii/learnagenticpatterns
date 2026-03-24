@@ -72,7 +72,7 @@ export default async function OgImage({
             right: 0,
             bottom: 0,
             backgroundImage:
-              "linear-gradient(rgba(0,212,255,0.04) 1px, transparent 1px)",
+              "linear-gradient(#00D4FF0A 1px, transparent 1px)",
             backgroundSize: "40px 40px",
             display: "flex",
           }}
@@ -85,7 +85,7 @@ export default async function OgImage({
             right: 0,
             bottom: 0,
             backgroundImage:
-              "linear-gradient(90deg, rgba(0,212,255,0.04) 1px, transparent 1px)",
+              "linear-gradient(90deg, #00D4FF0A 1px, transparent 1px)",
             backgroundSize: "40px 40px",
             display: "flex",
           }}
@@ -115,7 +115,7 @@ export default async function OgImage({
                 alignItems: "center",
                 justifyContent: "center",
                 padding: "8px 20px",
-                border: "2px solid rgba(0,212,255,0.4)",
+                border: "2px solid #00D4FF66",
                 borderRadius: 8,
                 color: "#00D4FF",
                 fontSize: 22,
@@ -172,7 +172,7 @@ export default async function OgImage({
                 style={{
                   display: "flex",
                   padding: "6px 16px",
-                  border: "1px solid rgba(0,212,255,0.3)",
+                  border: "1px solid #00D4FF4D",
                   borderRadius: 16,
                   color: "#00D4FF",
                   fontSize: 16,
