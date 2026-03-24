@@ -63,33 +63,6 @@ export default async function OgImage({
           position: "relative",
         }}
       >
-        {/* Grid overlay — split into two divs because Satori can't parse multiple gradients in one backgroundImage */}
-        <div
-          style={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundImage:
-              "linear-gradient(#00D4FF0A 1px, transparent 1px)",
-            backgroundSize: "40px 40px",
-            display: "flex",
-          }}
-        />
-        <div
-          style={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundImage:
-              "linear-gradient(90deg, #00D4FF0A 1px, transparent 1px)",
-            backgroundSize: "40px 40px",
-            display: "flex",
-          }}
-        />
 
         {/* Top accent line */}
         <div
