@@ -79,25 +79,19 @@ export async function POST(request: Request) {
           }),
         });
 
-        const adminAddr = process.env.ADMIN_EMAIL;
-        if (adminAddr) {
-          await fetch("https://api.resend.com/emails", {
+        // Notify admin via Telegram instead of email (saves transactional quota)
+        const telegramToken = process.env.TELEGRAM_BOT_TOKEN;
+        const telegramChatId = process.env.TELEGRAM_CHAT_ID;
+        if (telegramToken && telegramChatId) {
+          fetch(`https://api.telegram.org/bot${telegramToken}/sendMessage`, {
             method: "POST",
-            headers: {
-              Authorization: `Bearer ${resendKey}`,
-              "Content-Type": "application/json",
-            },
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-              from: fromEmail,
-              to: adminAddr,
-              subject: `New signup: ${userData.firstName} (${userData.role})`,
-              html: adminNotificationEmail({
-                firstName: userData.firstName,
-                email: userData.email,
-                role: userData.role,
-              }),
+              chat_id: telegramChatId,
+              text: `🆕 New signup!\n\nName: ${userData.firstName}\nEmail: ${userData.email}\nRole: ${userData.role}`,
+              parse_mode: "HTML",
             }),
-          });
+          }).catch(() => {});
         }
       } catch (emailErr) {
         console.error("Email sending failed:", emailErr);
