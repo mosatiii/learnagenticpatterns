@@ -17,11 +17,11 @@ const SECURITY_HEADERS: Record<string, string> = {
   "Strict-Transport-Security": "max-age=63072000; includeSubDomains; preload",
   "Content-Security-Policy": [
     "default-src 'self'",
-    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://us.i.posthog.com https://*.sentry.io",
+    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.i.posthog.com https://*.posthog.com https://*.sentry.io",
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
     "font-src 'self' https://fonts.gstatic.com",
     "img-src 'self' data: blob: https:",
-    "connect-src 'self' https://us.i.posthog.com https://*.sentry.io https://api.resend.com",
+    "connect-src 'self' https://*.i.posthog.com https://*.posthog.com https://*.sentry.io https://api.resend.com",
     "frame-ancestors 'none'",
   ].join("; "),
 };
@@ -91,6 +91,6 @@ export function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico).*)",
+    "/((?!_next/static|_next/image|favicon.ico|ingest).*)",
   ],
 };
