@@ -14,6 +14,7 @@ import {
 import { getAllBlogPosts, getBlogPostBySlug } from "@/data/blog";
 import { getPatternBySlug } from "@/data/patterns";
 import { BlogPostJsonLd } from "@/components/JsonLd";
+import CopyButton from "@/components/CopyButton";
 
 export function generateStaticParams() {
   return getAllBlogPosts().map((post) => ({ slug: post.slug }));
@@ -81,7 +82,6 @@ export default async function BlogPostPage({
                 <Clock size={14} className="text-primary" />
                 {post.readingTime} min read
               </span>
-              <span className="text-border">|</span>
               <time dateTime={post.publishedAt}>
                 {new Date(post.publishedAt).toLocaleDateString("en-US", {
                   year: "numeric",
@@ -90,17 +90,14 @@ export default async function BlogPostPage({
                 })}
               </time>
               {post.updatedAt !== post.publishedAt && (
-                <>
-                  <span className="text-border">|</span>
-                  <span>
-                    Updated{" "}
-                    {new Date(post.updatedAt).toLocaleDateString("en-US", {
-                      year: "numeric",
-                      month: "short",
-                      day: "numeric",
-                    })}
-                  </span>
-                </>
+                <span>
+                  Updated{" "}
+                  {new Date(post.updatedAt).toLocaleDateString("en-US", {
+                    year: "numeric",
+                    month: "short",
+                    day: "numeric",
+                  })}
+                </span>
               )}
             </div>
           </header>
@@ -110,7 +107,7 @@ export default async function BlogPostPage({
             <div className="flex items-center gap-2 mb-2">
               <Zap size={16} className="text-primary" />
               <span className="font-mono text-xs font-bold text-primary uppercase tracking-wider">
-                TL;DR — The One Thing to Know
+                TL;DR  The One Thing to Know
               </span>
             </div>
             <p className="text-text-primary text-sm sm:text-base leading-relaxed font-sans">
@@ -132,16 +129,12 @@ export default async function BlogPostPage({
                 </p>
                 {section.code && (
                   <div className="mt-5 rounded-lg overflow-hidden border border-border">
-                    {section.code.label && (
-                      <div className="bg-surface px-4 py-2 border-b border-border flex items-center justify-between">
-                        <span className="font-mono text-xs text-text-secondary">
-                          {section.code.label}
-                        </span>
-                        <span className="font-mono text-[10px] text-text-secondary/50 uppercase">
-                          {section.code.language}
-                        </span>
-                      </div>
-                    )}
+                    <div className="bg-surface px-4 py-2 border-b border-border flex items-center justify-between">
+                      <span className="font-mono text-xs text-text-secondary">
+                        {section.code.label || section.code.language}
+                      </span>
+                      <CopyButton text={section.code.snippet} />
+                    </div>
                     <pre className="bg-code-bg p-4 overflow-x-auto">
                       <code className="font-code text-sm text-text-primary leading-relaxed whitespace-pre">
                         {section.code.snippet}
@@ -190,7 +183,7 @@ export default async function BlogPostPage({
               <div className="flex items-center gap-2 mb-3">
                 <BookOpen size={16} className="text-primary" />
                 <span className="font-mono text-xs font-bold text-primary uppercase tracking-wider">
-                  Go Deeper — Full Pattern Breakdown
+                  Go Deeper  Full Pattern Breakdown
                 </span>
               </div>
               <p className="text-text-secondary text-sm mb-4">
@@ -234,7 +227,7 @@ export default async function BlogPostPage({
           </div>
 
           {/* Prev / Next navigation */}
-          <nav className="mt-14 pt-8 border-t border-border grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <nav className="mt-14 pt-8 grid grid-cols-1 sm:grid-cols-2 gap-4">
             {prevPost ? (
               <Link
                 href={`/blog/${prevPost.slug}`}
