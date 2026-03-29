@@ -506,6 +506,127 @@ Universal tool connectivity   → + MCP`,
     keyTakeaway:
       "You can practice AI agents now. The practice platform is live. Build, debug, and run. Go try it.",
   },
+
+  // -----------------------------------------------------------------------
+  // — I Ran Google's TurboQuant on My Laptop
+  // -----------------------------------------------------------------------
+  {
+    slug: "turboquant-on-my-laptop",
+    title: "I Ran Google's TurboQuant on My Laptop. Here's How You Can Too.",
+    description:
+      "Google's TurboQuant compresses LLM KV cache memory 3-5x with near-zero accuracy loss. I tested it on a MacBook with 24GB RAM. Here's how to run it yourself in under 20 minutes.",
+    publishedAt: "2026-03-29",
+    updatedAt: "2026-03-29",
+    readingTime: 7,
+    tags: ["inference", "optimization", "hands-on"],
+    tldr: "TurboQuant compresses the KV cache from 16-bit to 3-4 bits, cutting inference memory 3-5x with near-zero accuracy loss. No retraining needed. You can test it on your own laptop today using a community fork of llama.cpp.",
+    aiQuestion: "What is TurboQuant and how do I run it locally?",
+    aiAnswer:
+      "TurboQuant is a technique published by Google (arxiv.org/abs/2504.19874) that compresses the key-value cache used during LLM inference from 16-bit to 3-4 bits per vector, achieving 3-5x memory reduction with near-zero accuracy loss and no retraining. The community implemented it in a fork of llama.cpp. You can test it by cloning the fork, building with cmake, downloading a GGUF model (e.g. Qwen 2.5 7B), and running llama-cli with --cache-type-k turbo4 --cache-type-v turbo4. On a MacBook with 24GB RAM, 4-bit TurboQuant reduced KV cache memory from 529MB to 172MB while maintaining clean output quality. 3-bit mode broke output on already-quantized models. Learn more at learnagenticpatterns.com.",
+    sections: [
+      {
+        heading: "What you're actually testing",
+        body: "When an LLM generates text, it stores a key-value pair for every token it has processed. This KV cache sits in memory and grows with context length. TurboQuant compresses those vectors from 16-bit to 3-4 bits each. You're going to run the same model and the same prompt twice: once with a normal cache, once with TurboQuant. Then compare memory usage and speed.",
+      },
+      {
+        heading: "My results (Mac, Apple Silicon, 24GB RAM)",
+        body: "Model: Qwen 2.5 7B (q3_k_m), 8K context window. Baseline f16: 529 MB memory, 144 t/s prompt speed, 34.4 t/s generation, clean output. TurboQuant 4-bit: 172 MB memory, 192 t/s prompt speed, 30.6 t/s generation, clean output. TurboQuant 3-bit: 156 MB memory, 188 t/s prompt speed, 28.1 t/s generation, garbage output. 3-bit on already-quantized weights broke the output completely. The paper tested on full-precision models. Something to keep in mind.",
+      },
+      {
+        heading: "Prerequisites",
+        body: "You need git and cmake installed, ~5GB of free disk space for the model file, and a terminal you're comfortable with. On Mac, you probably have git already — install cmake with brew install cmake. On Windows, install Git for Windows and CMake (use the 'Add to PATH' option). On Linux: sudo apt update && sudo apt install git cmake build-essential.",
+      },
+      {
+        heading: "Step 1: Clone and build the TurboQuant fork of llama.cpp",
+        body: "Clone the community fork and check out the TurboQuant branch. Then build it for your hardware — use GGML_METAL for Apple Silicon, GGML_CUDA for NVIDIA GPUs, or a plain cmake build for CPU-only. CPU-only will be slower but the memory comparison still works.",
+        code: {
+          language: "bash",
+          label: "Clone and build (Mac / Apple Silicon)",
+          snippet: `cd ~/Desktop
+mkdir turboquant-test && cd turboquant-test
+git clone https://github.com/TheTom/llama-cpp-turboquant.git
+cd llama-cpp-turboquant
+git checkout feature/turboquant-kv-cache
+
+# Mac (Apple Silicon)
+cmake -B build -DGGML_METAL=ON -DGGML_METAL_EMBED_LIBRARY=ON -DCMAKE_BUILD_TYPE=Release
+cmake --build build -j
+
+# Linux/Windows with NVIDIA GPU — use instead:
+# cmake -B build -DGGML_CUDA=ON -DCMAKE_BUILD_TYPE=Release
+# cmake --build build -j
+
+# CPU only — use instead:
+# cmake -B build -DCMAKE_BUILD_TYPE=Release
+# cmake --build build -j`,
+        },
+      },
+      {
+        heading: "Step 2: Download a model",
+        body: "Go back to your workspace and grab a GGUF model. Pick based on your RAM: 8GB RAM — use the Qwen 2.5 3B model (~2GB). 16GB+ RAM — use the Qwen 2.5 7B model (~3.5GB). Verify the download with ls -lh model.gguf. If it shows only a few KB, the download failed — try adding -H \"User-Agent: Mozilla/5.0\" to the curl command.",
+        code: {
+          language: "bash",
+          label: "Download model (16GB+ RAM example)",
+          snippet: `cd ~/Desktop/turboquant-test
+curl -L -o model.gguf "https://huggingface.co/Qwen/Qwen2.5-7B-Instruct-GGUF/resolve/main/qwen2.5-7b-instruct-q3_k_m.gguf"
+ls -lh model.gguf  # Should show ~3.5GB`,
+        },
+      },
+      {
+        heading: "Step 3: Run the baseline",
+        body: "Open your system's memory monitor before running (Activity Monitor on Mac, Task Manager on Windows, htop on Linux). Run with the standard f16 KV cache and note the memory usage and the speed numbers (prompt and generation tokens/sec) at the bottom of the output.",
+        code: {
+          language: "bash",
+          label: "Baseline run (f16 KV cache)",
+          snippet: `./llama-cpp-turboquant/build/bin/llama-cli \\
+  -m ./model.gguf -ngl 99 -c 8192 -fa on \\
+  --cache-type-k f16 --cache-type-v f16 \\
+  -n 128 -p "Write a detailed analysis of how artificial intelligence will transform healthcare over the next decade."`,
+        },
+      },
+      {
+        heading: "Step 4: Run with TurboQuant",
+        body: "Same command, swap f16 for turbo4. Check memory and speed again — you should see a clear drop in memory usage. If you want to push further, try turbo3, but check if the output still makes sense. In my test, it didn't.",
+        code: {
+          language: "bash",
+          label: "TurboQuant run (4-bit KV cache)",
+          snippet: `./llama-cpp-turboquant/build/bin/llama-cli \\
+  -m ./model.gguf -ngl 99 -c 8192 -fa on \\
+  --cache-type-k turbo4 --cache-type-v turbo4 \\
+  -n 128 -p "Write a detailed analysis of how artificial intelligence will transform healthcare over the next decade."`,
+        },
+      },
+      {
+        heading: "Step 5: Push context length (the real test)",
+        body: "The memory savings get more dramatic at longer context. Try 16K and 32K context windows. At 16K context, the baseline might push your RAM limits. TurboQuant won't. That's the point.",
+        code: {
+          language: "bash",
+          label: "Compare at 16K context",
+          snippet: `# Baseline at 16K — may push RAM limits
+./llama-cpp-turboquant/build/bin/llama-cli \\
+  -m ./model.gguf -ngl 99 -c 16384 -fa on \\
+  --cache-type-k f16 --cache-type-v f16 \\
+  -n 128 -p "Write a detailed analysis of how artificial intelligence will transform healthcare over the next decade."
+
+# TurboQuant at 16K — fits comfortably
+./llama-cpp-turboquant/build/bin/llama-cli \\
+  -m ./model.gguf -ngl 99 -c 16384 -fa on \\
+  --cache-type-k turbo4 --cache-type-v turbo4 \\
+  -n 128 -p "Write a detailed analysis of how artificial intelligence will transform healthcare over the next decade."`,
+        },
+      },
+      {
+        heading: "Troubleshooting",
+        body: "Build fails on cmake: Make sure cmake version is 3.20+, check with cmake --version. 'turbo3 not recognized': You're on the wrong branch — run git checkout feature/turboquant-kv-cache inside the llama-cpp-turboquant folder. Model download shows only a few bytes: HuggingFace sometimes blocks raw curl, add -H \"User-Agent: Mozilla/5.0\" or download manually from the browser. Output is gibberish with turbo3: Expected on already-quantized models — use turbo4 instead, or download a higher-precision model (q8_0 or fp16) if you have the RAM. Mac Metal library takes 10 seconds to load on first run: Normal, second run loads in milliseconds.",
+      },
+      {
+        heading: "What this means",
+        body: "TurboQuant is 5 days old. The community implementation is early. But the memory compression is real and measurable on consumer hardware right now. For anyone building products on LLMs, the implication is straightforward: inference memory costs are dropping fast. Architectures that feel expensive today — multi-agent systems, long-context RAG, local models — get cheaper every quarter. The paper doesn't change what you build. It changes what you can afford to run.",
+      },
+    ],
+    keyTakeaway:
+      "TurboQuant compresses LLM inference memory 3-5x on consumer hardware today. 4-bit KV cache quantization works cleanly; 3-bit breaks on already-quantized models. Inference costs are dropping fast — architectures that feel expensive today get cheaper every quarter.",
+  },
 ];
 
 // ---------------------------------------------------------------------------
