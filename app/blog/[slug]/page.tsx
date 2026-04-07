@@ -127,6 +127,22 @@ export default async function BlogPostPage({
                 <p className="text-text-secondary leading-relaxed text-[15px] sm:text-base">
                   {section.body}
                 </p>
+                {section.links && section.links.length > 0 && (
+                  <ul className="mt-4 space-y-1.5">
+                    {section.links.map((link) => (
+                      <li key={link.url}>
+                        <a
+                          href={link.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="font-mono text-sm text-primary hover:text-primary/80 underline underline-offset-2 transition-colors"
+                        >
+                          {link.label} ↗
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                )}
                 {section.code && (
                   <div className="mt-5 rounded-lg overflow-hidden border border-border">
                     <div className="bg-surface px-4 py-2 border-b border-border flex items-center justify-between">

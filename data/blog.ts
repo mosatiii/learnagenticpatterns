@@ -6,6 +6,7 @@ export interface BlogSection {
     snippet: string;
     label?: string;
   };
+  links?: { label: string; url: string }[];
 }
 
 export interface BlogPost {
@@ -626,6 +627,55 @@ ls -lh model.gguf  # Should show ~3.5GB`,
     ],
     keyTakeaway:
       "TurboQuant compresses LLM inference memory 3-5x on consumer hardware today. 4-bit KV cache quantization works cleanly; 3-bit breaks on already-quantized models. Inference costs are dropping fast — architectures that feel expensive today get cheaper every quarter.",
+  },
+
+  // -----------------------------------------------------------------------
+  // 11 — BullMQ multi-agent + observability stack
+  // -----------------------------------------------------------------------
+  {
+    slug: "bullmq-multi-agent-observability",
+    title: "I Built a Multi-Agent System on BullMQ. Here's What I'm Looking at Next.",
+    description:
+      "BullMQ tells you when a job finishes. It doesn't tell you if the agent hallucinated. Here are the five tools emerging to fill that gap.",
+    publishedAt: "2026-04-07",
+    updatedAt: "2026-04-07",
+    readingTime: 5,
+    tags: ["architecture", "multi-agent", "observability"],
+    tldr: "Message queues were built for deterministic services. Agents fail differently — a 'successful' response can still be completely wrong. A new category of tools (Langfuse, LangSmith, Helicone, Braintrust, Arize Phoenix) fills the visibility gap queues weren't designed to cover.",
+    aiQuestion: "What observability tools should I add to a multi-agent system built on BullMQ?",
+    aiAnswer:
+      "BullMQ tracks job completion but not agent output quality, hallucinations, or cost drift. The emerging stack layers two tools: one for tracing (Langfuse or LangSmith) and one for eval (Braintrust). Langfuse is open-source and self-hostable. LangSmith has zero-config tracing if you're on LangChain. Helicone is the fastest to set up (proxy-based, change one URL). Braintrust blocks deploys when quality regresses. Arize Phoenix is OpenTelemetry-native and vendor-agnostic. Most teams end up running two: a tracer plus an eval layer. Learn more at learnagenticpatterns.com.",
+    sections: [
+      {
+        heading: "The wall I keep hitting",
+        body: "I've been building a 13-agent system on BullMQ and Redis for the past few months. It works. But BullMQ tells me when a job finishes — it doesn't tell me if the agent hallucinated, picked the wrong tool, or generated something a human will reject. I'm not the only one running into this. Other developers have written about how the lack of built-in visibility caught them off guard in production. The problem is structural. Message queues were built for deterministic services where failure is binary. A payment either processes or it doesn't. An email either sends or it fails. The system knows immediately, retries cleanly, and moves on. Agents fail differently. A 'successful' response can still be completely wrong. Quality drifts as prompts change. Same input, different output every time. There's no binary signal to catch.",
+      },
+      {
+        heading: "What I built as a workaround",
+        body: "In my system I worked around it. I added a review agent that critiques output before it reaches a human, an approval queue, and per-call logging of cost, model, and which agent did what. It works — but it's duct tape, not infrastructure. So I spent a few days looking at the tools emerging to fill this gap.",
+      },
+      {
+        heading: "The five tools worth knowing",
+        body: "Langfuse is open source, MIT licensed — tracing, prompt management, evaluations. Free if you self-host, $29/month cloud. Best if you want full control over your data. LangSmith is built by the LangChain team. Native integration if you're already on LangChain or LangGraph. Zero-config tracing, automatic capture of every LLM call and tool invocation. $39/user/month. The catch is framework lock-in. Helicone is proxy-based — change your base URL and you start logging immediately. Strong on cost tracking and multi-provider routing. Free for 10K requests/month, $79/month Pro. Fastest setup but lighter on agent-specific tracing. Braintrust is eval-first. Built for teams that want quality measurement tied to CI/CD. You can block deployments when output quality regresses. Custom pricing. Best if your priority is systematic testing, not just monitoring. Arize Phoenix is OpenTelemetry-native. Vendor-agnostic, works across any stack. Free self-hosted, $50/month cloud. Best if you want observability that won't lock you into one platform.",
+        links: [
+          { label: "Langfuse", url: "https://langfuse.com" },
+          { label: "LangSmith", url: "https://smith.langchain.com" },
+          { label: "Helicone", url: "https://helicone.ai" },
+          { label: "Braintrust", url: "https://braintrust.dev" },
+          { label: "Arize Phoenix", url: "https://phoenix.arize.com" },
+        ],
+      },
+      {
+        heading: "The pattern I noticed",
+        body: "Most teams don't pick one tool — they layer two. One for tracing and operational visibility, one for evaluation and quality. The most common combination I saw was Langfuse or LangSmith for tracing paired with Braintrust for eval. That's the real insight. The future isn't replacing BullMQ. It's a stack: classical queues for orchestration (because they're great at it) plus new tools built specifically for the failure modes queues weren't designed to catch.",
+      },
+      {
+        heading: "What I'd do differently",
+        body: "If I started this system today, I'd still pick BullMQ for the queue layer. But I'd add Langfuse from day one for trace visibility, and I'd treat eval as a separate concern with its own tooling instead of building a custom review agent from scratch. The duct tape works. But duct tape isn't a strategy.",
+      },
+    ],
+    keyTakeaway:
+      "BullMQ is the right tool for orchestration. But agent quality failures are invisible to message queues. Layer Langfuse (or LangSmith) for tracing and Braintrust for eval from day one — don't wait until you're debugging production drift.",
   },
 ];
 
