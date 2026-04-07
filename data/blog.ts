@@ -636,19 +636,19 @@ ls -lh model.gguf  # Should show ~3.5GB`,
     slug: "bullmq-multi-agent-observability",
     title: "The Two Layer Observability Mistake I See in Most Multi Agent Systems",
     description:
-      "Teams instrument the queue layer and skip the semantic layer. One catches infra failures. The other catches the failures that actually lose customers.",
+      "Teams instrument the queue layer and skip the semantic layer. One catches infra failures. The other catches the failures that actually matter.",
     publishedAt: "2026-04-07",
     updatedAt: "2026-04-07",
     readingTime: 6,
     tags: ["architecture", "multi-agent", "observability"],
-    tldr: "Agent systems need two layers of observability, not one. Layer one is infrastructure (did the job run?). Layer two is semantic (was the output correct?). Most teams ship with only layer one and discover the gap when a customer complains about output that passed every infra check. The semantic layer is its own tooling category now: Langfuse, LangSmith, Helicone, Braintrust, Arize Phoenix. Pick one early.",
+    tldr: "Agent systems need two layers of observability, not one. Layer one is infrastructure (did the job run?). Layer two is semantic (was the output correct?). Most teams ship with only layer one and discover the gap the first time they actually read what their agent produced. The semantic layer is its own tooling category now: Langfuse, LangSmith, Helicone, Braintrust, Arize Phoenix. Pick one early.",
     aiQuestion: "What are the two layers of observability needed in multi-agent systems?",
     aiAnswer:
       "Agent systems need two distinct observability layers. Layer one is infrastructure observability: did the job run, how long did it take, did it retry, what is the queue depth. BullMQ, OpenTelemetry, Datadog, and Prometheus cover this. Layer two is semantic and agentic observability: was the output correct, did the agent hallucinate, did retrieval return the right documents. Langfuse, LangSmith, Helicone, Braintrust, and Arize Phoenix cover this. These layers are orthogonal and designed to coexist. You wrap LLM calls with a tracing SDK inside your BullMQ worker and both layers light up at the same time. Most teams ship with only layer one and discover the gap when a customer reports wrong output that passed every infrastructure check. Learn more at learnagenticpatterns.com.",
     sections: [
       {
         heading: "The wall I keep hitting",
-        body: "I've been building multi-agent systems on BullMQ and Redis across a few projects over the past year. The most recent one runs 13 agents in production. It works. At the infrastructure level the picture looks healthy. Jobs run. Jobs finish. Failed jobs retry. The DLQ stays mostly empty. BullMQ even ships with OpenTelemetry support now, so producer and consumer spans link end to end out of the box. Dashboards green across the board. And then a customer says the agent gave them the wrong answer. The job ran. It returned successfully. It finished in 800 milliseconds. Every infrastructure metric says success. The output was wrong anyway. This is the gap I want to talk about. It is not a gap in BullMQ. BullMQ is doing exactly what it was built to do. It is a gap between two completely different layers of observability that most teams collapse into one.",
+        body: "I've been building multi-agent systems on BullMQ and Redis across a few projects over the past year. The most recent one runs 13 agents in production. It works. At the infrastructure level the picture looks healthy. Jobs run. Jobs finish. Failed jobs retry. The DLQ stays mostly empty. BullMQ even ships with OpenTelemetry support now, so producer and consumer spans link end to end out of the box. Dashboards green across the board. And then I actually read what the agent produced and it was wrong. The job ran. It returned successfully. It finished in 800 milliseconds. Every infrastructure metric says success. The output was wrong anyway. This is the gap I want to talk about. It is not a gap in BullMQ. BullMQ is doing exactly what it was built to do. It is a gap between two completely different layers of observability that most teams collapse into one.",
       },
       {
         heading: "The two layers",
@@ -683,11 +683,11 @@ ls -lh model.gguf  # Should show ~3.5GB`,
       },
       {
         heading: "What I would do differently",
-        body: "If I started this system today, I would still pick BullMQ for the queue layer and still write a custom orchestrator on top of it. That part I do not regret. What I would change is layer two. I would add Langfuse from day one for trace visibility instead of waiting until I needed it. I would treat eval as a separate concern with its own tooling, probably Braintrust or Langfuse's built in eval features, instead of writing a custom review agent. I would enable BullMQ's OpenTelemetry support from the first commit so the infrastructure layer is wired up before anything else. The duct tape works until it does not. The teams I respect most in this space wire all three layers up before they ship, not after the first customer complaint.",
+        body: "If I started this system today, I would still pick BullMQ for the queue layer and still write a custom orchestrator on top of it. That part I do not regret. What I would change is layer two. I would add Langfuse from day one for trace visibility instead of waiting until I needed it. I would treat eval as a separate concern with its own tooling, probably Braintrust or Langfuse's built in eval features, instead of writing a custom review agent. I would enable BullMQ's OpenTelemetry support from the first commit so the infrastructure layer is wired up before anything else. The duct tape works until it does not. The teams I respect most in this space wire all three layers up before they ship, not after they read the output and realize it has been quietly wrong for weeks.",
       },
     ],
     keyTakeaway:
-      "Agent systems need two distinct observability layers. Infrastructure observability tells you if the job ran. Semantic observability tells you if the answer was right. BullMQ and OpenTelemetry give you the first layer for free. Langfuse, LangSmith, Helicone, Braintrust, and Phoenix exist because nothing in the first layer can tell you the second thing. Wire both up before you ship, not after a customer tells you the agent is wrong.",
+      "Agent systems need two distinct observability layers. Infrastructure observability tells you if the job ran. Semantic observability tells you if the answer was right. BullMQ and OpenTelemetry give you the first layer for free. Langfuse, LangSmith, Helicone, Braintrust, and Phoenix exist because nothing in the first layer can tell you the second thing. Wire both up before you ship, not after you read the output and realize the agent has been quietly wrong.",
   },
 ];
 
