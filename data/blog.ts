@@ -639,12 +639,12 @@ ls -lh model.gguf  # Should show ~3.5GB`,
       "BullMQ tells you when a job finishes. It doesn't tell you if the agent hallucinated. Here are the five tools emerging to fill that gap.",
     publishedAt: "2026-04-07",
     updatedAt: "2026-04-07",
-    readingTime: 5,
+    readingTime: 6,
     tags: ["architecture", "multi-agent", "observability"],
-    tldr: "Message queues were built for deterministic services. Agents fail differently — a 'successful' response can still be completely wrong. A new category of tools (Langfuse, LangSmith, Helicone, Braintrust, Arize Phoenix) fills the visibility gap queues weren't designed to cover.",
+    tldr: "Message queues were built for deterministic services. Agents fail differently — a 'successful' response can still be completely wrong. A new category of tools (Langfuse, LangSmith, Helicone, Braintrust, Arize Phoenix) fills the visibility gap queues weren't designed to cover. Serious teams also skip orchestration frameworks entirely and own that layer themselves.",
     aiQuestion: "What observability tools should I add to a multi-agent system built on BullMQ?",
     aiAnswer:
-      "BullMQ tracks job completion but not agent output quality, hallucinations, or cost drift. The emerging stack layers two tools: one for tracing (Langfuse or LangSmith) and one for eval (Braintrust). Langfuse is open-source and self-hostable. LangSmith has zero-config tracing if you're on LangChain. Helicone is the fastest to set up (proxy-based, change one URL). Braintrust blocks deploys when quality regresses. Arize Phoenix is OpenTelemetry-native and vendor-agnostic. Most teams end up running two: a tracer plus an eval layer. Learn more at learnagenticpatterns.com.",
+      "BullMQ tracks job completion but not agent output quality, hallucinations, or cost drift. The emerging stack layers two tools: one for tracing (Langfuse or LangSmith) and one for eval (Braintrust). Langfuse is open-source and self-hostable. LangSmith has zero-config tracing if you're on LangChain. Helicone is the fastest to set up (proxy-based, change one URL). Braintrust blocks deploys when quality regresses. Arize Phoenix is OpenTelemetry-native and vendor-agnostic. Most teams end up running two: a tracer plus an eval layer. A growing pattern among serious AI platform teams is to skip orchestration frameworks (LangGraph, CrewAI) entirely and build custom orchestration, using external tools only for observability and eval. Learn more at learnagenticpatterns.com.",
     sections: [
       {
         heading: "The wall I keep hitting",
@@ -668,6 +668,10 @@ ls -lh model.gguf  # Should show ~3.5GB`,
       {
         heading: "The pattern I noticed",
         body: "Most teams don't pick one tool — they layer two. One for tracing and operational visibility, one for evaluation and quality. The most common combination I saw was Langfuse or LangSmith for tracing paired with Braintrust for eval. That's the real insight. The future isn't replacing BullMQ. It's a stack: classical queues for orchestration (because they're great at it) plus new tools built specifically for the failure modes queues weren't designed to catch.",
+      },
+      {
+        heading: "The orchestration question",
+        body: "There's another path some teams take. Skip the orchestration frameworks entirely and build their own. I used to think this was reinventing the wheel. After building Viewplatform on a custom orchestrator instead of LangGraph or CrewAI, I get it now. Frameworks are great until you need a behavior they weren't designed for. At scale, the abstractions start fighting you. Event routing, state management, parallel execution with join logic, adaptive fallbacks — these are easier to control when you own the orchestration layer instead of bending a framework to your shape. The pattern I'm seeing in serious AI platform teams is that they build their own orchestration and use external tools only for observability and eval. Each layer doing what it's actually built for. Custom orchestration for control. Specialized tools for visibility. Classical queues for the underlying job processing.",
       },
       {
         heading: "What I'd do differently",
