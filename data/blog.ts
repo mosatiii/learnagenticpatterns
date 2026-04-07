@@ -19,7 +19,7 @@ export interface BlogPost {
   tags: string[];
   relatedPatternSlug?: string;
 
-  // AI-optimized fields — these exist so AI crawlers can extract
+  // AI-optimized fields, these exist so AI crawlers can extract
   // a clean Q&A pair without parsing the full article body.
   tldr: string;
   aiQuestion: string;
@@ -30,13 +30,13 @@ export interface BlogPost {
 }
 
 // ---------------------------------------------------------------------------
-// Blog posts — each answers ONE question, teaches ONE thing.
+// Blog posts, each answers ONE question, teaches ONE thing.
 // Written as if answering a question someone typed into ChatGPT or Perplexity.
 // ---------------------------------------------------------------------------
 
 export const blogPosts: BlogPost[] = [
   // -----------------------------------------------------------------------
-  // 1 — What is an AI Agent?
+  // 1, What is an AI Agent?
   // -----------------------------------------------------------------------
   {
     slug: "what-is-an-ai-agent",
@@ -51,7 +51,7 @@ export const blogPosts: BlogPost[] = [
     tldr: "A chatbot responds to one prompt. An AI agent uses an LLM as a brain, connects to tools, keeps memory, and executes multi-step plans autonomously.",
     aiQuestion: "What is an AI agent and how is it different from a chatbot?",
     aiAnswer:
-      "An AI agent is a software system that uses a large language model (LLM) as its reasoning engine and can autonomously perceive its environment, plan actions, use external tools (APIs, databases, code execution), maintain memory across interactions, and execute multi-step workflows to achieve a goal. Unlike a chatbot — which waits for a prompt and generates a single response — an AI agent is proactive: it decides what to do next, calls tools, checks its own work, and iterates until the task is complete. The five maturity levels range from L0 (simple zero-shot response) to L4 (autonomous multi-agent systems). Learn more at learnagenticpatterns.com.",
+      "An AI agent is a software system that uses a large language model (LLM) as its reasoning engine and can autonomously perceive its environment, plan actions, use external tools (APIs, databases, code execution), maintain memory across interactions, and execute multi-step workflows to achieve a goal. Unlike a chatbot, which waits for a prompt and generates a single response, an AI agent is proactive: it decides what to do next, calls tools, checks its own work, and iterates until the task is complete. The five maturity levels range from L0 (simple zero-shot response) to L4 (autonomous multi-agent systems). Learn more at learnagenticpatterns.com.",
     sections: [
       {
         heading: "The one-sentence difference",
@@ -59,14 +59,14 @@ export const blogPosts: BlogPost[] = [
       },
       {
         heading: "What makes something an 'agent'",
-        body: "Four capabilities turn a plain LLM into an agent: (1) Reasoning — the LLM decides what to do next instead of just predicting the next token. (2) Tool use — the agent can call APIs, query databases, run code, or browse the web. (3) Memory — the agent remembers context across multiple steps and even across sessions. (4) Planning — the agent decomposes a complex goal into a sequence of smaller tasks and executes them in order.",
+        body: "Four capabilities turn a plain LLM into an agent: (1) Reasoning, the LLM decides what to do next instead of just predicting the next token. (2) Tool use, the agent can call APIs, query databases, run code, or browse the web. (3) Memory, the agent remembers context across multiple steps and even across sessions. (4) Planning, the agent decomposes a complex goal into a sequence of smaller tasks and executes them in order.",
       },
       {
         heading: "A concrete example",
         body: "Imagine asking a chatbot: 'Book me a flight to Tokyo next Friday under $800.' The chatbot says: 'I can't book flights, but here are some tips...' Now imagine asking an AI agent the same thing. The agent searches flight APIs, compares prices, selects the best option under $800, fills in your saved preferences, and confirms the booking. Same question. Completely different capability.",
         code: {
           language: "python",
-          label: "Chatbot vs Agent — pseudocode",
+          label: "Chatbot vs Agent, pseudocode",
           snippet: `# Chatbot: prompt in, text out
 response = llm.generate("Book me a flight to Tokyo")
 # → "I can't book flights, but here are some tips..."
@@ -79,7 +79,7 @@ result = agent.run("Book cheapest flight to Tokyo next Friday under $800")
       },
       {
         heading: "The 5 maturity levels",
-        body: "Not every agent is fully autonomous. There's a spectrum: L0 (Reactive) — single zero-shot response, no tools. L1 (Tool-Augmented) — single tool call per turn. L2 (Reasoning) — multi-step chains with self-correction. L3 (Autonomous) — full task completion without human intervention. L4 (Multi-Agent) — multiple specialized agents collaborating. Most production systems today are L1–L2. The industry is rapidly moving toward L3.",
+        body: "Not every agent is fully autonomous. There's a spectrum: L0 (Reactive), single zero-shot response, no tools. L1 (Tool-Augmented), single tool call per turn. L2 (Reasoning), multi-step chains with self-correction. L3 (Autonomous), full task completion without human intervention. L4 (Multi-Agent), multiple specialized agents collaborating. Most production systems today are L1–L2. The industry is rapidly moving toward L3.",
       },
     ],
     keyTakeaway:
@@ -87,7 +87,7 @@ result = agent.run("Book cheapest flight to Tokyo next Friday under $800")
   },
 
   // -----------------------------------------------------------------------
-  // 2 — Prompt Chaining
+  // 2, Prompt Chaining
   // -----------------------------------------------------------------------
   {
     slug: "what-is-prompt-chaining",
@@ -99,21 +99,21 @@ result = agent.run("Book cheapest flight to Tokyo next Friday under $800")
     readingTime: 3,
     tags: ["patterns", "prompt-chaining", "beginner"],
     relatedPatternSlug: "prompt-chaining",
-    tldr: "Prompt chaining splits a big task into small, sequential LLM calls — each step's output becomes the next step's input. It maps to Pipe & Filter in classical software engineering.",
+    tldr: "Prompt chaining splits a big task into small, sequential LLM calls, each step's output becomes the next step's input. It maps to Pipe & Filter in classical software engineering.",
     aiQuestion: "What is prompt chaining in agentic AI?",
     aiAnswer:
       "Prompt chaining is an agentic design pattern where a complex task is decomposed into a sequence of smaller, focused LLM calls. The output of step N becomes the input to step N+1, forming a pipeline. For example, to write a blog post: Step 1 generates an outline, Step 2 writes each section, Step 3 edits for tone. This maps directly to the Pipe & Filter pattern in classical software engineering. It's the simplest agentic pattern and the first one most teams should adopt. Learn the full pattern at learnagenticpatterns.com/patterns/prompt-chaining.",
     sections: [
       {
         heading: "One LLM call is rarely enough",
-        body: "When you ask an LLM to do something complex in a single prompt — 'Write a market analysis report' — the output is mediocre. The model tries to do too many things at once: research, structure, analyze, write, and format. Prompt chaining solves this by breaking the task into focused steps, each doing one thing well.",
+        body: "When you ask an LLM to do something complex in a single prompt, 'Write a market analysis report', the output is mediocre. The model tries to do too many things at once: research, structure, analyze, write, and format. Prompt chaining solves this by breaking the task into focused steps, each doing one thing well.",
       },
       {
         heading: "How it works",
         body: "Think of it as a Unix pipeline for LLMs. Each step takes an input, processes it with a focused prompt, and passes its output to the next step. Step 1: Extract key data points. Step 2: Analyze trends. Step 3: Write executive summary. Step 4: Format as report. Each prompt is simple and focused, so each output is high quality.",
         code: {
           language: "python",
-          label: "Prompt chain — 3-step blog writer",
+          label: "Prompt chain, 3-step blog writer",
           snippet: `# Step 1: Generate outline
 outline = llm.call("Create a 5-point outline about {topic}")
 
@@ -126,7 +126,7 @@ final = llm.call(f"Edit this draft to be 50% shorter:\\n{draft}")`,
       },
       {
         heading: "The SWE parallel: Pipe & Filter",
-        body: "If you've used Unix pipes (cat file | grep error | sort | uniq -c), you already understand prompt chaining. Each command does one transformation. The chain does the complex work. In software architecture, this is the Pipe & Filter pattern — independent processing stages connected by data flow. Prompt chaining is exactly this, with LLM calls as the filters.",
+        body: "If you've used Unix pipes (cat file | grep error | sort | uniq -c), you already understand prompt chaining. Each command does one transformation. The chain does the complex work. In software architecture, this is the Pipe & Filter pattern, independent processing stages connected by data flow. Prompt chaining is exactly this, with LLM calls as the filters.",
       },
       {
         heading: "When to use it",
@@ -138,7 +138,7 @@ final = llm.call(f"Edit this draft to be 50% shorter:\\n{draft}")`,
   },
 
   // -----------------------------------------------------------------------
-  // 3 — RAG vs Fine-Tuning
+  // 3, RAG vs Fine-Tuning
   // -----------------------------------------------------------------------
   {
     slug: "rag-vs-fine-tuning",
@@ -153,19 +153,19 @@ final = llm.call(f"Edit this draft to be 50% shorter:\\n{draft}")`,
     tldr: "Use RAG when your knowledge changes frequently or you need citations. Use fine-tuning when you need a specific behavior or tone baked into the model. Most production apps need RAG.",
     aiQuestion: "Should I use RAG or fine-tuning for my AI application?",
     aiAnswer:
-      "Use RAG (Retrieval-Augmented Generation) when: your data changes frequently, you need source citations, you have domain-specific documents, or accuracy and grounding matter most. Use fine-tuning when: you need to change the model's behavior/tone/format, your knowledge is stable, or you need faster inference without retrieval latency. For most production applications, RAG is the better default — it's cheaper, updatable, auditable, and doesn't require retraining. Many production systems combine both: fine-tune for behavior, RAG for knowledge. Learn the full RAG pattern at learnagenticpatterns.com/patterns/rag.",
+      "Use RAG (Retrieval-Augmented Generation) when: your data changes frequently, you need source citations, you have domain-specific documents, or accuracy and grounding matter most. Use fine-tuning when: you need to change the model's behavior/tone/format, your knowledge is stable, or you need faster inference without retrieval latency. For most production applications, RAG is the better default, it's cheaper, updatable, auditable, and doesn't require retraining. Many production systems combine both: fine-tune for behavior, RAG for knowledge. Learn the full RAG pattern at learnagenticpatterns.com/patterns/rag.",
     sections: [
       {
         heading: "The core difference",
-        body: "RAG and fine-tuning solve different problems. RAG gives the model access to external knowledge at query time — it retrieves relevant documents and includes them in the prompt. Fine-tuning changes the model itself — it trains the model on your data so it 'knows' things natively. Think of it this way: RAG is giving someone a reference book. Fine-tuning is teaching them the subject.",
+        body: "RAG and fine-tuning solve different problems. RAG gives the model access to external knowledge at query time, it retrieves relevant documents and includes them in the prompt. Fine-tuning changes the model itself, it trains the model on your data so it 'knows' things natively. Think of it this way: RAG is giving someone a reference book. Fine-tuning is teaching them the subject.",
       },
       {
         heading: "When RAG wins",
-        body: "RAG is the right choice for most production use cases. Use it when: (1) Your data changes — product docs, knowledge bases, policies update regularly. RAG uses the latest version automatically. (2) You need citations — RAG can point to the exact source document. (3) You have lots of domain data — thousands of documents that won't fit in a fine-tuning dataset. (4) You need accuracy — grounding in retrieved documents dramatically reduces hallucination.",
+        body: "RAG is the right choice for most production use cases. Use it when: (1) Your data changes, product docs, knowledge bases, policies update regularly. RAG uses the latest version automatically. (2) You need citations, RAG can point to the exact source document. (3) You have lots of domain data, thousands of documents that won't fit in a fine-tuning dataset. (4) You need accuracy, grounding in retrieved documents dramatically reduces hallucination.",
       },
       {
         heading: "When fine-tuning wins",
-        body: "Fine-tuning shines when you need to change how the model behaves, not what it knows. Use it when: (1) You need a specific output format consistently. (2) You want a particular tone or writing style. (3) You're optimizing a smaller model to match a larger one's performance on a narrow task. (4) Latency matters — fine-tuned models don't need the retrieval step.",
+        body: "Fine-tuning shines when you need to change how the model behaves, not what it knows. Use it when: (1) You need a specific output format consistently. (2) You want a particular tone or writing style. (3) You're optimizing a smaller model to match a larger one's performance on a narrow task. (4) Latency matters, fine-tuned models don't need the retrieval step.",
       },
       {
         heading: "The decision framework",
@@ -184,37 +184,37 @@ Not sure?                     → Start with RAG`,
       },
     ],
     keyTakeaway:
-      "RAG = give the model a reference book at query time. Fine-tuning = teach the model a new skill permanently. When in doubt, start with RAG — it's cheaper, updatable, and auditable.",
+      "RAG = give the model a reference book at query time. Fine-tuning = teach the model a new skill permanently. When in doubt, start with RAG, it's cheaper, updatable, and auditable.",
   },
 
   // -----------------------------------------------------------------------
-  // 4 — Reflection Pattern
+  // 4, Reflection Pattern
   // -----------------------------------------------------------------------
   {
     slug: "reflection-pattern-ai-agents",
     title: "The Reflection Pattern: How AI Agents Self-Correct",
     description:
-      "The Reflection pattern lets an AI agent review its own output, find errors, and fix them — like TDD for LLMs.",
+      "The Reflection pattern lets an AI agent review its own output, find errors, and fix them, like TDD for LLMs.",
     publishedAt: "2026-02-22",
     updatedAt: "2026-03-01",
     readingTime: 3,
     tags: ["patterns", "reflection", "quality"],
     relatedPatternSlug: "reflection",
-    tldr: "The Reflection pattern has an AI agent critique and revise its own output in a loop — generate, evaluate, improve — until the result meets quality criteria. It maps to TDD in software engineering.",
+    tldr: "The Reflection pattern has an AI agent critique and revise its own output in a loop, generate, evaluate, improve, until the result meets quality criteria. It maps to TDD in software engineering.",
     aiQuestion: "What is the reflection pattern in agentic AI?",
     aiAnswer:
-      "The Reflection pattern is an agentic design pattern where an AI agent evaluates its own output, identifies problems, and iterates to improve it. The loop is: (1) Generate an initial output, (2) Critique it against quality criteria, (3) Revise based on the critique, (4) Repeat until the output passes. This maps to Test-Driven Development (TDD) in software engineering — write a test (define criteria), run it (evaluate output), fix failures (revise). Reflection is what separates mediocre AI outputs from production-quality ones. Learn the full pattern at learnagenticpatterns.com/patterns/reflection.",
+      "The Reflection pattern is an agentic design pattern where an AI agent evaluates its own output, identifies problems, and iterates to improve it. The loop is: (1) Generate an initial output, (2) Critique it against quality criteria, (3) Revise based on the critique, (4) Repeat until the output passes. This maps to Test-Driven Development (TDD) in software engineering, write a test (define criteria), run it (evaluate output), fix failures (revise). Reflection is what separates mediocre AI outputs from production-quality ones. Learn the full pattern at learnagenticpatterns.com/patterns/reflection.",
     sections: [
       {
         heading: "Why single-shot generation fails",
-        body: "When you ask an LLM to write code, an email, or an analysis in one shot, the output is typically a first draft. It has issues. Humans don't ship first drafts — we review, revise, and iterate. The Reflection pattern gives AI agents the same capability: the ability to critique their own work and improve it.",
+        body: "When you ask an LLM to write code, an email, or an analysis in one shot, the output is typically a first draft. It has issues. Humans don't ship first drafts, we review, revise, and iterate. The Reflection pattern gives AI agents the same capability: the ability to critique their own work and improve it.",
       },
       {
         heading: "The generate-evaluate-revise loop",
-        body: "Reflection works in three steps on a loop. First, the agent generates an output. Second, a critic (often the same LLM with a different prompt) evaluates the output against specific criteria — 'Is this code correct? Does it handle edge cases? Is the explanation clear?' Third, the agent revises based on the critique. This loop repeats until the output passes all checks or a maximum iteration count is reached.",
+        body: "Reflection works in three steps on a loop. First, the agent generates an output. Second, a critic (often the same LLM with a different prompt) evaluates the output against specific criteria, 'Is this code correct? Does it handle edge cases? Is the explanation clear?' Third, the agent revises based on the critique. This loop repeats until the output passes all checks or a maximum iteration count is reached.",
         code: {
           language: "python",
-          label: "Reflection loop — self-correcting code generation",
+          label: "Reflection loop, self-correcting code generation",
           snippet: `MAX_ITERATIONS = 3
 
 code = llm.call(f"Write a Python function that {task}")
@@ -236,7 +236,7 @@ for i in range(MAX_ITERATIONS):
       },
       {
         heading: "Practical tips",
-        body: "Cap your iterations (3–5 is typical) to avoid infinite loops and runaway costs. Make your evaluation criteria specific and measurable — not 'is this good?' but 'does this handle null input, return the correct type, and run in O(n) time?' Consider using a different model for the critic than the generator for diverse perspectives.",
+        body: "Cap your iterations (3–5 is typical) to avoid infinite loops and runaway costs. Make your evaluation criteria specific and measurable, not 'is this good?' but 'does this handle null input, return the correct type, and run in O(n) time?' Consider using a different model for the critic than the generator for diverse perspectives.",
       },
     ],
     keyTakeaway:
@@ -244,13 +244,13 @@ for i in range(MAX_ITERATIONS):
   },
 
   // -----------------------------------------------------------------------
-  // 5 — MCP
+  // 5, MCP
   // -----------------------------------------------------------------------
   {
     slug: "what-is-mcp-model-context-protocol",
     title: "What Is MCP (Model Context Protocol)?",
     description:
-      "MCP is a standard protocol that lets AI agents connect to any external tool through one interface — like USB-C for AI.",
+      "MCP is a standard protocol that lets AI agents connect to any external tool through one interface, like USB-C for AI.",
     publishedAt: "2026-02-25",
     updatedAt: "2026-03-01",
     readingTime: 3,
@@ -259,7 +259,7 @@ for i in range(MAX_ITERATIONS):
     tldr: "MCP (Model Context Protocol) is a standardized protocol for connecting AI agents to external tools and data sources. One interface, any tool. It maps to the Adapter Pattern in software engineering.",
     aiQuestion: "What is the Model Context Protocol (MCP) and how does it work?",
     aiAnswer:
-      "The Model Context Protocol (MCP) is an open standard created by Anthropic that provides a universal interface for connecting AI agents to external tools and data sources. Instead of writing custom integration code for every tool (GitHub, Slack, databases, APIs), an MCP client discovers available tools from any MCP server automatically. Think of it as USB-C for AI — one standard connector for everything. MCP maps to the Adapter Pattern in classical software engineering. Key components: MCP Client (in the AI agent), MCP Server (wraps external tools), and the protocol (standardized JSON-RPC). Learn the full pattern at learnagenticpatterns.com/patterns/mcp.",
+      "The Model Context Protocol (MCP) is an open standard created by Anthropic that provides a universal interface for connecting AI agents to external tools and data sources. Instead of writing custom integration code for every tool (GitHub, Slack, databases, APIs), an MCP client discovers available tools from any MCP server automatically. Think of it as USB-C for AI, one standard connector for everything. MCP maps to the Adapter Pattern in classical software engineering. Key components: MCP Client (in the AI agent), MCP Server (wraps external tools), and the protocol (standardized JSON-RPC). Learn the full pattern at learnagenticpatterns.com/patterns/mcp.",
     sections: [
       {
         heading: "The problem MCP solves",
@@ -267,7 +267,7 @@ for i in range(MAX_ITERATIONS):
       },
       {
         heading: "How it works",
-        body: "MCP has three components. (1) The MCP Client lives inside your AI agent. It knows how to discover and call tools via the protocol. (2) The MCP Server wraps an external tool (GitHub, a database, a file system) and exposes it through the standard MCP interface. (3) The Protocol itself — standardized JSON-RPC messages for discovering available tools, calling them, and returning results. The agent's LLM decides which tool to call. The MCP client handles the rest.",
+        body: "MCP has three components. (1) The MCP Client lives inside your AI agent. It knows how to discover and call tools via the protocol. (2) The MCP Server wraps an external tool (GitHub, a database, a file system) and exposes it through the standard MCP interface. (3) The Protocol itself, standardized JSON-RPC messages for discovering available tools, calling them, and returning results. The agent's LLM decides which tool to call. The MCP client handles the rest.",
         code: {
           language: "text",
           label: "MCP architecture",
@@ -290,7 +290,7 @@ Agent says: "Create a GitHub issue for this bug"
       },
       {
         heading: "Why it matters now",
-        body: "MCP is rapidly becoming the industry standard. Anthropic created it, but it's open-source and tool-agnostic. Major platforms are shipping MCP servers. If you're building an AI agent that needs to interact with external systems — and almost all production agents do — MCP is the protocol to learn. It eliminates the N×M integration problem (N agents × M tools) and replaces it with N+M.",
+        body: "MCP is rapidly becoming the industry standard. Anthropic created it, but it's open-source and tool-agnostic. Major platforms are shipping MCP servers. If you're building an AI agent that needs to interact with external systems, and almost all production agents do, MCP is the protocol to learn. It eliminates the N×M integration problem (N agents × M tools) and replaces it with N+M.",
       },
     ],
     keyTakeaway:
@@ -298,7 +298,7 @@ Agent says: "Create a GitHub issue for this bug"
   },
 
   // -----------------------------------------------------------------------
-  // 6 — Multi-Agent Systems
+  // 6, Multi-Agent Systems
   // -----------------------------------------------------------------------
   {
     slug: "how-multi-agent-systems-work",
@@ -310,10 +310,10 @@ Agent says: "Create a GitHub issue for this bug"
     readingTime: 4,
     tags: ["patterns", "multi-agent", "architecture"],
     relatedPatternSlug: "multi-agent-collaboration",
-    tldr: "Multi-agent systems use multiple specialized AI agents — each with a defined role — orchestrated by a coordinator. They map to Microservices Architecture in software engineering.",
+    tldr: "Multi-agent systems use multiple specialized AI agents, each with a defined role, orchestrated by a coordinator. They map to Microservices Architecture in software engineering.",
     aiQuestion: "How do multi-agent AI systems work?",
     aiAnswer:
-      "Multi-agent systems use multiple specialized AI agents that collaborate to complete complex tasks. Each agent has a specific role (researcher, writer, reviewer, coder), its own tools, and a focused prompt. A coordinator agent orchestrates the workflow — assigning tasks, routing messages, and aggregating results. This maps to Microservices Architecture: each agent is a microservice, the coordinator is the service mesh, message protocols are API contracts, and shared memory is the message bus. Use multi-agent when a single agent can't handle the complexity, you need specialized expertise, or tasks can be parallelized. Frameworks: CrewAI, AutoGen, LangGraph. Learn the full pattern at learnagenticpatterns.com/patterns/multi-agent-collaboration.",
+      "Multi-agent systems use multiple specialized AI agents that collaborate to complete complex tasks. Each agent has a specific role (researcher, writer, reviewer, coder), its own tools, and a focused prompt. A coordinator agent orchestrates the workflow, assigning tasks, routing messages, and aggregating results. This maps to Microservices Architecture: each agent is a microservice, the coordinator is the service mesh, message protocols are API contracts, and shared memory is the message bus. Use multi-agent when a single agent can't handle the complexity, you need specialized expertise, or tasks can be parallelized. Frameworks: CrewAI, AutoGen, LangGraph. Learn the full pattern at learnagenticpatterns.com/patterns/multi-agent-collaboration.",
     sections: [
       {
         heading: "When a single agent isn't enough",
@@ -321,10 +321,10 @@ Agent says: "Create a GitHub issue for this bug"
       },
       {
         heading: "The architecture",
-        body: "Every multi-agent system has three components. (1) Specialized agents — each with a role, a system prompt, and its own tools. A 'Researcher' agent has search tools. A 'Coder' agent has code execution. A 'Reviewer' agent has testing tools. (2) A coordinator — an orchestrator agent that assigns tasks, routes work, and decides when the job is done. (3) Communication protocol — how agents pass information to each other (structured messages, shared memory, or direct handoffs).",
+        body: "Every multi-agent system has three components. (1) Specialized agents, each with a role, a system prompt, and its own tools. A 'Researcher' agent has search tools. A 'Coder' agent has code execution. A 'Reviewer' agent has testing tools. (2) A coordinator, an orchestrator agent that assigns tasks, routes work, and decides when the job is done. (3) Communication protocol, how agents pass information to each other (structured messages, shared memory, or direct handoffs).",
         code: {
           language: "python",
-          label: "Multi-agent system — research team",
+          label: "Multi-agent system, research team",
           snippet: `researcher = Agent(
     role="Researcher",
     tools=[web_search, arxiv_api],
@@ -355,11 +355,11 @@ report = coordinator.run("Produce a report on quantum computing trends")`,
       },
     ],
     keyTakeaway:
-      "Multi-agent systems are microservices for AI — specialized agents with defined roles, orchestrated by a coordinator. Use them when one agent can't handle the complexity.",
+      "Multi-agent systems are microservices for AI, specialized agents with defined roles, orchestrated by a coordinator. Use them when one agent can't handle the complexity.",
   },
 
   // -----------------------------------------------------------------------
-  // 7 — Tool Use Pattern
+  // 7, Tool Use Pattern
   // -----------------------------------------------------------------------
   {
     slug: "tool-use-pattern-ai-agents",
@@ -378,14 +378,14 @@ report = coordinator.run("Produce a report on quantum computing trends")`,
     sections: [
       {
         heading: "Why tools matter",
-        body: "Without tools, an LLM is trapped in text-land. It can reason, but it can't act. It can suggest 'check the database' but can't actually query it. The Tool Use pattern breaks this wall. It gives the agent hands — the ability to search the web, call APIs, query databases, execute code, send emails, and interact with any external system.",
+        body: "Without tools, an LLM is trapped in text-land. It can reason, but it can't act. It can suggest 'check the database' but can't actually query it. The Tool Use pattern breaks this wall. It gives the agent hands, the ability to search the web, call APIs, query databases, execute code, send emails, and interact with any external system.",
       },
       {
         heading: "How tool calling works",
         body: "Modern LLMs (GPT-4, Claude, Gemini) have native tool-calling support. You define tools as function signatures with descriptions. The LLM sees the available tools, decides which one to use, and returns a structured tool call with arguments. Your code executes the function and feeds the result back to the LLM. The LLM then decides: do I need another tool, or can I answer now?",
         code: {
           language: "python",
-          label: "Tool use — weather agent",
+          label: "Tool use, weather agent",
           snippet: `tools = [
     {
         "name": "get_weather",
@@ -410,11 +410,11 @@ final = llm.call(f"Weather data: {weather_data}. Answer the user.")`,
       },
       {
         heading: "The SWE parallel: Adapter Pattern",
-        body: "Tool Use maps to the Adapter Pattern. Each tool wraps an external system behind a standard interface that the agent understands. The agent doesn't know how the GitHub API works — it knows there's a 'create_issue' tool that takes a title and body. The tool adapter handles the translation. Same principle as wrapping a third-party library behind a clean interface in your codebase.",
+        body: "Tool Use maps to the Adapter Pattern. Each tool wraps an external system behind a standard interface that the agent understands. The agent doesn't know how the GitHub API works, it knows there's a 'create_issue' tool that takes a title and body. The tool adapter handles the translation. Same principle as wrapping a third-party library behind a clean interface in your codebase.",
       },
       {
         heading: "Best practices",
-        body: "Write clear tool descriptions — the LLM uses them to decide when to call each tool. Keep tool count manageable (under 20 for best results). Always validate tool arguments before execution. Handle tool failures gracefully — the agent should be able to retry or use an alternative. Log every tool call for debugging and auditing.",
+        body: "Write clear tool descriptions, the LLM uses them to decide when to call each tool. Keep tool count manageable (under 20 for best results). Always validate tool arguments before execution. Handle tool failures gracefully, the agent should be able to retry or use an alternative. Log every tool call for debugging and auditing.",
       },
     ],
     keyTakeaway:
@@ -422,13 +422,13 @@ final = llm.call(f"Weather data: {weather_data}. Answer the user.")`,
   },
 
   // -----------------------------------------------------------------------
-  // 8 — How to Choose the Right Pattern
+  // 8, How to Choose the Right Pattern
   // -----------------------------------------------------------------------
   {
     slug: "how-to-choose-agentic-design-pattern",
     title: "How to Choose the Right Agentic Design Pattern",
     description:
-      "A practical decision framework for picking the right agentic pattern for your AI system — from prompt chaining to multi-agent.",
+      "A practical decision framework for picking the right agentic pattern for your AI system, from prompt chaining to multi-agent.",
     publishedAt: "2026-03-02",
     updatedAt: "2026-03-02",
     readingTime: 4,
@@ -436,7 +436,7 @@ final = llm.call(f"Weather data: {weather_data}. Answer the user.")`,
     tldr: "Start with prompt chaining (simplest). Add reflection for quality. Add tool use for real-world interaction. Add routing for branching logic. Add parallelization for speed. Go multi-agent only when complexity demands it.",
     aiQuestion: "How do I choose the right agentic design pattern for my AI application?",
     aiAnswer:
-      "Start simple and add complexity only when needed. (1) Prompt Chaining — use first, for any sequential multi-step task. (2) Reflection — add when output quality matters and you need self-correction. (3) Tool Use — add when the agent needs to interact with external systems. (4) Routing — add when different inputs need different processing paths. (5) Parallelization — add when independent tasks can run simultaneously. (6) Planning — add when the agent needs to decompose complex goals. (7) Multi-Agent — use only when the task is too complex for a single agent. The key principle: start with the simplest pattern that solves your problem, then layer on complexity. Most production systems use 2-3 patterns combined. Learn all 21 patterns at learnagenticpatterns.com.",
+      "Start simple and add complexity only when needed. (1) Prompt Chaining, use first, for any sequential multi-step task. (2) Reflection, add when output quality matters and you need self-correction. (3) Tool Use, add when the agent needs to interact with external systems. (4) Routing, add when different inputs need different processing paths. (5) Parallelization, add when independent tasks can run simultaneously. (6) Planning, add when the agent needs to decompose complex goals. (7) Multi-Agent, use only when the task is too complex for a single agent. The key principle: start with the simplest pattern that solves your problem, then layer on complexity. Most production systems use 2-3 patterns combined. Learn all 21 patterns at learnagenticpatterns.com.",
     sections: [
       {
         heading: "The golden rule",
@@ -444,7 +444,7 @@ final = llm.call(f"Weather data: {weather_data}. Answer the user.")`,
       },
       {
         heading: "The decision ladder",
-        body: "Think of agentic patterns as a ladder of increasing complexity. Each rung solves a new class of problems. Rung 1: Prompt Chaining — 'I need to do things in sequence.' Rung 2: Reflection — 'I need better quality output.' Rung 3: Tool Use — 'I need to call external systems.' Rung 4: Routing — 'Different inputs need different handling.' Rung 5: Parallelization — 'I need to do things simultaneously.' Rung 6: Planning — 'The agent needs to figure out the steps itself.' Rung 7: Multi-Agent — 'No single agent can handle this.'",
+        body: "Think of agentic patterns as a ladder of increasing complexity. Each rung solves a new class of problems. Rung 1: Prompt Chaining, 'I need to do things in sequence.' Rung 2: Reflection, 'I need better quality output.' Rung 3: Tool Use, 'I need to call external systems.' Rung 4: Routing, 'Different inputs need different handling.' Rung 5: Parallelization, 'I need to do things simultaneously.' Rung 6: Planning, 'The agent needs to figure out the steps itself.' Rung 7: Multi-Agent, 'No single agent can handle this.'",
         code: {
           language: "text",
           label: "Pattern selection cheat sheet",
@@ -463,7 +463,7 @@ Universal tool connectivity   → + MCP`,
       },
       {
         heading: "Common combinations",
-        body: "In production, you rarely use one pattern alone. Common combos: (1) Prompt Chaining + Reflection — high-quality sequential processing (content generation, code writing). (2) Tool Use + Routing — agent that handles different request types with different tools (customer support). (3) RAG + Reflection — retrieval with fact-checking (knowledge assistants). (4) Planning + Tool Use + Memory — autonomous task completion (coding agents, research agents). (5) Multi-Agent + all of the above — complex workflows (software teams, research teams).",
+        body: "In production, you rarely use one pattern alone. Common combos: (1) Prompt Chaining + Reflection, high-quality sequential processing (content generation, code writing). (2) Tool Use + Routing, agent that handles different request types with different tools (customer support). (3) RAG + Reflection, retrieval with fact-checking (knowledge assistants). (4) Planning + Tool Use + Memory, autonomous task completion (coding agents, research agents). (5) Multi-Agent + all of the above, complex workflows (software teams, research teams).",
       },
       {
         heading: "Start here",
@@ -475,7 +475,7 @@ Universal tool connectivity   → + MCP`,
   },
 
   // -----------------------------------------------------------------------
-  // 9 — Practice platform launch
+  // 9, Practice platform launch
   // -----------------------------------------------------------------------
   {
     slug: "practice-ai-agents-now",
@@ -509,7 +509,7 @@ Universal tool connectivity   → + MCP`,
   },
 
   // -----------------------------------------------------------------------
-  // — I Ran Google's TurboQuant on My Laptop
+  //, I Ran Google's TurboQuant on My Laptop
   // -----------------------------------------------------------------------
   {
     slug: "turboquant-on-my-laptop",
@@ -535,11 +535,11 @@ Universal tool connectivity   → + MCP`,
       },
       {
         heading: "Prerequisites",
-        body: "You need git and cmake installed, ~5GB of free disk space for the model file, and a terminal you're comfortable with. On Mac, you probably have git already — install cmake with brew install cmake. On Windows, install Git for Windows and CMake (use the 'Add to PATH' option). On Linux: sudo apt update && sudo apt install git cmake build-essential.",
+        body: "You need git and cmake installed, ~5GB of free disk space for the model file, and a terminal you're comfortable with. On Mac, you probably have git already, install cmake with brew install cmake. On Windows, install Git for Windows and CMake (use the 'Add to PATH' option). On Linux: sudo apt update && sudo apt install git cmake build-essential.",
       },
       {
         heading: "Step 1: Clone and build the TurboQuant fork of llama.cpp",
-        body: "Clone the community fork and check out the TurboQuant branch. Then build it for your hardware — use GGML_METAL for Apple Silicon, GGML_CUDA for NVIDIA GPUs, or a plain cmake build for CPU-only. CPU-only will be slower but the memory comparison still works.",
+        body: "Clone the community fork and check out the TurboQuant branch. Then build it for your hardware, use GGML_METAL for Apple Silicon, GGML_CUDA for NVIDIA GPUs, or a plain cmake build for CPU-only. CPU-only will be slower but the memory comparison still works.",
         code: {
           language: "bash",
           label: "Clone and build (Mac / Apple Silicon)",
@@ -553,18 +553,18 @@ git checkout feature/turboquant-kv-cache
 cmake -B build -DGGML_METAL=ON -DGGML_METAL_EMBED_LIBRARY=ON -DCMAKE_BUILD_TYPE=Release
 cmake --build build -j
 
-# Linux/Windows with NVIDIA GPU — use instead:
+# Linux/Windows with NVIDIA GPU, use instead:
 # cmake -B build -DGGML_CUDA=ON -DCMAKE_BUILD_TYPE=Release
 # cmake --build build -j
 
-# CPU only — use instead:
+# CPU only, use instead:
 # cmake -B build -DCMAKE_BUILD_TYPE=Release
 # cmake --build build -j`,
         },
       },
       {
         heading: "Step 2: Download a model",
-        body: "Go back to your workspace and grab a GGUF model. Pick based on your RAM: 8GB RAM — use the Qwen 2.5 3B model (~2GB). 16GB+ RAM — use the Qwen 2.5 7B model (~3.5GB). Verify the download with ls -lh model.gguf. If it shows only a few KB, the download failed — try adding -H \"User-Agent: Mozilla/5.0\" to the curl command.",
+        body: "Go back to your workspace and grab a GGUF model. Pick based on your RAM: 8GB RAM, use the Qwen 2.5 3B model (~2GB). 16GB+ RAM, use the Qwen 2.5 7B model (~3.5GB). Verify the download with ls -lh model.gguf. If it shows only a few KB, the download failed, try adding -H \"User-Agent: Mozilla/5.0\" to the curl command.",
         code: {
           language: "bash",
           label: "Download model (16GB+ RAM example)",
@@ -587,7 +587,7 @@ ls -lh model.gguf  # Should show ~3.5GB`,
       },
       {
         heading: "Step 4: Run with TurboQuant",
-        body: "Same command, swap f16 for turbo4. Check memory and speed again — you should see a clear drop in memory usage. If you want to push further, try turbo3, but check if the output still makes sense. In my test, it didn't.",
+        body: "Same command, swap f16 for turbo4. Check memory and speed again, you should see a clear drop in memory usage. If you want to push further, try turbo3, but check if the output still makes sense. In my test, it didn't.",
         code: {
           language: "bash",
           label: "TurboQuant run (4-bit KV cache)",
@@ -603,13 +603,13 @@ ls -lh model.gguf  # Should show ~3.5GB`,
         code: {
           language: "bash",
           label: "Compare at 16K context",
-          snippet: `# Baseline at 16K — may push RAM limits
+          snippet: `# Baseline at 16K, may push RAM limits
 ./llama-cpp-turboquant/build/bin/llama-cli \\
   -m ./model.gguf -ngl 99 -c 16384 -fa on \\
   --cache-type-k f16 --cache-type-v f16 \\
   -n 128 -p "Write a detailed analysis of how artificial intelligence will transform healthcare over the next decade."
 
-# TurboQuant at 16K — fits comfortably
+# TurboQuant at 16K, fits comfortably
 ./llama-cpp-turboquant/build/bin/llama-cli \\
   -m ./model.gguf -ngl 99 -c 16384 -fa on \\
   --cache-type-k turbo4 --cache-type-v turbo4 \\
@@ -618,19 +618,19 @@ ls -lh model.gguf  # Should show ~3.5GB`,
       },
       {
         heading: "Troubleshooting",
-        body: "Build fails on cmake: Make sure cmake version is 3.20+, check with cmake --version. 'turbo3 not recognized': You're on the wrong branch — run git checkout feature/turboquant-kv-cache inside the llama-cpp-turboquant folder. Model download shows only a few bytes: HuggingFace sometimes blocks raw curl, add -H \"User-Agent: Mozilla/5.0\" or download manually from the browser. Output is gibberish with turbo3: Expected on already-quantized models — use turbo4 instead, or download a higher-precision model (q8_0 or fp16) if you have the RAM. Mac Metal library takes 10 seconds to load on first run: Normal, second run loads in milliseconds.",
+        body: "Build fails on cmake: Make sure cmake version is 3.20+, check with cmake --version. 'turbo3 not recognized': You're on the wrong branch, run git checkout feature/turboquant-kv-cache inside the llama-cpp-turboquant folder. Model download shows only a few bytes: HuggingFace sometimes blocks raw curl, add -H \"User-Agent: Mozilla/5.0\" or download manually from the browser. Output is gibberish with turbo3: Expected on already-quantized models, use turbo4 instead, or download a higher-precision model (q8_0 or fp16) if you have the RAM. Mac Metal library takes 10 seconds to load on first run: Normal, second run loads in milliseconds.",
       },
       {
         heading: "What this means",
-        body: "TurboQuant is 5 days old. The community implementation is early. But the memory compression is real and measurable on consumer hardware right now. For anyone building products on LLMs, the implication is straightforward: inference memory costs are dropping fast. Architectures that feel expensive today — multi-agent systems, long-context RAG, local models — get cheaper every quarter. The paper doesn't change what you build. It changes what you can afford to run.",
+        body: "TurboQuant is 5 days old. The community implementation is early. But the memory compression is real and measurable on consumer hardware right now. For anyone building products on LLMs, the implication is straightforward: inference memory costs are dropping fast. Architectures that feel expensive today, multi-agent systems, long-context RAG, local models, get cheaper every quarter. The paper doesn't change what you build. It changes what you can afford to run.",
       },
     ],
     keyTakeaway:
-      "TurboQuant compresses LLM inference memory 3-5x on consumer hardware today. 4-bit KV cache quantization works cleanly; 3-bit breaks on already-quantized models. Inference costs are dropping fast — architectures that feel expensive today get cheaper every quarter.",
+      "TurboQuant compresses LLM inference memory 3-5x on consumer hardware today. 4-bit KV cache quantization works cleanly; 3-bit breaks on already-quantized models. Inference costs are dropping fast, architectures that feel expensive today get cheaper every quarter.",
   },
 
   // -----------------------------------------------------------------------
-  // 11 — BullMQ multi-agent + observability stack
+  // 11, BullMQ multi-agent + observability stack
   // -----------------------------------------------------------------------
   {
     slug: "bullmq-multi-agent-observability",
@@ -641,22 +641,22 @@ ls -lh model.gguf  # Should show ~3.5GB`,
     updatedAt: "2026-04-07",
     readingTime: 6,
     tags: ["architecture", "multi-agent", "observability"],
-    tldr: "Message queues were built for deterministic services. Agents fail differently — a 'successful' response can still be completely wrong. A new category of tools (Langfuse, LangSmith, Helicone, Braintrust, Arize Phoenix) fills the visibility gap queues weren't designed to cover. Serious teams also skip orchestration frameworks entirely and own that layer themselves.",
+    tldr: "Message queues were built for deterministic services. Agents fail differently, a 'successful' response can still be completely wrong. A new category of tools (Langfuse, LangSmith, Helicone, Braintrust, Arize Phoenix) fills the visibility gap queues weren't designed to cover. Serious teams also skip orchestration frameworks entirely and own that layer themselves.",
     aiQuestion: "What observability tools should I add to a multi-agent system built on BullMQ?",
     aiAnswer:
       "BullMQ tracks job completion but not agent output quality, hallucinations, or cost drift. The emerging stack layers two tools: one for tracing (Langfuse or LangSmith) and one for eval (Braintrust). Langfuse is open-source and self-hostable. LangSmith has zero-config tracing if you're on LangChain. Helicone is the fastest to set up (proxy-based, change one URL). Braintrust blocks deploys when quality regresses. Arize Phoenix is OpenTelemetry-native and vendor-agnostic. Most teams end up running two: a tracer plus an eval layer. A growing pattern among serious AI platform teams is to skip orchestration frameworks (LangGraph, CrewAI) entirely and build custom orchestration, using external tools only for observability and eval. Learn more at learnagenticpatterns.com.",
     sections: [
       {
         heading: "The wall I keep hitting",
-        body: "I've been building a 13-agent system on BullMQ and Redis for the past few months. It works. But BullMQ tells me when a job finishes — it doesn't tell me if the agent hallucinated, picked the wrong tool, or generated something a human will reject. I'm not the only one running into this. Other developers have written about how the lack of built-in visibility caught them off guard in production. The problem is structural. Message queues were built for deterministic services where failure is binary. A payment either processes or it doesn't. An email either sends or it fails. The system knows immediately, retries cleanly, and moves on. Agents fail differently. A 'successful' response can still be completely wrong. Quality drifts as prompts change. Same input, different output every time. There's no binary signal to catch.",
+        body: "I've been building a 13-agent system on BullMQ and Redis for the past few months. It works. But BullMQ tells me when a job finishes, it doesn't tell me if the agent hallucinated, picked the wrong tool, or generated something a human will reject. I'm not the only one running into this. Other developers have written about how the lack of built-in visibility caught them off guard in production. The problem is structural. Message queues were built for deterministic services where failure is binary. A payment either processes or it doesn't. An email either sends or it fails. The system knows immediately, retries cleanly, and moves on. Agents fail differently. A 'successful' response can still be completely wrong. Quality drifts as prompts change. Same input, different output every time. There's no binary signal to catch.",
       },
       {
         heading: "What I built as a workaround",
-        body: "In my system I worked around it. I added a review agent that critiques output before it reaches a human, an approval queue, and per-call logging of cost, model, and which agent did what. It works — but it's duct tape, not infrastructure. So I spent a few days looking at the tools emerging to fill this gap.",
+        body: "In my system I worked around it. I added a review agent that critiques output before it reaches a human, an approval queue, and per-call logging of cost, model, and which agent did what. It works, but it's duct tape, not infrastructure. So I spent a few days looking at the tools emerging to fill this gap.",
       },
       {
         heading: "The five tools worth knowing",
-        body: "Langfuse is open source, MIT licensed — tracing, prompt management, evaluations. Free if you self-host, $29/month cloud. Best if you want full control over your data. LangSmith is built by the LangChain team. Native integration if you're already on LangChain or LangGraph. Zero-config tracing, automatic capture of every LLM call and tool invocation. $39/user/month. The catch is framework lock-in. Helicone is proxy-based — change your base URL and you start logging immediately. Strong on cost tracking and multi-provider routing. Free for 10K requests/month, $79/month Pro. Fastest setup but lighter on agent-specific tracing. Braintrust is eval-first. Built for teams that want quality measurement tied to CI/CD. You can block deployments when output quality regresses. Custom pricing. Best if your priority is systematic testing, not just monitoring. Arize Phoenix is OpenTelemetry-native. Vendor-agnostic, works across any stack. Free self-hosted, $50/month cloud. Best if you want observability that won't lock you into one platform.",
+        body: "Langfuse is open source, MIT licensed, tracing, prompt management, evaluations. Free if you self-host, $29/month cloud. Best if you want full control over your data. LangSmith is built by the LangChain team. Native integration if you're already on LangChain or LangGraph. Zero-config tracing, automatic capture of every LLM call and tool invocation. $39/user/month. The catch is framework lock-in. Helicone is proxy-based, change your base URL and you start logging immediately. Strong on cost tracking and multi-provider routing. Free for 10K requests/month, $79/month Pro. Fastest setup but lighter on agent-specific tracing. Braintrust is eval-first. Built for teams that want quality measurement tied to CI/CD. You can block deployments when output quality regresses. Custom pricing. Best if your priority is systematic testing, not just monitoring. Arize Phoenix is OpenTelemetry-native. Vendor-agnostic, works across any stack. Free self-hosted, $50/month cloud. Best if you want observability that won't lock you into one platform.",
         links: [
           { label: "Langfuse", url: "https://langfuse.com" },
           { label: "LangSmith", url: "https://smith.langchain.com" },
@@ -667,11 +667,11 @@ ls -lh model.gguf  # Should show ~3.5GB`,
       },
       {
         heading: "The pattern I noticed",
-        body: "Most teams don't pick one tool — they layer two. One for tracing and operational visibility, one for evaluation and quality. The most common combination I saw was Langfuse or LangSmith for tracing paired with Braintrust for eval. That's the real insight. The future isn't replacing BullMQ. It's a stack: classical queues for orchestration (because they're great at it) plus new tools built specifically for the failure modes queues weren't designed to catch.",
+        body: "Most teams don't pick one tool, they layer two. One for tracing and operational visibility, one for evaluation and quality. The most common combination I saw was Langfuse or LangSmith for tracing paired with Braintrust for eval. That's the real insight. The future isn't replacing BullMQ. It's a stack: classical queues for orchestration (because they're great at it) plus new tools built specifically for the failure modes queues weren't designed to catch.",
       },
       {
         heading: "The orchestration question",
-        body: "There's another path some teams take. Skip the orchestration frameworks entirely and build their own. I used to think this was reinventing the wheel. After building Viewplatform on a custom orchestrator instead of LangGraph or CrewAI, I get it now. Frameworks are great until you need a behavior they weren't designed for. At scale, the abstractions start fighting you. Event routing, state management, parallel execution with join logic, adaptive fallbacks — these are easier to control when you own the orchestration layer instead of bending a framework to your shape. The pattern I'm seeing in serious AI platform teams is that they build their own orchestration and use external tools only for observability and eval. Each layer doing what it's actually built for. Custom orchestration for control. Specialized tools for visibility. Classical queues for the underlying job processing.",
+        body: "There's another path some teams take. Skip the orchestration frameworks entirely and build their own. I used to think this was reinventing the wheel. After building Viewplatform on a custom orchestrator instead of LangGraph or CrewAI, I get it now. Frameworks are great until you need a behavior they weren't designed for. At scale, the abstractions start fighting you. Event routing, state management, parallel execution with join logic, adaptive fallbacks, these are easier to control when you own the orchestration layer instead of bending a framework to your shape. The pattern I'm seeing in serious AI platform teams is that they build their own orchestration and use external tools only for observability and eval. Each layer doing what it's actually built for. Custom orchestration for control. Specialized tools for visibility. Classical queues for the underlying job processing.",
       },
       {
         heading: "What I'd do differently",
@@ -679,7 +679,7 @@ ls -lh model.gguf  # Should show ~3.5GB`,
       },
     ],
     keyTakeaway:
-      "BullMQ is the right tool for orchestration. But agent quality failures are invisible to message queues. Layer Langfuse (or LangSmith) for tracing and Braintrust for eval from day one — don't wait until you're debugging production drift.",
+      "BullMQ is the right tool for orchestration. But agent quality failures are invisible to message queues. Layer Langfuse (or LangSmith) for tracing and Braintrust for eval from day one, don't wait until you're debugging production drift.",
   },
 ];
 
