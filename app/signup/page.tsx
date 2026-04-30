@@ -56,14 +56,14 @@ export default function SignupPage() {
     if (fromPractice) {
       window.location.href = practiceRedirect();
     } else {
-      router.push("/assessment");
+      router.push("/");
     }
     return (
       <main className="relative z-10 pt-24 min-h-screen flex items-center justify-center">
         <div className="text-center">
           <Loader2 className="w-6 h-6 animate-spin text-accent mx-auto mb-3" />
           <p className="text-text-secondary font-mono text-sm">
-            Already signed in — redirecting{fromPractice ? " to Practice Labs" : " to your assessment"}…
+            Already signed in. Redirecting{fromPractice ? " to Practice Labs" : " to your dashboard"}.
           </p>
         </div>
       </main>
@@ -77,7 +77,7 @@ export default function SignupPage() {
       if (fromPractice) {
         window.location.href = practiceRedirect();
       } else {
-        router.push("/assessment");
+        router.push("/");
       }
     } catch (err) {
       setServerError(err instanceof Error ? err.message : "Something went wrong");
