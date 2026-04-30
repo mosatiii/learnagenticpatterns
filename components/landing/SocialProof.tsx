@@ -35,7 +35,7 @@ export default function SocialProof() {
                 from the author of the book this is based on
               </span>
             </div>
-            <div className="relative aspect-[1083/1140] bg-code-bg">
+            <div className="relative aspect-[1084/1140] bg-code-bg">
               <Image
                 src="/social-proof/antonio-gulli-comment.png"
                 alt="Antonio Gulli, Google Sr Director and author of Agentic Design Patterns, commenting 'this is cool' on the launch post for learnagenticpatterns.com"
