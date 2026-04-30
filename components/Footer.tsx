@@ -99,17 +99,45 @@ export default function Footer() {
           {/* Social */}
           <div>
             <h4 className="font-mono text-sm text-primary mb-4">{">"} Connect</h4>
-            <div className="flex gap-4">
+            <div className="flex gap-4 mb-5">
               {socialLinks.map((social) => (
                 <a
                   key={social.label}
                   href={social.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   aria-label={social.label}
                   className="text-text-secondary hover:text-primary transition-colors"
                 >
                   <social.icon size={20} />
                 </a>
               ))}
+            </div>
+            <div className="space-y-2">
+              <a
+                href="https://github.com/mosatiii/learnagenticpatterns"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block text-sm text-text-secondary hover:text-primary transition-colors"
+              >
+                Star on GitHub
+              </a>
+              <a
+                href="https://github.com/mosatiii/learnagenticpatterns/blob/main/CONTRIBUTING.md"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block text-sm text-text-secondary hover:text-primary transition-colors"
+              >
+                Contribute
+              </a>
+              <a
+                href="https://www.linkedin.com/in/mosatiii/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block text-sm text-text-secondary hover:text-primary transition-colors"
+              >
+                LinkedIn (Mousa Jawaheri)
+              </a>
             </div>
           </div>
         </div>

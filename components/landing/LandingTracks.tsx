@@ -38,9 +38,7 @@ export default function LandingTracks() {
 
               <p className="text-text-primary font-medium mb-1">We teach you:</p>
               <p className="text-text-secondary text-sm leading-relaxed mb-5">
-                The 21 agentic design patterns — mapped to SWE concepts you
-                already know. Code examples, architecture breakdowns, production
-                notes.
+                The 21 agentic design patterns, mapped to SWE concepts you already know. Code examples, architecture breakdowns, production notes.
               </p>
 
               <div className="space-y-2.5 mb-6 flex-1">
@@ -100,15 +98,14 @@ export default function LandingTracks() {
 
               <p className="text-text-primary font-medium mb-1">We give you:</p>
               <p className="text-text-secondary text-sm leading-relaxed mb-5">
-                Decision frameworks for agentic AI — zero code. The tradeoffs,
-                questions, and vocabulary you need to lead AI product decisions.
+                Decision frameworks for agentic AI. Zero code. The tradeoffs, questions, and vocabulary you need to lead AI product decisions.
               </p>
 
               <div className="space-y-2.5 mb-6 flex-1">
                 {[
                   {
                     icon: <BookOpen size={14} />,
-                    text: "11 modules — no code required",
+                    text: "15 modules. No code required.",
                   },
                   {
                     icon: <Crosshair size={14} />,
@@ -146,7 +143,7 @@ export default function LandingTracks() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-8">
           {[
             { value: "21", label: "Developer Patterns" },
-            { value: "11", label: "PM Modules" },
+            { value: "15", label: "PM Modules" },
             { value: "4", label: "Interactive Games" },
             { value: "Free", label: "No Credit Card" },
           ].map((stat, i) => (
