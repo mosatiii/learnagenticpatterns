@@ -77,7 +77,8 @@ export async function loadAll() {
     mostReadDev,
     mostReadPm,
     feedback,
-    gameLeaderboard,
+    games,
+    challenges,
     unknownSlugs,
   ] = await Promise.all([
     overviewStats(),
@@ -92,7 +93,8 @@ export async function loadAll() {
     mostRead(DEV_SLUGS),
     mostRead(PM_SLUGS),
     feedbackSummary(),
-    gameTopScores(),
+    gameStats(),
+    challengeStats(),
     unknownSlugCheck(),
   ]);
 
@@ -109,7 +111,8 @@ export async function loadAll() {
     mostReadDev,
     mostReadPm,
     feedback,
-    gameLeaderboard,
+    games,
+    challenges,
     unknownSlugs,
   };
 }
@@ -130,6 +133,9 @@ async function overviewStats() {
       (SELECT COUNT(*) FROM users)                                                  AS total_users,
       (SELECT COUNT(*) FROM users WHERE created_at >= now() - INTERVAL '7 days')    AS signups_7d,
       (SELECT COUNT(*) FROM users WHERE created_at >= now() - INTERVAL '30 days')   AS signups_30d,
+      (SELECT COUNT(*) FROM users WHERE created_at >= now() - INTERVAL '24 hours')  AS signups_24h,
+      (SELECT MIN(created_at) FROM users)                                           AS first_signup,
+      (SELECT MAX(created_at) FROM users)                                           AS latest_signup,
       (SELECT COUNT(DISTINCT user_id) FROM reading_progress
         WHERE read_at >= now() - INTERVAL '7 days')                                 AS active_readers_7d,
       (SELECT COUNT(*) FROM per_user WHERE dev_done = $3)                           AS finished_dev,
@@ -347,31 +353,61 @@ async function mostRead(slugs) {
 }
 
 async function feedbackSummary() {
-  try {
-    return await q(`
-      SELECT
-        COUNT(*) AS total,
-        AVG(NULLIF(rating, 0))::numeric(10,2) AS avg_rating,
-        COUNT(*) FILTER (WHERE comment IS NOT NULL AND length(comment) > 0) AS with_comment
-      FROM lesson_feedback
-    `);
-  } catch {
-    return [{ total: 0, avg_rating: null, with_comment: 0, _note: "lesson_feedback schema unknown" }];
-  }
+  const overall = await q(`
+    SELECT
+      COUNT(*)::int AS total,
+      COUNT(*) FILTER (WHERE helpful = true)::int  AS helpful_count,
+      COUNT(*) FILTER (WHERE helpful = false)::int AS not_helpful_count,
+      ROUND(100.0 * COUNT(*) FILTER (WHERE helpful = true) / NULLIF(COUNT(*), 0), 1)::float AS helpful_rate,
+      COUNT(DISTINCT lesson_slug)::int AS lessons_with_any_feedback
+    FROM lesson_feedback
+  `);
+  const perLesson = await q(`
+    SELECT lesson_slug, track,
+      COUNT(*)::int AS total,
+      COUNT(*) FILTER (WHERE helpful)::int AS helpful_count,
+      COUNT(*) FILTER (WHERE NOT helpful)::int AS not_helpful_count,
+      ROUND(100.0 * COUNT(*) FILTER (WHERE helpful) / NULLIF(COUNT(*), 0), 0)::int AS helpful_rate
+    FROM lesson_feedback
+    GROUP BY lesson_slug, track
+    ORDER BY total DESC, helpful_rate ASC
+    LIMIT 25
+  `);
+  return { overall: overall[0], perLesson };
 }
 
-async function gameTopScores() {
-  try {
-    return await q(`
-      SELECT pattern_slug, MAX(score) AS top_score, COUNT(DISTINCT user_id) AS players, COUNT(*) AS attempts
-      FROM game_scores
-      GROUP BY pattern_slug
-      ORDER BY players DESC, top_score DESC
-      LIMIT 25
-    `);
-  } catch {
-    return [];
-  }
+async function gameStats() {
+  const overall = await q(`
+    SELECT
+      COUNT(*)::int AS total_attempts,
+      COUNT(DISTINCT user_id)::int AS players,
+      COUNT(*) FILTER (WHERE passed)::int AS pass_attempts,
+      ROUND(100.0 * COUNT(*) FILTER (WHERE passed) / NULLIF(COUNT(*), 0), 1)::float AS pass_rate
+    FROM game_scores
+  `);
+  const perGame = await q(`
+    SELECT pattern_slug,
+      COUNT(*)::int AS attempts,
+      COUNT(DISTINCT user_id)::int AS players,
+      MAX(score_total)::int AS top_score,
+      MAX(score_max)::int   AS score_max,
+      ROUND(AVG(score_total))::int AS avg_score,
+      COUNT(*) FILTER (WHERE passed)::int AS passes,
+      ROUND(100.0 * COUNT(*) FILTER (WHERE passed) / NULLIF(COUNT(*), 0), 0)::int AS pass_rate
+    FROM game_scores
+    GROUP BY pattern_slug
+    ORDER BY players DESC, attempts DESC
+  `);
+  return { overall: overall[0], perGame };
+}
+
+async function challengeStats() {
+  return q(`
+    SELECT
+      COUNT(*)::int AS total_attempts,
+      COUNT(DISTINCT user_id)::int AS players
+    FROM challenge_scores
+  `);
 }
 
 async function unknownSlugCheck() {
