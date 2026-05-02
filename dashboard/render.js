@@ -33,7 +33,7 @@ function table(headers, rows) {
           .map(
             (r) =>
               `<tr>${r
-                .map((c) => `<td>${typeof c === "string" && c.startsWith("<") ? c : esc(c)}</td>`)
+                .map((c) => `<td>${typeof c === "string" && c.trimStart().startsWith("<") ? c : esc(c)}</td>`)
                 .join("")}</tr>`,
           )
           .join("")}
@@ -44,12 +44,7 @@ function table(headers, rows) {
 
 function bar(value, max, color = "#6366f1") {
   const pct = max ? Math.min(100, Math.round((value / max) * 100)) : 0;
-  return `
-    <div class="bar-wrap">
-      <div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${color}"></div></div>
-      <span class="bar-label">${value}</span>
-    </div>
-  `;
+  return `<div class="bar-wrap"><div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${color}"></div></div><span class="bar-label">${value}</span></div>`;
 }
 
 export function renderDashboard(d) {
