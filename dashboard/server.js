@@ -1,6 +1,6 @@
 import express from "express";
 import crypto from "node:crypto";
-import { loadAll, pool } from "./queries.js";
+import { loadAll, endPool, pingDatabase, validateDatabaseUrl } from "./queries.js";
 import { renderDashboard, renderUnauthorized, renderError } from "./render.js";
 
 const PORT = Number(process.env.PORT || 3000);
@@ -13,9 +13,13 @@ if (!ACCESS_CODE || ACCESS_CODE.length < 16) {
   process.exit(1);
 }
 
-if (!process.env.DATABASE_URL) {
-  console.error("FATAL: DATABASE_URL env var is missing. Refusing to start.");
-  process.exit(1);
+let dbStartupError = null;
+try {
+  const u = validateDatabaseUrl(process.env.DATABASE_URL);
+  console.log(`DATABASE_URL parsed OK. Host: ${u.hostname}, db: ${u.pathname.replace(/^\//, "")}`);
+} catch (err) {
+  console.error(`FATAL: ${err.message}`);
+  dbStartupError = err.message;
 }
 
 // Cookie value is HMAC of the access code with itself as the key, hex-encoded.
@@ -57,7 +61,15 @@ app.use((req, res, next) => {
   next();
 });
 
-app.get("/healthz", (_req, res) => res.json({ ok: true }));
+app.get("/healthz", async (_req, res) => {
+  if (dbStartupError) return res.status(503).json({ ok: false, error: dbStartupError });
+  try {
+    await pingDatabase();
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(503).json({ ok: false, error: err?.message || "db unreachable" });
+  }
+});
 
 app.get("/logout", (_req, res) => {
   res.setHeader("Set-Cookie", `${COOKIE_NAME}=; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=0`);
@@ -77,12 +89,19 @@ app.get("/", async (req, res) => {
     );
   }
 
+  if (dbStartupError) {
+    return res.status(503).type("html").send(renderError(dbStartupError));
+  }
+
   try {
     const data = await loadAll();
     res.type("html").send(renderDashboard(data));
   } catch (err) {
     console.error("Dashboard render failed:", err);
-    res.status(500).type("html").send(renderError(err?.message || "Unknown error"));
+    const msg = err?.code === "ECONNREFUSED"
+      ? `Postgres refused the connection. The dashboard is reaching ${err.address || "localhost"}:${err.port || "5432"}, which usually means DATABASE_URL is missing, malformed, or set to a literal placeholder like \${{Postgres.DATABASE_URL}}. Check the dashboard service Variables in Railway.\n\nOriginal error: ${err.message}`
+      : err?.message || "Unknown error";
+    res.status(500).type("html").send(renderError(msg));
   }
 });
 
@@ -90,14 +109,28 @@ app.use((req, res) => {
   res.status(404).type("html").send(renderUnauthorized());
 });
 
-const server = app.listen(PORT, () => {
+const server = app.listen(PORT, async () => {
   console.log(`lap-dashboard listening on :${PORT}`);
+  if (dbStartupError) {
+    console.error("Server is up but DB is misconfigured. Requests will return a 503 with the diagnostic message above.");
+    return;
+  }
+  try {
+    await pingDatabase();
+    console.log("DB ping OK.");
+  } catch (err) {
+    console.error(
+      `DB ping FAILED on startup: ${err?.message || err}. ` +
+        `If this is ECONNREFUSED at localhost, DATABASE_URL is likely a literal placeholder. ` +
+        `Server stays up so /healthz can report the failure.`,
+    );
+  }
 });
 
 async function shutdown(sig) {
   console.log(`${sig} received, shutting down`);
   server.close(() => {});
-  await pool.end().catch(() => {});
+  await endPool().catch(() => {});
   process.exit(0);
 }
 process.on("SIGTERM", () => shutdown("SIGTERM"));

@@ -3,17 +3,63 @@ import { DEV_SLUGS, PM_SLUGS, DEV_TOTAL, PM_TOTAL } from "./curriculum.js";
 
 const { Pool } = pg;
 
-export const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: process.env.DATABASE_URL?.includes("rlwy.net")
-    ? { rejectUnauthorized: false }
-    : undefined,
-  max: 4,
-  idleTimeoutMillis: 30_000,
-});
+export function validateDatabaseUrl(raw) {
+  if (!raw || typeof raw !== "string" || raw.trim() === "") {
+    throw new Error("DATABASE_URL is not set. Add it under the dashboard service Variables in Railway.");
+  }
+  if (raw.includes("${{") || raw.includes("}}")) {
+    throw new Error(
+      `DATABASE_URL is a literal placeholder string ("${raw}"), not a resolved value. ` +
+        `In Railway, delete this variable and re-add it using the variable picker (the icon to the right of the value field) ` +
+        `to create a reference like \${{Postgres.DATABASE_URL}}. Typing the placeholder by hand does not work.`,
+    );
+  }
+  let u;
+  try {
+    u = new URL(raw);
+  } catch {
+    throw new Error(`DATABASE_URL is not a valid URL: "${raw.slice(0, 30)}…"`);
+  }
+  if (!u.protocol.startsWith("postgres")) {
+    throw new Error(`DATABASE_URL must use the postgres:// or postgresql:// scheme. Got "${u.protocol}".`);
+  }
+  if (["localhost", "127.0.0.1", "::1", ""].includes(u.hostname)) {
+    throw new Error(
+      `DATABASE_URL points at "${u.hostname}", which is the dashboard container itself. ` +
+        `Use the public Postgres URL (e.g. *.rlwy.net) or a Railway internal reference like \${{Postgres.DATABASE_URL}}.`,
+    );
+  }
+  return u;
+}
+
+let _pool;
+export function getPool() {
+  if (_pool) return _pool;
+  const raw = process.env.DATABASE_URL;
+  validateDatabaseUrl(raw); // throws on bad config; surfaces clear message
+  const useSsl = /rlwy\.net|render\.com|amazonaws\.com|supabase\.co|neon\.tech/.test(raw);
+  _pool = new Pool({
+    connectionString: raw,
+    ssl: useSsl ? { rejectUnauthorized: false } : undefined,
+    max: 4,
+    idleTimeoutMillis: 30_000,
+    connectionTimeoutMillis: 8_000,
+  });
+  return _pool;
+}
+
+export async function endPool() {
+  if (_pool) await _pool.end();
+}
+
+export async function pingDatabase() {
+  const p = getPool();
+  const res = await p.query("SELECT 1 AS ok");
+  return res.rows[0].ok === 1;
+}
 
 async function q(text, params = []) {
-  const res = await pool.query(text, params);
+  const res = await getPool().query(text, params);
   return res.rows;
 }
 
