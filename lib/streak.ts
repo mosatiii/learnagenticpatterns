@@ -54,7 +54,7 @@ export async function computeStreak(userId: number): Promise<StreakInfo> {
 
   let longest = 0;
   let run = 1;
-  const sortedAsc = [...set].sort();
+  const sortedAsc = Array.from(set).sort();
   for (let i = 1; i < sortedAsc.length; i++) {
     const prev = new Date(sortedAsc[i - 1]);
     const cur = new Date(sortedAsc[i]);
