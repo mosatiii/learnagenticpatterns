@@ -2,11 +2,15 @@ import { NextRequest, NextResponse } from "next/server";
 
 const PRACTICE_HOSTNAME = "practice.learnagenticpatterns.com";
 
-const ALLOWED_ORIGINS = new Set([
-  "https://learnagenticpatterns.com",
-  "https://www.learnagenticpatterns.com",
-  "https://practice.learnagenticpatterns.com",
-]);
+const ALLOWED_ORIGINS = new Set(
+  [
+    "https://learnagenticpatterns.com",
+    "https://www.learnagenticpatterns.com",
+    "https://practice.learnagenticpatterns.com",
+    process.env.SITE_URL,
+    process.env.NEXT_PUBLIC_SITE_URL,
+  ].filter((origin): origin is string => Boolean(origin))
+);
 
 const SECURITY_HEADERS: Record<string, string> = {
   "X-Frame-Options": "DENY",

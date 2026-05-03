@@ -1,9 +1,12 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { User, Trophy, Zap, Target, BarChart3, Calendar } from "lucide-react";
+import { User, Trophy, Zap, Target, BarChart3, Calendar, Award } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import SkillRadar from "@/components/Labs/SkillRadar";
+import ActivityHeatmap from "@/components/ActivityHeatmap";
+import BadgeGrid from "@/components/BadgeGrid";
+import StreakWidget from "@/components/StreakWidget";
 import Link from "next/link";
 
 export default function ProfilePage() {
@@ -43,6 +46,11 @@ export default function ProfilePage() {
         </div>
       </div>
 
+      {/* Streak */}
+      <div className="mb-6">
+        <StreakWidget />
+      </div>
+
       {/* Stats grid */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-10">
         {[
@@ -62,6 +70,24 @@ export default function ProfilePage() {
             <p className="font-mono text-xs text-text-secondary">{stat.label}</p>
           </motion.div>
         ))}
+      </div>
+
+      {/* Activity heatmap */}
+      <div className="bg-surface border border-border rounded-xl p-6 mb-10">
+        <h2 className="text-lg font-bold text-text-primary mb-4 flex items-center gap-2">
+          <Calendar size={18} className="text-primary" />
+          Activity
+        </h2>
+        <ActivityHeatmap />
+      </div>
+
+      {/* Badges */}
+      <div className="bg-surface border border-border rounded-xl p-6 mb-10">
+        <h2 className="text-lg font-bold text-text-primary mb-4 flex items-center gap-2">
+          <Award size={18} className="text-yellow-400" />
+          Badges
+        </h2>
+        <BadgeGrid />
       </div>
 
       {/* Skill Radar */}

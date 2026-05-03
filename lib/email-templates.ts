@@ -288,6 +288,69 @@ export function assessmentReportEmail(
   `);
 }
 
+function unsubFooter(unsubUrl: string): string {
+  return `
+    <p style="color:${TEXT_SECONDARY};font-size:11px;line-height:1.6;margin:24px 0 0 0;font-family:monospace;border-top:1px solid rgba(255,255,255,0.06);padding-top:16px;">
+      Don't want these? <a href="${unsubUrl}" style="color:${TEXT_SECONDARY};text-decoration:underline;">Unsubscribe from this kind of email</a>.
+    </p>`;
+}
+
+export function streakReminderEmail(args: {
+  firstName: string;
+  currentStreak: number;
+  ctaUrl: string;
+  unsubUrl: string;
+}): string {
+  const safeName = esc(args.firstName);
+  const days = args.currentStreak;
+  const heading = days >= 7
+    ? `Don't break a ${days}-day streak`
+    : `Your ${days}-day streak is at risk`;
+  return baseLayout(`
+    <h1 style="color:${TEXT_COLOR};font-size:24px;margin:0 0 8px 0;font-family:monospace;">
+      ${heading}
+    </h1>
+    <p style="color:${ACCENT_COLOR};font-size:14px;font-family:monospace;margin:0 0 24px 0;">
+      🔥 ${days} day${days === 1 ? "" : "s"} and counting
+    </p>
+    <p style="color:${TEXT_SECONDARY};font-size:15px;line-height:1.6;margin:0 0 16px 0;">
+      Hi ${safeName}, you've been showing up. One pattern read or one challenge attempt today
+      keeps the streak alive — that's it.
+    </p>
+    ${button("Keep the Streak", args.ctaUrl)}
+    <p style="color:${TEXT_SECONDARY};font-size:14px;margin:0;">
+      Mousa
+    </p>
+    ${unsubFooter(args.unsubUrl)}
+  `);
+}
+
+export function badgeEarnedEmail(args: {
+  firstName: string;
+  badgeName: string;
+  badgeDescription: string;
+  ctaUrl: string;
+  unsubUrl: string;
+}): string {
+  const safeName = esc(args.firstName);
+  return baseLayout(`
+    <h1 style="color:${TEXT_COLOR};font-size:24px;margin:0 0 8px 0;font-family:monospace;">
+      You earned a badge
+    </h1>
+    <p style="color:${BRAND_COLOR};font-size:14px;font-family:monospace;margin:0 0 24px 0;">
+      ${esc(args.badgeName)}
+    </p>
+    <p style="color:${TEXT_SECONDARY};font-size:15px;line-height:1.6;margin:0 0 16px 0;">
+      Nice, ${safeName}. ${esc(args.badgeDescription)}
+    </p>
+    ${button("See your badges", args.ctaUrl)}
+    <p style="color:${TEXT_SECONDARY};font-size:14px;margin:0;">
+      Mousa
+    </p>
+    ${unsubFooter(args.unsubUrl)}
+  `);
+}
+
 export function passwordResetEmail(firstName: string, resetUrl: string): string {
   return baseLayout(`
     <h1 style="color:${TEXT_COLOR};font-size:24px;margin:0 0 8px 0;font-family:monospace;">

@@ -3,6 +3,8 @@ import { query } from "@/lib/db";
 import { rateLimit, getClientIp } from "@/lib/rate-limit";
 import { getAuthUser } from "@/lib/jwt";
 import { isValidSlug } from "@/lib/valid-slugs";
+import { evaluateAndAward } from "@/lib/badges";
+import { sendBadgeEarnedEmails } from "@/lib/badge-mailer";
 
 interface FeedbackRow {
   id: number;
@@ -54,6 +56,10 @@ export async function POST(request: Request) {
        RETURNING id, helpful`,
       [auth.userId, lessonSlug, validTrack, helpful]
     );
+
+    evaluateAndAward(auth.userId)
+      .then((newly) => sendBadgeEarnedEmails(auth.userId, newly))
+      .catch((err) => console.error("badge eval failed:", err));
 
     return NextResponse.json({ success: true, feedback: rows[0] });
   } catch (error) {

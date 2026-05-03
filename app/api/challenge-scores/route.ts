@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { query } from "@/lib/db";
 import { getAuthUser } from "@/lib/jwt";
+import { evaluateAndAward } from "@/lib/badges";
+import { sendBadgeEarnedEmails } from "@/lib/badge-mailer";
 
 const VALID_CHALLENGE_TYPES = new Set([
   "build", "debug", "prompt", "optimize",
@@ -110,6 +112,10 @@ export async function POST(request: Request) {
         JSON.stringify(metadata || {}),
       ],
     );
+
+    evaluateAndAward(auth.userId)
+      .then((newly) => sendBadgeEarnedEmails(auth.userId, newly))
+      .catch((err) => console.error("badge eval failed:", err));
 
     return NextResponse.json({ success: true });
   } catch (error) {

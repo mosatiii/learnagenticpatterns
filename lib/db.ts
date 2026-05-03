@@ -109,12 +109,38 @@ async function ensureTables() {
       visible         BOOLEAN NOT NULL DEFAULT TRUE,
       created_at      TIMESTAMPTZ DEFAULT NOW()
     );
+
+    CREATE TABLE IF NOT EXISTS user_badges (
+      id              SERIAL PRIMARY KEY,
+      user_id         INTEGER REFERENCES users(id) ON DELETE CASCADE,
+      badge_slug      TEXT NOT NULL,
+      earned_at       TIMESTAMPTZ DEFAULT NOW(),
+      UNIQUE(user_id, badge_slug)
+    );
+
+    CREATE TABLE IF NOT EXISTS email_sends (
+      id              SERIAL PRIMARY KEY,
+      user_id         INTEGER REFERENCES users(id) ON DELETE CASCADE,
+      kind            TEXT NOT NULL,
+      meta            JSONB DEFAULT '{}',
+      sent_at         TIMESTAMPTZ DEFAULT NOW()
+    );
+    CREATE INDEX IF NOT EXISTS email_sends_user_kind_idx ON email_sends(user_id, kind, sent_at);
   `);
 
   // Add password_hash column if upgrading from the old schema
   await pool.query(`
     DO $$ BEGIN
       ALTER TABLE users ADD COLUMN IF NOT EXISTS password_hash TEXT;
+    EXCEPTION WHEN duplicate_column THEN NULL;
+    END $$;
+  `).catch(() => {});
+
+  // Per-channel email opt-out preferences. Defaults: all channels on.
+  await pool.query(`
+    DO $$ BEGIN
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS email_preferences JSONB
+        NOT NULL DEFAULT '{"streak": true, "badge": true}'::jsonb;
     EXCEPTION WHEN duplicate_column THEN NULL;
     END $$;
   `).catch(() => {});

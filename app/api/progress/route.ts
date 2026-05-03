@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { query } from "@/lib/db";
 import { getAuthUser } from "@/lib/jwt";
 import { isValidSlug } from "@/lib/valid-slugs";
+import { evaluateAndAward } from "@/lib/badges";
+import { sendBadgeEarnedEmails } from "@/lib/badge-mailer";
 
 interface ProgressRow {
   pattern_slug: string;
@@ -72,6 +74,10 @@ export async function POST(request: Request) {
        ON CONFLICT (user_id, pattern_slug) DO NOTHING`,
       [auth.userId, patternSlug]
     );
+
+    evaluateAndAward(auth.userId)
+      .then((newly) => sendBadgeEarnedEmails(auth.userId, newly))
+      .catch((err) => console.error("badge eval failed:", err));
 
     return NextResponse.json({ success: true });
   } catch (error) {
