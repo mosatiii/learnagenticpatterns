@@ -48,6 +48,16 @@ export const signupSchema = z.object({
     .literal(true, {
       errorMap: () => ({ message: "You must agree to the Privacy Policy and Terms of Service" }),
     }),
+  source: z
+    .object({
+      referrer: z.string().max(500).optional(),
+      referringDomain: z.string().max(200).optional(),
+      utmSource: z.string().max(200).optional(),
+      utmMedium: z.string().max(200).optional(),
+      utmCampaign: z.string().max(200).optional(),
+      landingPath: z.string().max(500).optional(),
+    })
+    .optional(),
 });
 
 export type SignupFormData = z.infer<typeof signupSchema>;

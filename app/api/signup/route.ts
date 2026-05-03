@@ -14,6 +14,28 @@ interface DbUser {
   role: string;
 }
 
+interface SignupSource {
+  referrer?: string;
+  referringDomain?: string;
+  utmSource?: string;
+  utmMedium?: string;
+  utmCampaign?: string;
+  landingPath?: string;
+}
+
+function formatSignupSource(source?: SignupSource): string {
+  if (!source) return "";
+  const lines: string[] = [];
+  const direct =
+    !source.referringDomain || source.referringDomain === "$direct";
+  lines.push(`Source: ${direct ? "Direct" : source.referringDomain}`);
+  if (source.referrer && !direct) lines.push(`Referrer: ${source.referrer}`);
+  const utmParts = [source.utmSource, source.utmMedium, source.utmCampaign].filter(Boolean);
+  if (utmParts.length > 0) lines.push(`UTM: ${utmParts.join(" / ")}`);
+  if (source.landingPath) lines.push(`Landing: ${source.landingPath}`);
+  return `\n\n${lines.join("\n")}`;
+}
+
 export async function POST(request: Request) {
   try {
     const ip = getClientIp(request);
@@ -28,7 +50,7 @@ export async function POST(request: Request) {
     const body = await request.json();
     const validated = signupSchema.parse(body);
     // agreedToTerms is validated by the schema but not stored in the database
-    const { agreedToTerms: _, ...userData } = validated;
+    const { agreedToTerms: _, source, ...userData } = validated;
 
     const passwordHash = await bcrypt.hash(userData.password, 12);
 
@@ -83,12 +105,14 @@ export async function POST(request: Request) {
         const telegramToken = process.env.TELEGRAM_BOT_TOKEN;
         const telegramChatId = process.env.TELEGRAM_CHAT_ID;
         if (telegramToken && telegramChatId) {
+          const sourceLines = formatSignupSource(source);
+          const text = `🆕 New signup!\n\nName: ${userData.firstName}\nEmail: ${userData.email}\nRole: ${userData.role}${sourceLines}`;
           fetch(`https://api.telegram.org/bot${telegramToken}/sendMessage`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               chat_id: telegramChatId,
-              text: `🆕 New signup!\n\nName: ${userData.firstName}\nEmail: ${userData.email}\nRole: ${userData.role}`,
+              text,
               parse_mode: "HTML",
             }),
           }).catch(() => {});

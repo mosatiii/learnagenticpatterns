@@ -7,6 +7,23 @@ import { pmModules } from "@/data/pm-curriculum";
 
 const STORAGE_KEY = "lap_auth";
 
+function collectSignupSource() {
+  if (typeof window === "undefined") return undefined;
+  const get = (key: string): string | undefined => {
+    if (!POSTHOG_KEY) return undefined;
+    const val = posthog.get_property(key);
+    return typeof val === "string" && val.length > 0 ? val : undefined;
+  };
+  return {
+    referrer: document.referrer || get("$initial_referrer"),
+    referringDomain: get("$initial_referring_domain"),
+    utmSource: get("$initial_utm_source"),
+    utmMedium: get("$initial_utm_medium"),
+    utmCampaign: get("$initial_utm_campaign"),
+    landingPath: get("$initial_pathname") || window.location.pathname,
+  };
+}
+
 interface AuthUser {
   id: number;
   email: string;
@@ -180,10 +197,12 @@ export function AuthProvider({ children, totalPatterns }: { children: ReactNode;
     role: string;
     challenge?: string;
   }) => {
+    const source = collectSignupSource();
+
     const res = await fetch("/api/signup", {
       method: "POST",
       ...jsonFetchOpts,
-      body: JSON.stringify(formData),
+      body: JSON.stringify({ ...formData, source }),
     });
 
     const data = await res.json();
