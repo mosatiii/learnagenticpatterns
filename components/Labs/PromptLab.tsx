@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Play, RotateCcw, Lightbulb, CheckCircle2, XCircle,
@@ -9,6 +9,7 @@ import {
 import type { PromptLabConfig, PromptTestCase } from "@/data/prompt-labs";
 import { useAuth } from "@/contexts/AuthContext";
 import TierBadge from "./TierBadge";
+import GamePreviouslyCompleted from "@/components/PMGames/GamePreviouslyCompleted";
 
 interface PromptLabProps {
   config: PromptLabConfig;
@@ -24,6 +25,15 @@ interface TestResult {
   outputPreview: string;
 }
 
+interface PreviousResult {
+  scoreTotal: number;
+  scoreMax: number;
+  passed: boolean;
+  playedAt: string;
+}
+
+const CHALLENGE_TYPE = "prompt";
+
 export default function PromptLab({ config, patternSlug, patternName }: PromptLabProps) {
   const [prompt, setPrompt] = useState(config.systemPromptStarter ?? "");
   const [results, setResults] = useState<TestResult[]>([]);
@@ -33,8 +43,11 @@ export default function PromptLab({ config, patternSlug, patternName }: PromptLa
   const [showSolution, setShowSolution] = useState(false);
   const [error, setError] = useState("");
   const [submissionCount, setSubmissionCount] = useState(0);
+  const [previousResult, setPreviousResult] = useState<PreviousResult | null>(null);
   const startTimeRef = useRef(Date.now());
-  const { user } = useAuth();
+  const hydratedRef = useRef(false);
+  const lastSavedSubmissionRef = useRef(-1);
+  const { user, isLoading, challengeScores, saveChallengeScore } = useAuth();
 
   const MAX_SUBMISSIONS = 10;
   const tokenEstimate = Math.ceil(prompt.length / 4);
@@ -50,6 +63,46 @@ export default function PromptLab({ config, patternSlug, patternName }: PromptLa
     : 0;
   const maxScore = config.testCases.reduce((sum, tc) => sum + tc.weight, 0);
   const passed = totalScore >= maxScore * 0.7;
+
+  // Hydrate from DB
+  useEffect(() => {
+    if (isLoading || hydratedRef.current) return;
+    hydratedRef.current = true;
+    if (!user) return;
+    const row = challengeScores.find(
+      (s) => s.pattern_slug === patternSlug && s.challenge_type === CHALLENGE_TYPE
+    );
+    if (row) {
+      setPreviousResult({
+        scoreTotal: row.score_total,
+        scoreMax: row.score_max,
+        passed: row.passed,
+        playedAt: row.played_at,
+      });
+    }
+  }, [isLoading, user, challengeScores, patternSlug]);
+
+  // Save score after each completed test run (one save per submission, not per test).
+  useEffect(() => {
+    if (!user) return;
+    if (isRunning) return;
+    if (results.length === 0 || results.length < config.testCases.length) return;
+    if (lastSavedSubmissionRef.current === submissionCount) return;
+    lastSavedSubmissionRef.current = submissionCount;
+
+    saveChallengeScore({
+      patternSlug,
+      challengeType: CHALLENGE_TYPE,
+      difficulty: "architect",
+      scoreTotal: totalScore,
+      scoreMax: maxScore,
+      passed,
+      metadata: {
+        submission: submissionCount,
+        elapsedMs: Date.now() - startTimeRef.current,
+      },
+    });
+  }, [user, isRunning, results.length, submissionCount, totalScore, maxScore, passed, patternSlug, config.testCases.length, saveChallengeScore]);
 
   const runTests = async () => {
     if (!user) {
@@ -136,8 +189,23 @@ export default function PromptLab({ config, patternSlug, patternName }: PromptLa
     setHintIdx(-1);
     setShowSolution(false);
     setError("");
+    setPreviousResult(null);
+    lastSavedSubmissionRef.current = -1;
     startTimeRef.current = Date.now();
   };
+
+  if (previousResult) {
+    return (
+      <GamePreviouslyCompleted
+        title={`Prompt — ${patternName}`}
+        scoreTotal={previousResult.scoreTotal}
+        scoreMax={previousResult.scoreMax}
+        passed={previousResult.passed}
+        playedAt={previousResult.playedAt}
+        onReplay={reset}
+      />
+    );
+  }
 
   return (
     <div>

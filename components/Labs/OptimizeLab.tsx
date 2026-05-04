@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import {
   TrendingDown, DollarSign, Gauge, Clock,
@@ -9,6 +9,8 @@ import {
 import type { OptimizeLabConfig } from "@/data/optimize-labs";
 import { calculatePipelineCost } from "@/data/optimize-labs";
 import TierBadge from "./TierBadge";
+import GamePreviouslyCompleted from "@/components/PMGames/GamePreviouslyCompleted";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface OptimizeLabProps {
   config: OptimizeLabConfig;
@@ -67,6 +69,15 @@ function MetricGauge({
   );
 }
 
+interface PreviousResult {
+  scoreTotal: number;
+  scoreMax: number;
+  passed: boolean;
+  playedAt: string;
+}
+
+const CHALLENGE_TYPE = "optimize";
+
 export default function OptimizeLab({ config, patternSlug, patternName }: OptimizeLabProps) {
   const defaultChoices: Record<string, string> = {};
   for (const step of config.pipeline) {
@@ -76,6 +87,10 @@ export default function OptimizeLab({ config, patternSlug, patternName }: Optimi
   const [modelChoices, setModelChoices] = useState<Record<string, string>>(defaultChoices);
   const [enabledOpts, setEnabledOpts] = useState<Set<string>>(new Set());
   const [hintIdx, setHintIdx] = useState(-1);
+  const [previousResult, setPreviousResult] = useState<PreviousResult | null>(null);
+  const hydratedRef = useRef(false);
+  const savedRef = useRef(false);
+  const { user, isLoading, challengeScores, saveChallengeScore } = useAuth();
 
   const metrics = useMemo(
     () =>
@@ -94,6 +109,43 @@ export default function OptimizeLab({ config, patternSlug, patternName }: Optimi
   const latencyOk = metrics.latency <= config.constraints.maxLatency;
   const allPassed = costOk && qualityOk && latencyOk;
 
+  // Hydrate from DB
+  useEffect(() => {
+    if (isLoading || hydratedRef.current) return;
+    hydratedRef.current = true;
+    if (!user) return;
+    const row = challengeScores.find(
+      (s) => s.pattern_slug === patternSlug && s.challenge_type === CHALLENGE_TYPE
+    );
+    if (row) {
+      setPreviousResult({
+        scoreTotal: row.score_total,
+        scoreMax: row.score_max,
+        passed: row.passed,
+        playedAt: row.played_at,
+      });
+    }
+  }, [isLoading, user, challengeScores, patternSlug]);
+
+  // Save once when the user first satisfies all constraints.
+  useEffect(() => {
+    if (!allPassed || !user || savedRef.current) return;
+    savedRef.current = true;
+    saveChallengeScore({
+      patternSlug,
+      challengeType: CHALLENGE_TYPE,
+      difficulty: "architect",
+      scoreTotal: 3,
+      scoreMax: 3,
+      passed: true,
+      metadata: {
+        cost: metrics.cost,
+        quality: metrics.quality,
+        latency: metrics.latency,
+      },
+    });
+  }, [allPassed, user, patternSlug, metrics, saveChallengeScore]);
+
   const handleModelChange = (stepId: string, modelId: string) => {
     setModelChoices((prev) => ({ ...prev, [stepId]: modelId }));
   };
@@ -111,7 +163,22 @@ export default function OptimizeLab({ config, patternSlug, patternName }: Optimi
     setModelChoices(defaultChoices);
     setEnabledOpts(new Set());
     setHintIdx(-1);
+    setPreviousResult(null);
+    savedRef.current = false;
   };
+
+  if (previousResult) {
+    return (
+      <GamePreviouslyCompleted
+        title={`Optimize — ${patternName}`}
+        scoreTotal={previousResult.scoreTotal}
+        scoreMax={previousResult.scoreMax}
+        passed={previousResult.passed}
+        playedAt={previousResult.playedAt}
+        onReplay={reset}
+      />
+    );
+  }
 
   return (
     <div>

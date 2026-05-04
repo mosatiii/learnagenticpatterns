@@ -1,14 +1,16 @@
 "use client";
 
 import { useParams } from "next/navigation";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { ArrowLeft, Bug, Trophy, RotateCcw, CheckCircle2, XCircle } from "lucide-react";
 import { getPatternBySlug } from "@/data/patterns";
 import { getGameConfig } from "@/data/games";
 import DebugCanvas from "@/components/AgentBuilder/DebugCanvas";
+import GamePreviouslyCompleted from "@/components/PMGames/GamePreviouslyCompleted";
 import type { Score } from "@/lib/game/simulation-engine";
+import { useAuth } from "@/contexts/AuthContext";
 
 function DebugScoreCard({ score, onRetry }: { score: Score; onRetry: () => void }) {
   const pct = score.maxTotal > 0 ? Math.round((score.total / score.maxTotal) * 100) : 0;
@@ -52,6 +54,15 @@ function DebugScoreCard({ score, onRetry }: { score: Score; onRetry: () => void 
   );
 }
 
+interface PreviousResult {
+  scoreTotal: number;
+  scoreMax: number;
+  passed: boolean;
+  playedAt: string;
+}
+
+const CHALLENGE_TYPE = "debug";
+
 export default function DebugLabPage() {
   const params = useParams();
   const slug = params.slug as string;
@@ -59,18 +70,64 @@ export default function DebugLabPage() {
   const config = getGameConfig(slug);
   const [currentIdx, setCurrentIdx] = useState(0);
   const [score, setScore] = useState<Score | null>(null);
+  const [previousResult, setPreviousResult] = useState<PreviousResult | null>(null);
+  const hydratedRef = useRef(false);
+  const savedRef = useRef(false);
+  const { user, isLoading, challengeScores, saveChallengeScore } = useAuth();
 
   const debugChallenges = config?.debugChallenges ?? [];
   const challenge = debugChallenges[currentIdx];
 
+  // Hydrate from DB: if this user already completed Debug for this slug,
+  // surface their saved score with a Replay CTA.
+  useEffect(() => {
+    if (isLoading || hydratedRef.current) return;
+    hydratedRef.current = true;
+    if (!user) return;
+    const row = challengeScores.find(
+      (s) => s.pattern_slug === slug && s.challenge_type === CHALLENGE_TYPE
+    );
+    if (row) {
+      setPreviousResult({
+        scoreTotal: row.score_total,
+        scoreMax: row.score_max,
+        passed: row.passed,
+        playedAt: row.played_at,
+      });
+    }
+  }, [isLoading, user, challengeScores, slug]);
+
+  // Persist score to challenge_scores once when a debug attempt completes.
+  useEffect(() => {
+    if (!score || !user || savedRef.current) return;
+    savedRef.current = true;
+    saveChallengeScore({
+      patternSlug: slug,
+      challengeType: CHALLENGE_TYPE,
+      difficulty: "practitioner",
+      scoreTotal: score.total,
+      scoreMax: score.maxTotal,
+      passed: score.passed,
+      metadata: { challengeIdx: currentIdx },
+    });
+  }, [score, user, slug, currentIdx, saveChallengeScore]);
+
   const handleComplete = useCallback((s: Score) => {
     setScore(s);
+  }, []);
+
+  const handleReplay = useCallback(() => {
+    setPreviousResult(null);
+    setScore(null);
+    setCurrentIdx(0);
+    savedRef.current = false;
   }, []);
 
   const handleNext = useCallback(() => {
     if (currentIdx < debugChallenges.length - 1) {
       setCurrentIdx((i) => i + 1);
       setScore(null);
+      savedRef.current = false;
     }
   }, [currentIdx, debugChallenges.length]);
 
@@ -81,6 +138,28 @@ export default function DebugLabPage() {
         <Link href={`/practice/patterns/${slug}`} className="text-primary font-mono text-sm mt-4 inline-block hover:underline">
           Back to {pattern?.name ?? "Pattern"}
         </Link>
+      </div>
+    );
+  }
+
+  if (previousResult) {
+    return (
+      <div className="max-w-5xl mx-auto px-4 py-8">
+        <Link
+          href={`/practice/patterns/${slug}`}
+          className="inline-flex items-center gap-1.5 text-text-secondary hover:text-accent font-mono text-xs mb-6 transition-colors"
+        >
+          <ArrowLeft size={14} />
+          Back to {pattern.name}
+        </Link>
+        <GamePreviouslyCompleted
+          title={`Debug — ${pattern.name}`}
+          scoreTotal={previousResult.scoreTotal}
+          scoreMax={previousResult.scoreMax}
+          passed={previousResult.passed}
+          playedAt={previousResult.playedAt}
+          onReplay={handleReplay}
+        />
       </div>
     );
   }

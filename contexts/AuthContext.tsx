@@ -48,6 +48,16 @@ export interface PatternScore {
   played_at: string;
 }
 
+export interface ChallengeScore {
+  pattern_slug: string;
+  challenge_type: string;
+  difficulty: string;
+  score_total: number;
+  score_max: number;
+  passed: boolean;
+  played_at: string;
+}
+
 export interface LeaderboardEntry {
   first_name: string;
   avg_percent: number;
@@ -91,6 +101,16 @@ interface AuthContextValue {
     efficiency: number;
     passed: boolean;
   }) => Promise<void>;
+  challengeScores: ChallengeScore[];
+  saveChallengeScore: (data: {
+    patternSlug: string;
+    challengeType: string;
+    difficulty?: string;
+    scoreTotal: number;
+    scoreMax: number;
+    passed: boolean;
+    metadata?: Record<string, unknown>;
+  }) => Promise<void>;
   /** Set of `${slug}::${tabId}` strings the current user has visited. */
   visitedTabs: Set<string>;
   hasVisitedTab: (slug: string, tabId: string) => boolean;
@@ -117,6 +137,7 @@ export function AuthProvider({ children, totalPatterns }: { children: ReactNode;
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
   const [userRank, setUserRank] = useState<number | null>(null);
   const [visitedTabs, setVisitedTabs] = useState<Set<string>>(new Set());
+  const [challengeScores, setChallengeScores] = useState<ChallengeScore[]>([]);
 
   const progressPercent = totalPatterns > 0
     ? Math.round((readSlugs.length / totalPatterns) * 100)
@@ -164,6 +185,18 @@ export function AuthProvider({ children, totalPatterns }: { children: ReactNode;
     }
   }, []);
 
+  const fetchChallengeScores = useCallback(async () => {
+    try {
+      const res = await fetch("/api/challenge-scores", { credentials: "include" });
+      if (res.ok) {
+        const data = await res.json();
+        setChallengeScores(data.scores ?? []);
+      }
+    } catch {
+      // Challenge scores are non-critical
+    }
+  }, []);
+
   const fetchGameScores = useCallback(async () => {
     try {
       const res = await fetch("/api/game-scores", { credentials: "include" });
@@ -198,7 +231,7 @@ export function AuthProvider({ children, totalPatterns }: { children: ReactNode;
           setUser(data.user);
           saveToStorage(data.user.email, data.user.firstName, data.user.role || "Other");
           if (!hadLocalData) setCrossDomainAutoLogin(true);
-          await Promise.all([fetchProgress(), fetchGameScores(), fetchTabVisits()]);
+          await Promise.all([fetchProgress(), fetchGameScores(), fetchTabVisits(), fetchChallengeScores()]);
         } else if (res.status === 401) {
           clearStorage();
         }
@@ -209,7 +242,7 @@ export function AuthProvider({ children, totalPatterns }: { children: ReactNode;
       }
     }
     init();
-  }, [fetchProgress, fetchGameScores, fetchTabVisits]);
+  }, [fetchProgress, fetchGameScores, fetchTabVisits, fetchChallengeScores]);
 
   const signup = async (formData: {
     firstName: string;
@@ -231,7 +264,7 @@ export function AuthProvider({ children, totalPatterns }: { children: ReactNode;
 
     setUser(data.user);
     saveToStorage(data.user.email, data.user.firstName, data.user.role || formData.role);
-    await Promise.all([fetchProgress(), fetchGameScores(), fetchTabVisits()]);
+    await Promise.all([fetchProgress(), fetchGameScores(), fetchTabVisits(), fetchChallengeScores()]);
 
     if (typeof window !== "undefined" && POSTHOG_KEY) {
       posthog.capture("user_signed_up", { role: formData.role });
@@ -250,7 +283,7 @@ export function AuthProvider({ children, totalPatterns }: { children: ReactNode;
 
     setUser(data.user);
     saveToStorage(data.user.email, data.user.firstName, data.user.role || "Other");
-    await Promise.all([fetchProgress(), fetchGameScores(), fetchTabVisits()]);
+    await Promise.all([fetchProgress(), fetchGameScores(), fetchTabVisits(), fetchChallengeScores()]);
 
     if (typeof window !== "undefined" && POSTHOG_KEY) {
       posthog.capture("user_logged_in");
@@ -272,6 +305,7 @@ export function AuthProvider({ children, totalPatterns }: { children: ReactNode;
     setLeaderboard([]);
     setUserRank(null);
     setVisitedTabs(new Set());
+    setChallengeScores([]);
     if (typeof window !== "undefined" && POSTHOG_KEY) {
       posthog.reset();
     }
@@ -300,6 +334,31 @@ export function AuthProvider({ children, totalPatterns }: { children: ReactNode;
       }
     },
     [user, fetchGameScores],
+  );
+
+  const saveChallengeScore = useCallback(
+    async (data: {
+      patternSlug: string;
+      challengeType: string;
+      difficulty?: string;
+      scoreTotal: number;
+      scoreMax: number;
+      passed: boolean;
+      metadata?: Record<string, unknown>;
+    }) => {
+      if (!user) return;
+      try {
+        await fetch("/api/challenge-scores", {
+          method: "POST",
+          ...jsonFetchOpts,
+          body: JSON.stringify(data),
+        });
+        await fetchChallengeScores();
+      } catch {
+        // Score saving is non-critical
+      }
+    },
+    [user, fetchChallengeScores]
   );
 
   const hasVisitedTab = useCallback(
@@ -364,6 +423,7 @@ export function AuthProvider({ children, totalPatterns }: { children: ReactNode;
         user, isLoading, isProductManager, crossDomainAutoLogin, dismissAutoLogin,
         readSlugs, pmReadSlugs, pmProgressPercent, signup, login, logout, markRead, progressPercent,
         gameScores, totalAttempts, avgPercent, leaderboard, userRank, saveGameScore,
+        challengeScores, saveChallengeScore,
         visitedTabs, hasVisitedTab, hasPlayedAnyGame, markTabVisited,
       }}
     >

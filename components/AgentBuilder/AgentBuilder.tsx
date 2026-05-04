@@ -4,6 +4,7 @@ import { useReducer, useCallback, useEffect, useRef, useState, useMemo } from "r
 import { motion, AnimatePresence } from "framer-motion";
 import { Play, RotateCcw, Lightbulb, Target, Timer, Bug, Wrench, Zap } from "lucide-react";
 import { getGameConfig } from "@/data/games";
+import { getPatternBySlug } from "@/data/patterns";
 import type { BlockDefinition, SimulationEvent, Difficulty, GameConfig } from "@/data/games";
 import { runSimulation, calculateScore } from "@/lib/game/simulation-engine";
 import type { Score } from "@/lib/game/simulation-engine";
@@ -13,6 +14,7 @@ import BlockPalette from "./BlockPalette";
 import BuildCanvas from "./BuildCanvas";
 import ScoreCard from "./ScoreCard";
 import DebugCanvas from "./DebugCanvas";
+import GamePreviouslyCompleted from "@/components/PMGames/GamePreviouslyCompleted";
 
 // ─── State Machine ───────────────────────────────────────────────────────────
 
@@ -127,6 +129,13 @@ interface AgentBuilderProps {
   patternSlug: string;
 }
 
+interface PreviousResult {
+  scoreTotal: number;
+  scoreMax: number;
+  passed: boolean;
+  playedAt: string;
+}
+
 export default function AgentBuilder({ patternSlug }: AgentBuilderProps) {
   const rawConfig = getGameConfig(patternSlug);
   const [state, dispatch] = useReducer(gameReducer, initialState);
@@ -134,7 +143,26 @@ export default function AgentBuilder({ patternSlug }: AgentBuilderProps) {
   const scoreSavedRef = useRef(false);
   const attemptRef = useRef(0);
   const buildStartRef = useRef<number | null>(null);
-  const { saveGameScore } = useAuth();
+  const hydratedRef = useRef(false);
+  const { user, isLoading, gameScores, saveGameScore } = useAuth();
+  const [previousResult, setPreviousResult] = useState<PreviousResult | null>(null);
+
+  // Hydrate from DB on mount: if this user already completed this pattern's Build,
+  // surface the saved score with a Replay CTA instead of a fresh canvas.
+  useEffect(() => {
+    if (isLoading || hydratedRef.current) return;
+    hydratedRef.current = true;
+    if (!user) return;
+    const row = gameScores.find((s) => s.pattern_slug === patternSlug);
+    if (row) {
+      setPreviousResult({
+        scoreTotal: row.score_total,
+        scoreMax: row.score_max,
+        passed: row.passed,
+        playedAt: row.played_at,
+      });
+    }
+  }, [isLoading, user, gameScores, patternSlug]);
 
   // ─── New feature state ─────────────────────────────────────
   const [difficulty, setDifficulty] = useState<Difficulty>("medium");
@@ -302,6 +330,7 @@ export default function AgentBuilder({ patternSlug }: AgentBuilderProps) {
     speedStartRef.current = null;
     setElapsedMs(0);
     scoreSavedRef.current = false;
+    setPreviousResult(null);
     dispatch({ type: "RESET" });
   }, [patternSlug, state.score]);
 
@@ -375,6 +404,22 @@ export default function AgentBuilder({ patternSlug }: AgentBuilderProps) {
     state.hintIdx >= 0 && state.hintIdx < config.hints.length
       ? config.hints[state.hintIdx]
       : null;
+
+  // ─── Previously completed (DB-backed) — short-circuit so a returning
+  //     user sees their saved score with a Replay CTA, not a fresh canvas. ───
+  if (previousResult) {
+    const pattern = getPatternBySlug(patternSlug);
+    return (
+      <GamePreviouslyCompleted
+        title={pattern ? `${pattern.name} — Build` : "Build Challenge"}
+        scoreTotal={previousResult.scoreTotal}
+        scoreMax={previousResult.scoreMax}
+        passed={previousResult.passed}
+        playedAt={previousResult.playedAt}
+        onReplay={handleReset}
+      />
+    );
+  }
 
   return (
     <div className="space-y-6">
