@@ -5,7 +5,14 @@ export interface PMModuleSection {
 }
 
 /** Game format on this module's Play tab. Each module has exactly one. */
-export type PMGameType = "ship-or-skip" | "budget-builder" | "stakeholder-sim" | "eval-designer";
+export type PMGameType =
+  | "ship-or-skip"
+  | "budget-builder"
+  | "stakeholder-sim"
+  | "eval-designer"
+  | "incident-triage"
+  | "prompt-surgeon"
+  | "architecture-sketcher";
 
 export interface PMModule {
   id: string;
@@ -97,7 +104,7 @@ export const pmModules: PMModule[] = [
   {
     id: "pm-ai-product-discovery",
     slug: "ai-product-discovery",
-    gameType: "ship-or-skip",
+    gameType: "prompt-surgeon",
     number: 2,
     title: "AI Product Discovery",
     subtitle: "Knowing what to build before you build it",
@@ -314,7 +321,7 @@ export const pmModules: PMModule[] = [
   {
     id: "pm-multi-agent-teams",
     slug: "multi-agent-teams",
-    gameType: "stakeholder-sim",
+    gameType: "architecture-sketcher",
     number: 10,
     title: "Multi-Agent Teams",
     subtitle: "When one agent is not enough",
@@ -422,7 +429,7 @@ export const pmModules: PMModule[] = [
   {
     id: "pm-llmops-production",
     slug: "llmops-production",
-    gameType: "budget-builder",
+    gameType: "incident-triage",
     number: 14,
     title: "LLMOps & Production Realities",
     subtitle: "What happens after you ship",

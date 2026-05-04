@@ -6,10 +6,16 @@ import {
   getShipGameFor, getBudgetGameFor, getStakeholderGameFor,
 } from "@/data/pm-module-games";
 import { getEvalDesignerGameFor } from "@/data/pm-eval-designer";
+import { getIncidentTriageGameFor } from "@/data/pm-incident-triage";
+import { getPromptSurgeonGameFor } from "@/data/pm-prompt-surgeon";
+import { getArchSketcherGameFor } from "@/data/pm-architecture-sketcher";
 import ShipOrSkip from "./ShipOrSkip";
 import BudgetBuilder from "./BudgetBuilder";
 import StakeholderSimulator from "./StakeholderSimulator";
 import EvalDesigner from "./EvalDesigner";
+import IncidentTriage from "./IncidentTriage";
+import PromptSurgeon from "./PromptSurgeon";
+import ArchitectureSketcher from "./ArchitectureSketcher";
 
 interface Props {
   /** PM module slug, e.g. "intelligent-routing". */
@@ -46,6 +52,24 @@ export default function ModuleGame({ moduleSlug }: Props) {
     const scenarios = getEvalDesignerGameFor(moduleSlug);
     if (!scenarios) return <ComingSoon moduleTitle={mod.title} format="Eval Designer" />;
     return <EvalDesigner scenarios={scenarios} slug={slug} title={title} />;
+  }
+
+  if (gameType === "incident-triage") {
+    const scenarios = getIncidentTriageGameFor(moduleSlug);
+    if (!scenarios) return <ComingSoon moduleTitle={mod.title} format="Incident Triage" />;
+    return <IncidentTriage scenarios={scenarios} slug={slug} title={title} />;
+  }
+
+  if (gameType === "prompt-surgeon") {
+    const scenarios = getPromptSurgeonGameFor(moduleSlug);
+    if (!scenarios) return <ComingSoon moduleTitle={mod.title} format="Prompt Surgeon" />;
+    return <PromptSurgeon scenarios={scenarios} slug={slug} title={title} />;
+  }
+
+  if (gameType === "architecture-sketcher") {
+    const scenarios = getArchSketcherGameFor(moduleSlug);
+    if (!scenarios) return <ComingSoon moduleTitle={mod.title} format="Architecture Sketcher" />;
+    return <ArchitectureSketcher scenarios={scenarios} slug={slug} title={title} />;
   }
 
   return null;
