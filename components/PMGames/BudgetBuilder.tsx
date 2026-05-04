@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useMemo, useEffect } from "react";
+import { useState, useCallback, useMemo, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   DollarSign, Gauge, Clock, Play, ArrowRight,
@@ -12,6 +12,7 @@ import type { BudgetScenario } from "@/data/pm-games";
 import { useAuth } from "@/contexts/AuthContext";
 import { trackGameEvent } from "@/lib/game/analytics";
 import { saveDraft, loadDraft, clearDraft } from "@/lib/game/draft-storage";
+import GamePreviouslyCompleted from "./GamePreviouslyCompleted";
 
 type Phase = "allocating" | "results" | "summary";
 
@@ -34,25 +35,50 @@ interface BBDraft {
 
 const BB_DRAFT_KEY = "pm-budget-builder";
 
+interface PreviousResult {
+  scoreTotal: number;
+  scoreMax: number;
+  passed: boolean;
+  playedAt: string;
+}
+
 export default function BudgetBuilder() {
-  const { saveGameScore } = useAuth();
+  const { user, isLoading, gameScores, saveGameScore } = useAuth();
   const [currentIdx, setCurrentIdx] = useState(0);
   const [phase, setPhase] = useState<Phase>("allocating");
   const [allocations, setAllocations] = useState<Record<string, string>>({});
   const [scenarioResults, setScenarioResults] = useState<ScenarioResult[]>([]);
   const [scoreSaved, setScoreSaved] = useState(false);
+  const [previousResult, setPreviousResult] = useState<PreviousResult | null>(null);
+  const hydratedRef = useRef(false);
 
   const scenario = budgetScenarios[currentIdx];
   const totalScenarios = budgetScenarios.length;
 
-  // Restore draft on mount
+  // Hydrate on mount: prefer DB-confirmed completion, fall back to localStorage draft.
   useEffect(() => {
+    if (isLoading || hydratedRef.current) return;
+    hydratedRef.current = true;
+
+    if (user) {
+      const row = gameScores.find((s) => s.pattern_slug === "pm-budget-builder");
+      if (row) {
+        setPreviousResult({
+          scoreTotal: row.score_total,
+          scoreMax: row.score_max,
+          passed: row.passed,
+          playedAt: row.played_at,
+        });
+        return;
+      }
+    }
+
     const draft = loadDraft<BBDraft>(BB_DRAFT_KEY);
     if (draft && draft.currentIdx > 0 && draft.currentIdx < budgetScenarios.length) {
       setCurrentIdx(draft.currentIdx);
       setScenarioResults(draft.scenarioResults);
     }
-  }, []);
+  }, [isLoading, user, gameScores]);
 
   // Save draft whenever scenario advances
   useEffect(() => {
@@ -150,6 +176,7 @@ export default function BudgetBuilder() {
     setAllocations({});
     setScenarioResults([]);
     setScoreSaved(false);
+    setPreviousResult(null);
     clearDraft(BB_DRAFT_KEY);
   }, [scenarioResults]);
 
@@ -162,6 +189,20 @@ export default function BudgetBuilder() {
     scenarioResults.every((r) => r.withinBudget && r.meetsQuality && r.meetsLatency);
   const budgetHawk = scenarioResults.length > 0 &&
     scenarioResults.every((r) => r.budgetRatio <= 0.7 && r.meetsQuality);
+
+  // ─── Previously completed (DB-backed) — short-circuit before any save side effects ───
+  if (previousResult) {
+    return (
+      <GamePreviouslyCompleted
+        title="Budget Builder"
+        scoreTotal={previousResult.scoreTotal}
+        scoreMax={previousResult.scoreMax}
+        passed={previousResult.passed}
+        playedAt={previousResult.playedAt}
+        onReplay={handleReset}
+      />
+    );
+  }
 
   // Save on summary
   if (phase === "summary" && !scoreSaved) {

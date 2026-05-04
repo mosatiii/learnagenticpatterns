@@ -12,6 +12,7 @@ import type { Stakeholder } from "@/data/pm-games";
 import { useAuth } from "@/contexts/AuthContext";
 import { trackGameEvent } from "@/lib/game/analytics";
 import { saveDraft, loadDraft, clearDraft } from "@/lib/game/draft-storage";
+import GamePreviouslyCompleted from "./GamePreviouslyCompleted";
 
 type Phase = "choosing" | "feedback" | "summary";
 
@@ -48,13 +49,22 @@ interface SSDraft {
 
 const SS_DRAFT_KEY = "pm-stakeholder-sim";
 
+interface PreviousResult {
+  scoreTotal: number;
+  scoreMax: number;
+  passed: boolean;
+  playedAt: string;
+}
+
 export default function StakeholderSimulator() {
-  const { saveGameScore } = useAuth();
+  const { user, isLoading, gameScores, saveGameScore } = useAuth();
   const [currentRound, setCurrentRound] = useState(0);
   const [phase, setPhase] = useState<Phase>("choosing");
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [results, setResults] = useState<RoundResult[]>([]);
   const [scoreSaved, setScoreSaved] = useState(false);
+  const [previousResult, setPreviousResult] = useState<PreviousResult | null>(null);
+  const hydratedRef = useRef(false);
   const roundStartRef = useRef(Date.now());
 
   const [roundElapsed, setRoundElapsed] = useState(0);
@@ -62,14 +72,30 @@ export default function StakeholderSimulator() {
   const round = stakeholderRounds[currentRound];
   const totalRounds = stakeholderRounds.length;
 
-  // Restore draft on mount
+  // Hydrate on mount: prefer DB-confirmed completion, fall back to localStorage draft.
   useEffect(() => {
+    if (isLoading || hydratedRef.current) return;
+    hydratedRef.current = true;
+
+    if (user) {
+      const row = gameScores.find((s) => s.pattern_slug === "pm-stakeholder-sim");
+      if (row) {
+        setPreviousResult({
+          scoreTotal: row.score_total,
+          scoreMax: row.score_max,
+          passed: row.passed,
+          playedAt: row.played_at,
+        });
+        return;
+      }
+    }
+
     const draft = loadDraft<SSDraft>(SS_DRAFT_KEY);
     if (draft && draft.currentRound > 0 && draft.currentRound < stakeholderRounds.length) {
       setCurrentRound(draft.currentRound);
       setResults(draft.results);
     }
-  }, []);
+  }, [isLoading, user, gameScores]);
 
   // Save draft whenever round advances
   useEffect(() => {
@@ -147,6 +173,7 @@ export default function StakeholderSimulator() {
     setPhase("choosing");
     setSelectedId(null);
     setResults([]);
+    setPreviousResult(null);
     setScoreSaved(false);
     clearDraft(SS_DRAFT_KEY);
   }, [results]);
@@ -157,6 +184,20 @@ export default function StakeholderSimulator() {
   const percent = Math.round((scoreTotal / scoreMax) * 100);
   const passed = percent >= 60;
   const isDiplomatic = correctCount >= 4;
+
+  // ─── Previously completed (DB-backed) — short-circuit before any save side effects ───
+  if (previousResult) {
+    return (
+      <GamePreviouslyCompleted
+        title="Stakeholder Simulator"
+        scoreTotal={previousResult.scoreTotal}
+        scoreMax={previousResult.scoreMax}
+        passed={previousResult.passed}
+        playedAt={previousResult.playedAt}
+        onReplay={handleReset}
+      />
+    );
+  }
 
   if (phase === "summary" && !scoreSaved) {
     setScoreSaved(true);

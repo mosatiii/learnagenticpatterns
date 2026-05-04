@@ -11,6 +11,7 @@ import type { ShipOrSkipOption } from "@/data/pm-games";
 import { useAuth } from "@/contexts/AuthContext";
 import { trackGameEvent } from "@/lib/game/analytics";
 import { saveDraft, loadDraft, clearDraft } from "@/lib/game/draft-storage";
+import GamePreviouslyCompleted from "./GamePreviouslyCompleted";
 
 type Confidence = "guessing" | "fairly-sure" | "very-confident";
 type Phase = "choosing" | "confidence" | "feedback" | "summary";
@@ -47,14 +48,23 @@ interface SoSDraft {
 
 const DRAFT_KEY = "pm-ship-or-skip";
 
+interface PreviousResult {
+  scoreTotal: number;
+  scoreMax: number;
+  passed: boolean;
+  playedAt: string;
+}
+
 export default function ShipOrSkip() {
-  const { saveGameScore } = useAuth();
+  const { user, isLoading, gameScores, saveGameScore } = useAuth();
   const [currentRound, setCurrentRound] = useState(0);
   const [phase, setPhase] = useState<Phase>("choosing");
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const [results, setResults] = useState<RoundResult[]>([]);
   const [scoreSaved, setScoreSaved] = useState(false);
   const [pendingConfidence, setPendingConfidence] = useState<Confidence | null>(null);
+  const [previousResult, setPreviousResult] = useState<PreviousResult | null>(null);
+  const hydratedRef = useRef(false);
   const roundStartRef = useRef(Date.now());
 
   const [roundElapsed, setRoundElapsed] = useState(0);
@@ -62,14 +72,32 @@ export default function ShipOrSkip() {
   const round = shipOrSkipRounds[currentRound];
   const totalRounds = shipOrSkipRounds.length;
 
-  // Restore draft on mount
+  // Hydrate on mount: prefer DB-confirmed completion, fall back to localStorage draft.
+  // Runs once (hydratedRef gate) once auth has resolved so we don't snap a mid-game user
+  // into "previously completed" if their gameScores load late.
   useEffect(() => {
+    if (isLoading || hydratedRef.current) return;
+    hydratedRef.current = true;
+
+    if (user) {
+      const row = gameScores.find((s) => s.pattern_slug === "pm-ship-or-skip");
+      if (row) {
+        setPreviousResult({
+          scoreTotal: row.score_total,
+          scoreMax: row.score_max,
+          passed: row.passed,
+          playedAt: row.played_at,
+        });
+        return;
+      }
+    }
+
     const draft = loadDraft<SoSDraft>(DRAFT_KEY);
     if (draft && draft.currentRound > 0 && draft.currentRound < shipOrSkipRounds.length) {
       setCurrentRound(draft.currentRound);
       setResults(draft.results);
     }
-  }, []);
+  }, [isLoading, user, gameScores]);
 
   // Save draft whenever round advances
   useEffect(() => {
@@ -156,6 +184,7 @@ export default function ShipOrSkip() {
     setPendingConfidence(null);
     setResults([]);
     setScoreSaved(false);
+    setPreviousResult(null);
     clearDraft(DRAFT_KEY);
   }, [results]);
 
@@ -166,6 +195,20 @@ export default function ShipOrSkip() {
   const passed = percent >= 60;
   const streak = longestStreak(results);
   const isPerfect = correctCount === totalRounds;
+
+  // ─── Previously completed (DB-backed) — short-circuit before any save side effects ───
+  if (previousResult) {
+    return (
+      <GamePreviouslyCompleted
+        title="Ship or Skip"
+        scoreTotal={previousResult.scoreTotal}
+        scoreMax={previousResult.scoreMax}
+        passed={previousResult.passed}
+        playedAt={previousResult.playedAt}
+        onReplay={handleReset}
+      />
+    );
+  }
 
   // Save score + track completion
   if (phase === "summary" && !scoreSaved) {
