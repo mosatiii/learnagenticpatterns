@@ -1,7 +1,9 @@
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { query } from "@/lib/db";
-import { rateLimit, getClientIp } from "@/lib/rate-limit";
+import {
+  peek, recordAttempt, getClientIp, type RateLimitConfig,
+} from "@/lib/rate-limit";
 
 interface ResetRow {
   id: number;
@@ -9,11 +11,17 @@ interface ResetRow {
   expires_at: string;
 }
 
+// Bad-token guesses count; valid resets do not. Slightly higher cap than
+// login since the reset URL itself is the secret — guessing is hopeless.
+const RESET_LIMIT: RateLimitConfig = { maxRequests: 10, windowMs: 15 * 60 * 1000 };
+
 export async function POST(request: Request) {
   try {
     const ip = getClientIp(request);
-    const limiter = rateLimit(ip, { maxRequests: 5, windowMs: 15 * 60 * 1000 });
-    if (!limiter.success) {
+    const ipKey = `reset-pw:ip:${ip}`;
+
+    const ipPeek = peek(ipKey, RESET_LIMIT);
+    if (ipPeek.blocked) {
       return NextResponse.json(
         { success: false, message: "Too many attempts. Please try again later." },
         { status: 429 }
@@ -23,6 +31,7 @@ export async function POST(request: Request) {
     const { token, password } = await request.json();
 
     if (!token || !password || typeof password !== "string" || password.length < 8) {
+      recordAttempt(ipKey, RESET_LIMIT);
       return NextResponse.json(
         { success: false, message: "Invalid request." },
         { status: 400 }
@@ -37,6 +46,7 @@ export async function POST(request: Request) {
     );
 
     if (rows.length === 0) {
+      recordAttempt(ipKey, RESET_LIMIT);
       return NextResponse.json(
         { success: false, message: "This reset link has expired or already been used. Please request a new one." },
         { status: 400 }
