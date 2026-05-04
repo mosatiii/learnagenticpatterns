@@ -7,7 +7,7 @@ import {
   RotateCcw, Trophy, CheckCircle2, XCircle, Target,
   Lightbulb, BadgeDollarSign, Shield, Share2,
 } from "lucide-react";
-import { budgetScenarios, calculateBudgetResult } from "@/data/pm-games";
+import { calculateBudgetResult } from "@/data/pm-games";
 import type { BudgetScenario } from "@/data/pm-games";
 import { useAuth } from "@/contexts/AuthContext";
 import { trackGameEvent } from "@/lib/game/analytics";
@@ -33,8 +33,6 @@ interface BBDraft {
   scenarioResults: ScenarioResult[];
 }
 
-const BB_DRAFT_KEY = "pm-budget-builder";
-
 interface PreviousResult {
   scoreTotal: number;
   scoreMax: number;
@@ -42,7 +40,15 @@ interface PreviousResult {
   playedAt: string;
 }
 
-export default function BudgetBuilder() {
+interface BudgetBuilderProps {
+  scenarios: BudgetScenario[];
+  /** Save slug for game_scores. Also used as draft key. */
+  slug: string;
+  /** Display title for the previously-completed view. */
+  title: string;
+}
+
+export default function BudgetBuilder({ scenarios, slug, title }: BudgetBuilderProps) {
   const { user, isLoading, gameScores, saveGameScore } = useAuth();
   const [currentIdx, setCurrentIdx] = useState(0);
   const [phase, setPhase] = useState<Phase>("allocating");
@@ -52,8 +58,8 @@ export default function BudgetBuilder() {
   const [previousResult, setPreviousResult] = useState<PreviousResult | null>(null);
   const hydratedRef = useRef(false);
 
-  const scenario = budgetScenarios[currentIdx];
-  const totalScenarios = budgetScenarios.length;
+  const scenario = scenarios[currentIdx];
+  const totalScenarios = scenarios.length;
 
   // Hydrate on mount: prefer DB-confirmed completion, fall back to localStorage draft.
   useEffect(() => {
@@ -61,7 +67,7 @@ export default function BudgetBuilder() {
     hydratedRef.current = true;
 
     if (user) {
-      const row = gameScores.find((s) => s.pattern_slug === "pm-budget-builder");
+      const row = gameScores.find((s) => s.pattern_slug === slug);
       if (row) {
         setPreviousResult({
           scoreTotal: row.score_total,
@@ -73,8 +79,8 @@ export default function BudgetBuilder() {
       }
     }
 
-    syncLoadDraft<BBDraft>(BB_DRAFT_KEY, { authenticated: !!user }).then((draft) => {
-      if (draft && draft.currentIdx > 0 && draft.currentIdx < budgetScenarios.length) {
+    syncLoadDraft<BBDraft>(slug, { authenticated: !!user }).then((draft) => {
+      if (draft && draft.currentIdx > 0 && draft.currentIdx < scenarios.length) {
         setCurrentIdx(draft.currentIdx);
         setScenarioResults(draft.scenarioResults);
       }
@@ -84,7 +90,7 @@ export default function BudgetBuilder() {
   // Save draft whenever scenario advances (DB-synced if authed)
   useEffect(() => {
     if (scenarioResults.length > 0 && phase === "allocating") {
-      syncSaveDraft<BBDraft>(BB_DRAFT_KEY, { currentIdx, scenarioResults }, { authenticated: !!user });
+      syncSaveDraft<BBDraft>(slug, { currentIdx, scenarioResults }, { authenticated: !!user });
     }
   }, [currentIdx, scenarioResults, phase, user]);
 
@@ -178,7 +184,7 @@ export default function BudgetBuilder() {
     setScenarioResults([]);
     setScoreSaved(false);
     setPreviousResult(null);
-    syncClearDraft(BB_DRAFT_KEY, { authenticated: !!user });
+    syncClearDraft(slug, { authenticated: !!user });
   }, [scenarioResults]);
 
   const totalScoreSum = scenarioResults.reduce((sum, r) => sum + r.totalScore, 0);
@@ -195,7 +201,7 @@ export default function BudgetBuilder() {
   if (previousResult) {
     return (
       <GamePreviouslyCompleted
-        title="Budget Builder"
+        title={title}
         scoreTotal={previousResult.scoreTotal}
         scoreMax={previousResult.scoreMax}
         passed={previousResult.passed}
@@ -208,7 +214,7 @@ export default function BudgetBuilder() {
   // Save on summary
   if (phase === "summary" && !scoreSaved) {
     setScoreSaved(true);
-    syncClearDraft(BB_DRAFT_KEY, { authenticated: !!user });
+    syncClearDraft(slug, { authenticated: !!user });
     const avgQuality = Math.round(totalScoreSum / totalScenarios);
     const scenariosPassed = scenarioResults.filter((r) => r.passed).length;
 
@@ -224,7 +230,7 @@ export default function BudgetBuilder() {
     });
 
     saveGameScore({
-      patternSlug: "pm-budget-builder",
+      patternSlug: slug,
       scoreTotal: totalScoreSum,
       scoreMax: totalMaxSum,
       architecture: Math.round(avgQuality * 0.4),
@@ -302,7 +308,7 @@ export default function BudgetBuilder() {
               ) : (
                 <XCircle size={14} className="text-red-400" />
               )}
-              <span className="text-text-primary text-sm flex-1">{budgetScenarios[i].title}</span>
+              <span className="text-text-primary text-sm flex-1">{scenarios[i].title}</span>
               <div className="flex items-center gap-2">
                 {result.withinBudget && result.meetsQuality && result.meetsLatency && (
                   <span className="text-[10px] font-mono text-success/60">3/3</span>

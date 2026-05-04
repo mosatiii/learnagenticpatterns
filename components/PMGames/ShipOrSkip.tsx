@@ -6,8 +6,7 @@ import {
   CheckCircle2, XCircle, ArrowRight, RotateCcw,
   Trophy, Lightbulb, Target, Flame, Crown, Timer, Clock, Share2,
 } from "lucide-react";
-import { shipOrSkipRounds } from "@/data/pm-games";
-import type { ShipOrSkipOption } from "@/data/pm-games";
+import type { ShipOrSkipOption, ShipOrSkipRound } from "@/data/pm-games";
 import { useAuth } from "@/contexts/AuthContext";
 import { trackGameEvent } from "@/lib/game/analytics";
 import { syncSaveDraft, syncLoadDraft, syncClearDraft } from "@/lib/game/draft-sync";
@@ -46,8 +45,6 @@ interface SoSDraft {
   results: RoundResult[];
 }
 
-const DRAFT_KEY = "pm-ship-or-skip";
-
 interface PreviousResult {
   scoreTotal: number;
   scoreMax: number;
@@ -55,7 +52,16 @@ interface PreviousResult {
   playedAt: string;
 }
 
-export default function ShipOrSkip() {
+interface ShipOrSkipProps {
+  /** Module-specific rounds. Defaults to the legacy generic rounds for backward compat. */
+  rounds: ShipOrSkipRound[];
+  /** Save slug for game_scores (e.g., "pm-intelligent-routing"). Also used as draft key. */
+  slug: string;
+  /** Display title for the previously-completed view. */
+  title: string;
+}
+
+export default function ShipOrSkip({ rounds, slug, title }: ShipOrSkipProps) {
   const { user, isLoading, gameScores, saveGameScore } = useAuth();
   const [currentRound, setCurrentRound] = useState(0);
   const [phase, setPhase] = useState<Phase>("choosing");
@@ -69,8 +75,8 @@ export default function ShipOrSkip() {
 
   const [roundElapsed, setRoundElapsed] = useState(0);
 
-  const round = shipOrSkipRounds[currentRound];
-  const totalRounds = shipOrSkipRounds.length;
+  const round = rounds[currentRound];
+  const totalRounds = rounds.length;
 
   // Hydrate on mount: prefer DB-confirmed completion, fall back to localStorage draft.
   // Runs once (hydratedRef gate) once auth has resolved so we don't snap a mid-game user
@@ -80,7 +86,7 @@ export default function ShipOrSkip() {
     hydratedRef.current = true;
 
     if (user) {
-      const row = gameScores.find((s) => s.pattern_slug === "pm-ship-or-skip");
+      const row = gameScores.find((s) => s.pattern_slug === slug);
       if (row) {
         setPreviousResult({
           scoreTotal: row.score_total,
@@ -92,20 +98,20 @@ export default function ShipOrSkip() {
       }
     }
 
-    syncLoadDraft<SoSDraft>(DRAFT_KEY, { authenticated: !!user }).then((draft) => {
-      if (draft && draft.currentRound > 0 && draft.currentRound < shipOrSkipRounds.length) {
+    syncLoadDraft<SoSDraft>(slug, { authenticated: !!user }).then((draft) => {
+      if (draft && draft.currentRound > 0 && draft.currentRound < rounds.length) {
         setCurrentRound(draft.currentRound);
         setResults(draft.results);
       }
     });
-  }, [isLoading, user, gameScores]);
+  }, [isLoading, user, gameScores, slug, rounds.length]);
 
   // Save draft whenever round advances (DB-synced if authed)
   useEffect(() => {
     if (results.length > 0 && phase === "choosing") {
-      syncSaveDraft<SoSDraft>(DRAFT_KEY, { currentRound, results }, { authenticated: !!user });
+      syncSaveDraft<SoSDraft>(slug, { currentRound, results }, { authenticated: !!user });
     }
-  }, [currentRound, results, phase, user]);
+  }, [currentRound, results, phase, user, slug]);
 
   // Track game start on mount
   useEffect(() => {
@@ -186,7 +192,7 @@ export default function ShipOrSkip() {
     setResults([]);
     setScoreSaved(false);
     setPreviousResult(null);
-    syncClearDraft(DRAFT_KEY, { authenticated: !!user });
+    syncClearDraft(slug, { authenticated: !!user });
   }, [results]);
 
   const correctCount = results.filter((r) => r.correct).length;
@@ -201,7 +207,7 @@ export default function ShipOrSkip() {
   if (previousResult) {
     return (
       <GamePreviouslyCompleted
-        title="Ship or Skip"
+        title={title}
         scoreTotal={previousResult.scoreTotal}
         scoreMax={previousResult.scoreMax}
         passed={previousResult.passed}
@@ -214,7 +220,7 @@ export default function ShipOrSkip() {
   // Save score + track completion
   if (phase === "summary" && !scoreSaved) {
     setScoreSaved(true);
-    syncClearDraft(DRAFT_KEY, { authenticated: !!user });
+    syncClearDraft(slug, { authenticated: !!user });
 
     const avgTimeMs = results.length > 0
       ? Math.round(results.reduce((s, r) => s + r.timeMs, 0) / results.length)
@@ -235,7 +241,7 @@ export default function ShipOrSkip() {
     });
 
     saveGameScore({
-      patternSlug: "pm-ship-or-skip",
+      patternSlug: slug,
       scoreTotal,
       scoreMax,
       architecture: correctCount * 8,
@@ -360,7 +366,7 @@ export default function ShipOrSkip() {
         <div className="space-y-3">
           <h4 className="font-mono text-sm text-text-secondary">Round-by-Round Review</h4>
           {results.map((result, i) => {
-            const roundData = shipOrSkipRounds[i];
+            const roundData = rounds[i];
             const chosen = roundData.options.find((o) => o.id === result.chosenId);
             const correct = roundData.options.find((o) => o.isCorrect);
             return (

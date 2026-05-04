@@ -3,7 +3,10 @@
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import BudgetBuilder from "@/components/PMGames/BudgetBuilder";
+import { budgetScenarios } from "@/data/pm-games";
 
+// Standalone "free play" URL — keeps direct links working with the legacy
+// generic content. The per-module versions live on each PM module's Play tab.
 export default function BudgetBuilderPage() {
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
@@ -14,7 +17,7 @@ export default function BudgetBuilderPage() {
         <ArrowLeft size={14} />
         Back to PM Labs
       </Link>
-      <BudgetBuilder />
+      <BudgetBuilder scenarios={budgetScenarios} slug="pm-budget-builder" title="Budget Builder" />
     </div>
   );
 }

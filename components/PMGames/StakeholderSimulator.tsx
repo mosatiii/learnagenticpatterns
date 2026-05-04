@@ -7,7 +7,7 @@ import {
   CheckCircle2, XCircle, Target, Lightbulb,
   AlertTriangle, Crown, Timer, Clock, Share2,
 } from "lucide-react";
-import { stakeholderRounds } from "@/data/pm-games";
+import type { StakeholderRound } from "@/data/pm-games";
 import type { Stakeholder } from "@/data/pm-games";
 import { useAuth } from "@/contexts/AuthContext";
 import { trackGameEvent } from "@/lib/game/analytics";
@@ -47,8 +47,6 @@ interface SSDraft {
   results: RoundResult[];
 }
 
-const SS_DRAFT_KEY = "pm-stakeholder-sim";
-
 interface PreviousResult {
   scoreTotal: number;
   scoreMax: number;
@@ -56,7 +54,15 @@ interface PreviousResult {
   playedAt: string;
 }
 
-export default function StakeholderSimulator() {
+interface StakeholderSimulatorProps {
+  rounds: StakeholderRound[];
+  /** Save slug for game_scores. Also used as draft key. */
+  slug: string;
+  /** Display title for the previously-completed view. */
+  title: string;
+}
+
+export default function StakeholderSimulator({ rounds: stakeholderRounds, slug, title }: StakeholderSimulatorProps) {
   const { user, isLoading, gameScores, saveGameScore } = useAuth();
   const [currentRound, setCurrentRound] = useState(0);
   const [phase, setPhase] = useState<Phase>("choosing");
@@ -78,7 +84,7 @@ export default function StakeholderSimulator() {
     hydratedRef.current = true;
 
     if (user) {
-      const row = gameScores.find((s) => s.pattern_slug === "pm-stakeholder-sim");
+      const row = gameScores.find((s) => s.pattern_slug === slug);
       if (row) {
         setPreviousResult({
           scoreTotal: row.score_total,
@@ -90,7 +96,7 @@ export default function StakeholderSimulator() {
       }
     }
 
-    syncLoadDraft<SSDraft>(SS_DRAFT_KEY, { authenticated: !!user }).then((draft) => {
+    syncLoadDraft<SSDraft>(slug, { authenticated: !!user }).then((draft) => {
       if (draft && draft.currentRound > 0 && draft.currentRound < stakeholderRounds.length) {
         setCurrentRound(draft.currentRound);
         setResults(draft.results);
@@ -101,7 +107,7 @@ export default function StakeholderSimulator() {
   // Save draft whenever round advances (DB-synced if authed)
   useEffect(() => {
     if (results.length > 0 && phase === "choosing") {
-      syncSaveDraft<SSDraft>(SS_DRAFT_KEY, { currentRound, results }, { authenticated: !!user });
+      syncSaveDraft<SSDraft>(slug, { currentRound, results }, { authenticated: !!user });
     }
   }, [currentRound, results, phase, user]);
 
@@ -176,7 +182,7 @@ export default function StakeholderSimulator() {
     setResults([]);
     setPreviousResult(null);
     setScoreSaved(false);
-    syncClearDraft(SS_DRAFT_KEY, { authenticated: !!user });
+    syncClearDraft(slug, { authenticated: !!user });
   }, [results]);
 
   const correctCount = results.filter((r) => r.correct).length;
@@ -190,7 +196,7 @@ export default function StakeholderSimulator() {
   if (previousResult) {
     return (
       <GamePreviouslyCompleted
-        title="Stakeholder Simulator"
+        title={title}
         scoreTotal={previousResult.scoreTotal}
         scoreMax={previousResult.scoreMax}
         passed={previousResult.passed}
@@ -202,7 +208,7 @@ export default function StakeholderSimulator() {
 
   if (phase === "summary" && !scoreSaved) {
     setScoreSaved(true);
-    syncClearDraft(SS_DRAFT_KEY, { authenticated: !!user });
+    syncClearDraft(slug, { authenticated: !!user });
 
     const avgTimeMs = results.length > 0
       ? Math.round(results.reduce((s, r) => s + r.timeMs, 0) / results.length)
@@ -218,7 +224,7 @@ export default function StakeholderSimulator() {
     });
 
     saveGameScore({
-      patternSlug: "pm-stakeholder-sim",
+      patternSlug: slug,
       scoreTotal,
       scoreMax,
       architecture: correctCount * 8,

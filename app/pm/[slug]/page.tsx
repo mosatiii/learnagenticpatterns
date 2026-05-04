@@ -10,9 +10,9 @@ import {
   ListChecks, MessageCircleQuestion,
 } from "lucide-react";
 import Link from "next/link";
-import { pmModules, getPMModuleBySlug } from "@/data/pm-curriculum";
+import { pmModules, getPMModuleBySlug, gameSlugForModule } from "@/data/pm-curriculum";
 import { useAuth } from "@/contexts/AuthContext";
-import PMGameSection from "@/components/PMGames/PMGameSection";
+import ModuleGame from "@/components/PMGames/ModuleGame";
 import LessonFeedback from "@/components/LessonFeedback";
 import CollapsibleText from "@/components/CollapsibleText";
 import ModuleSpecificContent from "@/components/pm-module-ui/ModuleSpecificContent";
@@ -47,16 +47,15 @@ export default function PMModulePage() {
     hasVisitedTab, gameScores, markTabVisited,
   } = useAuth();
 
-  // The Play tab on every PM module shows the same 3 games (PMGameSection).
-  // They save under fixed slugs, not the module's slug. So Play is "done"
-  // when the user has played all 3 at least once.
-  const PM_PLAY_SLUGS = ["pm-ship-or-skip", "pm-budget-builder", "pm-stakeholder-sim"];
-
   // Per-tab completion (used for tab color + overall complete check).
+  // Each PM module now has its OWN game on the Play tab (see pm-module-games.ts).
+  // The game saves under `pm-${moduleSlug}` — Play is "done" when that slug
+  // has at least one row in game_scores.
   const isTabDone = (tabId: string): boolean => {
     if (!user || !mod) return false;
     if (tabId === "play") {
-      return PM_PLAY_SLUGS.every((s) => gameScores.some((g) => g.pattern_slug === s));
+      const gameSlug = gameSlugForModule(mod.slug);
+      return gameScores.some((g) => g.pattern_slug === gameSlug);
     }
     return hasVisitedTab(mod.slug, tabId);
   };
@@ -364,7 +363,7 @@ export default function PMModulePage() {
 
               {/* Play Tab */}
               <div className={activeTab === "play" ? "block" : "hidden"}>
-                <PMGameSection />
+                <ModuleGame moduleSlug={mod.slug} />
               </div>
             </div>
 

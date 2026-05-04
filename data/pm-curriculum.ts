@@ -4,6 +4,9 @@ export interface PMModuleSection {
   bullets?: string[];
 }
 
+/** Game format on this module's Play tab. Each module has exactly one. */
+export type PMGameType = "ship-or-skip" | "budget-builder" | "stakeholder-sim";
+
 export interface PMModule {
   id: string;
   slug: string;
@@ -22,6 +25,13 @@ export interface PMModule {
   hideFreeBadge?: boolean;
   /** Optional long-form sections for deep-dive modules */
   sections?: PMModuleSection[];
+  /** Format of this module's Play-tab game. Defaults to "ship-or-skip" if absent. */
+  gameType?: PMGameType;
+}
+
+/** Convention: each module's game saves under `pm-${moduleSlug}` in game_scores. */
+export function gameSlugForModule(moduleSlug: string): string {
+  return `pm-${moduleSlug}`;
 }
 
 export const pmModules: PMModule[] = [
@@ -29,6 +39,7 @@ export const pmModules: PMModule[] = [
   {
     id: "pm-ai-native-foundations",
     slug: "ai-native-foundations",
+    gameType: "ship-or-skip",
     number: 1,
     title: "Becoming AI-Native",
     subtitle: "What agents and MCP actually are — and why every PM needs to understand them now",
@@ -86,6 +97,7 @@ export const pmModules: PMModule[] = [
   {
     id: "pm-ai-product-discovery",
     slug: "ai-product-discovery",
+    gameType: "ship-or-skip",
     number: 2,
     title: "AI Product Discovery",
     subtitle: "Knowing what to build before you build it",
@@ -113,6 +125,7 @@ export const pmModules: PMModule[] = [
   {
     id: "pm-prototyping-toolkit",
     slug: "pm-prototyping-toolkit",
+    gameType: "ship-or-skip",
     number: 3,
     title: "The PM Prototyping Toolkit",
     subtitle: "From idea to working prototype in hours, not sprints",
@@ -138,6 +151,7 @@ export const pmModules: PMModule[] = [
   {
     id: "pm-task-orchestration",
     slug: "task-orchestration",
+    gameType: "stakeholder-sim",
     number: 4,
     title: "Task Orchestration",
     subtitle: "How agents break work into steps",
@@ -164,6 +178,7 @@ export const pmModules: PMModule[] = [
   {
     id: "pm-intelligent-routing",
     slug: "intelligent-routing",
+    gameType: "ship-or-skip",
     number: 5,
     title: "Intelligent Routing",
     subtitle: "Choosing the right path automatically",
@@ -190,6 +205,7 @@ export const pmModules: PMModule[] = [
   {
     id: "pm-speed-at-scale",
     slug: "speed-at-scale",
+    gameType: "budget-builder",
     number: 6,
     title: "Speed & Parallel Processing",
     subtitle: "Making agents fast enough for production",
@@ -216,6 +232,7 @@ export const pmModules: PMModule[] = [
   {
     id: "pm-quality-self-correction",
     slug: "quality-self-correction",
+    gameType: "ship-or-skip",
     number: 7,
     title: "Quality & Self-Correction",
     subtitle: "How agents check and improve their own work",
@@ -242,6 +259,7 @@ export const pmModules: PMModule[] = [
   {
     id: "pm-rag-knowledge",
     slug: "rag-knowledge-systems",
+    gameType: "ship-or-skip",
     number: 8,
     title: "RAG & Knowledge Systems",
     subtitle: "How your agent knows what your company knows",
@@ -269,6 +287,7 @@ export const pmModules: PMModule[] = [
   {
     id: "pm-tools-apis-mcp",
     slug: "tools-apis-mcp",
+    gameType: "ship-or-skip",
     number: 9,
     title: "Tools, APIs & MCP Integrations",
     subtitle: "How agents connect to real-world systems",
@@ -295,6 +314,7 @@ export const pmModules: PMModule[] = [
   {
     id: "pm-multi-agent-teams",
     slug: "multi-agent-teams",
+    gameType: "stakeholder-sim",
     number: 10,
     title: "Multi-Agent Teams",
     subtitle: "When one agent is not enough",
@@ -321,6 +341,7 @@ export const pmModules: PMModule[] = [
   {
     id: "pm-memory-personalization",
     slug: "memory-personalization",
+    gameType: "stakeholder-sim",
     number: 11,
     title: "Memory & Personalization",
     subtitle: "Agents that remember and improve",
@@ -347,6 +368,7 @@ export const pmModules: PMModule[] = [
   {
     id: "pm-safety-guardrails",
     slug: "safety-guardrails",
+    gameType: "stakeholder-sim",
     number: 12,
     title: "Safety, Guardrails & Human Oversight",
     subtitle: "Keeping agents safe in production",
@@ -373,6 +395,7 @@ export const pmModules: PMModule[] = [
   {
     id: "pm-measuring-success",
     slug: "measuring-success",
+    gameType: "budget-builder",
     number: 13,
     title: "Measuring Agent Success",
     subtitle: "Metrics, evaluation, and monitoring",
@@ -399,6 +422,7 @@ export const pmModules: PMModule[] = [
   {
     id: "pm-llmops-production",
     slug: "llmops-production",
+    gameType: "budget-builder",
     number: 14,
     title: "LLMOps & Production Realities",
     subtitle: "What happens after you ship",
@@ -427,6 +451,7 @@ export const pmModules: PMModule[] = [
   {
     id: "pm-maturity-roadmap",
     slug: "maturity-roadmap",
+    gameType: "stakeholder-sim",
     number: 15,
     title: "Your Agentic AI Roadmap",
     subtitle: "From chatbot to autonomous system",

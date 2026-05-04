@@ -3,7 +3,10 @@
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import ShipOrSkip from "@/components/PMGames/ShipOrSkip";
+import { shipOrSkipRounds } from "@/data/pm-games";
 
+// Standalone "free play" URL — keeps direct links working with the legacy
+// generic content. The per-module versions live on each PM module's Play tab.
 export default function ShipOrSkipPage() {
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
@@ -14,7 +17,7 @@ export default function ShipOrSkipPage() {
         <ArrowLeft size={14} />
         Back to PM Labs
       </Link>
-      <ShipOrSkip />
+      <ShipOrSkip rounds={shipOrSkipRounds} slug="pm-ship-or-skip" title="Ship or Skip" />
     </div>
   );
 }
