@@ -80,32 +80,49 @@ export function getRawToken(request: Request): string | null {
 }
 
 /**
+ * Decide the Set-Cookie Domain attribute. We only want the cross-subdomain
+ * `.learnagenticpatterns.com` value when actually deployed to that hostname —
+ * otherwise (Railway dev URL, localhost) the browser rejects the cookie.
+ * Returning undefined => host-only cookie, which works on any host.
+ */
+function getCookieDomain(): string | undefined {
+  if (process.env.NODE_ENV !== "production") return undefined;
+  const siteUrl = process.env.SITE_URL || process.env.NEXT_PUBLIC_SITE_URL || "";
+  return siteUrl.includes("learnagenticpatterns.com")
+    ? ".learnagenticpatterns.com"
+    : undefined;
+}
+
+/**
  * Attach a Set-Cookie header so the JWT is shared across all
- * *.learnagenticpatterns.com subdomains (practice.*, www.*, etc.).
+ * *.learnagenticpatterns.com subdomains in prod (practice.*, www.*).
+ * On any other host (dev Railway URL, local) the cookie is host-only.
  */
 export function setAuthCookie(response: NextResponse, token: string): NextResponse {
   const isProd = process.env.NODE_ENV === "production";
+  const domain = getCookieDomain();
   response.cookies.set(COOKIE_NAME, token, {
     path: "/",
     maxAge: COOKIE_MAX_AGE,
     sameSite: "lax",
     secure: isProd,
     httpOnly: true,
-    ...(isProd ? { domain: ".learnagenticpatterns.com" } : {}),
+    ...(domain ? { domain } : {}),
   });
   return response;
 }
 
-/** Clear the auth cookie (for logout). */
+/** Clear the auth cookie (for logout). Domain must match how it was set. */
 export function clearAuthCookie(response: NextResponse): NextResponse {
   const isProd = process.env.NODE_ENV === "production";
+  const domain = getCookieDomain();
   response.cookies.set(COOKIE_NAME, "", {
     path: "/",
     maxAge: 0,
     sameSite: "lax",
     secure: isProd,
     httpOnly: true,
-    ...(isProd ? { domain: ".learnagenticpatterns.com" } : {}),
+    ...(domain ? { domain } : {}),
   });
   return response;
 }
