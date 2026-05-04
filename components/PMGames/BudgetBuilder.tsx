@@ -11,7 +11,7 @@ import { budgetScenarios, calculateBudgetResult } from "@/data/pm-games";
 import type { BudgetScenario } from "@/data/pm-games";
 import { useAuth } from "@/contexts/AuthContext";
 import { trackGameEvent } from "@/lib/game/analytics";
-import { saveDraft, loadDraft, clearDraft } from "@/lib/game/draft-storage";
+import { syncSaveDraft, syncLoadDraft, syncClearDraft } from "@/lib/game/draft-sync";
 import GamePreviouslyCompleted from "./GamePreviouslyCompleted";
 
 type Phase = "allocating" | "results" | "summary";
@@ -73,19 +73,20 @@ export default function BudgetBuilder() {
       }
     }
 
-    const draft = loadDraft<BBDraft>(BB_DRAFT_KEY);
-    if (draft && draft.currentIdx > 0 && draft.currentIdx < budgetScenarios.length) {
-      setCurrentIdx(draft.currentIdx);
-      setScenarioResults(draft.scenarioResults);
-    }
+    syncLoadDraft<BBDraft>(BB_DRAFT_KEY, { authenticated: !!user }).then((draft) => {
+      if (draft && draft.currentIdx > 0 && draft.currentIdx < budgetScenarios.length) {
+        setCurrentIdx(draft.currentIdx);
+        setScenarioResults(draft.scenarioResults);
+      }
+    });
   }, [isLoading, user, gameScores]);
 
-  // Save draft whenever scenario advances
+  // Save draft whenever scenario advances (DB-synced if authed)
   useEffect(() => {
     if (scenarioResults.length > 0 && phase === "allocating") {
-      saveDraft<BBDraft>(BB_DRAFT_KEY, { currentIdx, scenarioResults });
+      syncSaveDraft<BBDraft>(BB_DRAFT_KEY, { currentIdx, scenarioResults }, { authenticated: !!user });
     }
-  }, [currentIdx, scenarioResults, phase]);
+  }, [currentIdx, scenarioResults, phase, user]);
 
   // Track game start on mount
   useEffect(() => {
@@ -177,7 +178,7 @@ export default function BudgetBuilder() {
     setScenarioResults([]);
     setScoreSaved(false);
     setPreviousResult(null);
-    clearDraft(BB_DRAFT_KEY);
+    syncClearDraft(BB_DRAFT_KEY, { authenticated: !!user });
   }, [scenarioResults]);
 
   const totalScoreSum = scenarioResults.reduce((sum, r) => sum + r.totalScore, 0);
@@ -207,7 +208,7 @@ export default function BudgetBuilder() {
   // Save on summary
   if (phase === "summary" && !scoreSaved) {
     setScoreSaved(true);
-    clearDraft(BB_DRAFT_KEY);
+    syncClearDraft(BB_DRAFT_KEY, { authenticated: !!user });
     const avgQuality = Math.round(totalScoreSum / totalScenarios);
     const scenariosPassed = scenarioResults.filter((r) => r.passed).length;
 

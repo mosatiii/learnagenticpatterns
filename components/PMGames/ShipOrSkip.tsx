@@ -10,7 +10,7 @@ import { shipOrSkipRounds } from "@/data/pm-games";
 import type { ShipOrSkipOption } from "@/data/pm-games";
 import { useAuth } from "@/contexts/AuthContext";
 import { trackGameEvent } from "@/lib/game/analytics";
-import { saveDraft, loadDraft, clearDraft } from "@/lib/game/draft-storage";
+import { syncSaveDraft, syncLoadDraft, syncClearDraft } from "@/lib/game/draft-sync";
 import GamePreviouslyCompleted from "./GamePreviouslyCompleted";
 
 type Confidence = "guessing" | "fairly-sure" | "very-confident";
@@ -92,19 +92,20 @@ export default function ShipOrSkip() {
       }
     }
 
-    const draft = loadDraft<SoSDraft>(DRAFT_KEY);
-    if (draft && draft.currentRound > 0 && draft.currentRound < shipOrSkipRounds.length) {
-      setCurrentRound(draft.currentRound);
-      setResults(draft.results);
-    }
+    syncLoadDraft<SoSDraft>(DRAFT_KEY, { authenticated: !!user }).then((draft) => {
+      if (draft && draft.currentRound > 0 && draft.currentRound < shipOrSkipRounds.length) {
+        setCurrentRound(draft.currentRound);
+        setResults(draft.results);
+      }
+    });
   }, [isLoading, user, gameScores]);
 
-  // Save draft whenever round advances
+  // Save draft whenever round advances (DB-synced if authed)
   useEffect(() => {
     if (results.length > 0 && phase === "choosing") {
-      saveDraft<SoSDraft>(DRAFT_KEY, { currentRound, results });
+      syncSaveDraft<SoSDraft>(DRAFT_KEY, { currentRound, results }, { authenticated: !!user });
     }
-  }, [currentRound, results, phase]);
+  }, [currentRound, results, phase, user]);
 
   // Track game start on mount
   useEffect(() => {
@@ -185,7 +186,7 @@ export default function ShipOrSkip() {
     setResults([]);
     setScoreSaved(false);
     setPreviousResult(null);
-    clearDraft(DRAFT_KEY);
+    syncClearDraft(DRAFT_KEY, { authenticated: !!user });
   }, [results]);
 
   const correctCount = results.filter((r) => r.correct).length;
@@ -213,7 +214,7 @@ export default function ShipOrSkip() {
   // Save score + track completion
   if (phase === "summary" && !scoreSaved) {
     setScoreSaved(true);
-    clearDraft(DRAFT_KEY);
+    syncClearDraft(DRAFT_KEY, { authenticated: !!user });
 
     const avgTimeMs = results.length > 0
       ? Math.round(results.reduce((s, r) => s + r.timeMs, 0) / results.length)

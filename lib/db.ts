@@ -110,6 +110,16 @@ async function ensureTables() {
       created_at      TIMESTAMPTZ DEFAULT NOW()
     );
 
+    CREATE TABLE IF NOT EXISTS game_drafts (
+      id              SERIAL PRIMARY KEY,
+      user_id         INTEGER REFERENCES users(id) ON DELETE CASCADE,
+      slug            TEXT NOT NULL,
+      draft           JSONB NOT NULL,
+      updated_at      TIMESTAMPTZ DEFAULT NOW(),
+      UNIQUE(user_id, slug)
+    );
+    CREATE INDEX IF NOT EXISTS game_drafts_user_idx ON game_drafts(user_id);
+
     CREATE TABLE IF NOT EXISTS tab_visits (
       id              SERIAL PRIMARY KEY,
       user_id         INTEGER REFERENCES users(id) ON DELETE CASCADE,

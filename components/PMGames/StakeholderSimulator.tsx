@@ -11,7 +11,7 @@ import { stakeholderRounds } from "@/data/pm-games";
 import type { Stakeholder } from "@/data/pm-games";
 import { useAuth } from "@/contexts/AuthContext";
 import { trackGameEvent } from "@/lib/game/analytics";
-import { saveDraft, loadDraft, clearDraft } from "@/lib/game/draft-storage";
+import { syncSaveDraft, syncLoadDraft, syncClearDraft } from "@/lib/game/draft-sync";
 import GamePreviouslyCompleted from "./GamePreviouslyCompleted";
 
 type Phase = "choosing" | "feedback" | "summary";
@@ -90,19 +90,20 @@ export default function StakeholderSimulator() {
       }
     }
 
-    const draft = loadDraft<SSDraft>(SS_DRAFT_KEY);
-    if (draft && draft.currentRound > 0 && draft.currentRound < stakeholderRounds.length) {
-      setCurrentRound(draft.currentRound);
-      setResults(draft.results);
-    }
+    syncLoadDraft<SSDraft>(SS_DRAFT_KEY, { authenticated: !!user }).then((draft) => {
+      if (draft && draft.currentRound > 0 && draft.currentRound < stakeholderRounds.length) {
+        setCurrentRound(draft.currentRound);
+        setResults(draft.results);
+      }
+    });
   }, [isLoading, user, gameScores]);
 
-  // Save draft whenever round advances
+  // Save draft whenever round advances (DB-synced if authed)
   useEffect(() => {
     if (results.length > 0 && phase === "choosing") {
-      saveDraft<SSDraft>(SS_DRAFT_KEY, { currentRound, results });
+      syncSaveDraft<SSDraft>(SS_DRAFT_KEY, { currentRound, results }, { authenticated: !!user });
     }
-  }, [currentRound, results, phase]);
+  }, [currentRound, results, phase, user]);
 
   useEffect(() => {
     trackGameEvent("pm_ss_started", { total_rounds: totalRounds });
@@ -175,7 +176,7 @@ export default function StakeholderSimulator() {
     setResults([]);
     setPreviousResult(null);
     setScoreSaved(false);
-    clearDraft(SS_DRAFT_KEY);
+    syncClearDraft(SS_DRAFT_KEY, { authenticated: !!user });
   }, [results]);
 
   const correctCount = results.filter((r) => r.correct).length;
@@ -201,7 +202,7 @@ export default function StakeholderSimulator() {
 
   if (phase === "summary" && !scoreSaved) {
     setScoreSaved(true);
-    clearDraft(SS_DRAFT_KEY);
+    syncClearDraft(SS_DRAFT_KEY, { authenticated: !!user });
 
     const avgTimeMs = results.length > 0
       ? Math.round(results.reduce((s, r) => s + r.timeMs, 0) / results.length)
