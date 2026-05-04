@@ -16,12 +16,18 @@ const config: Config = {
         "text-primary": "#E8EDF8",
         "text-secondary": "#8B9BB4",
         border: "#1E2D47",
-        success: "#00FF88",
+        // Real semantic green — distinct from the cyan brand `primary`. Use for
+        // success states, completed badges, "all done" indicators, etc.
+        success: "#10B981",
         "code-bg": "#060A14",
       },
       fontFamily: {
+        // Mono is reserved for branding identity: logo, pattern numbers,
+        // > prompt accents, code blocks. Don't use for body copy.
         mono: ["Space Mono", "Fira Code", "monospace"],
-        sans: ["DM Sans", "system-ui", "sans-serif"],
+        // Body / readable copy. Inter > DM Sans > system. Inter has the best
+        // x-height + spacing for long-form readability.
+        sans: ["Inter", "DM Sans", "system-ui", "sans-serif"],
         code: ["Fira Code", "monospace"],
       },
       animation: {
