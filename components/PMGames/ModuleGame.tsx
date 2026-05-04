@@ -5,9 +5,11 @@ import { getPMModuleBySlug, gameSlugForModule, type PMGameType } from "@/data/pm
 import {
   getShipGameFor, getBudgetGameFor, getStakeholderGameFor,
 } from "@/data/pm-module-games";
+import { getEvalDesignerGameFor } from "@/data/pm-eval-designer";
 import ShipOrSkip from "./ShipOrSkip";
 import BudgetBuilder from "./BudgetBuilder";
 import StakeholderSimulator from "./StakeholderSimulator";
+import EvalDesigner from "./EvalDesigner";
 
 interface Props {
   /** PM module slug, e.g. "intelligent-routing". */
@@ -38,6 +40,12 @@ export default function ModuleGame({ moduleSlug }: Props) {
     const rounds = getStakeholderGameFor(moduleSlug);
     if (!rounds) return <ComingSoon moduleTitle={mod.title} format="Stakeholder Sim" />;
     return <StakeholderSimulator rounds={rounds} slug={slug} title={title} />;
+  }
+
+  if (gameType === "eval-designer") {
+    const scenarios = getEvalDesignerGameFor(moduleSlug);
+    if (!scenarios) return <ComingSoon moduleTitle={mod.title} format="Eval Designer" />;
+    return <EvalDesigner scenarios={scenarios} slug={slug} title={title} />;
   }
 
   return null;

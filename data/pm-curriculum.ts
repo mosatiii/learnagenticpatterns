@@ -5,7 +5,7 @@ export interface PMModuleSection {
 }
 
 /** Game format on this module's Play tab. Each module has exactly one. */
-export type PMGameType = "ship-or-skip" | "budget-builder" | "stakeholder-sim";
+export type PMGameType = "ship-or-skip" | "budget-builder" | "stakeholder-sim" | "eval-designer";
 
 export interface PMModule {
   id: string;
@@ -232,7 +232,7 @@ export const pmModules: PMModule[] = [
   {
     id: "pm-quality-self-correction",
     slug: "quality-self-correction",
-    gameType: "ship-or-skip",
+    gameType: "eval-designer",
     number: 7,
     title: "Quality & Self-Correction",
     subtitle: "How agents check and improve their own work",
