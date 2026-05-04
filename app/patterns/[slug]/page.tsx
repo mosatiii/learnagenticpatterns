@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import { motion } from "framer-motion";
-import { Lock, ArrowRight, ChevronRight, Home, CheckCircle2, Blocks, Play } from "lucide-react";
+import { Lock, ArrowRight, ChevronRight, Home, CheckCircle2, Blocks, Play, Circle } from "lucide-react";
 import Link from "next/link";
 import CodeBlock from "@/components/CodeBlock";
 import ProgressCircle from "@/components/ProgressCircle";
@@ -31,22 +31,39 @@ export default function PatternDetailPage() {
   const slug = params.slug as string;
   const pattern = getPatternBySlug(slug);
   const [activeTab, setActiveTab] = useState("overview");
-  const { user, readSlugs, markRead } = useAuth();
+  const {
+    user, readSlugs, markRead,
+    hasVisitedTab, hasPlayedAnyGame, markTabVisited,
+  } = useAuth();
 
   // User can access if pattern is open by default OR user is signed in
   const canAccess = pattern ? pattern.isUnlocked || !!user : false;
 
-  // Mark pattern as read after 5 seconds of viewing
+  const gameAvailableForSlug = pattern ? hasGameConfig(slug) : false;
+  const allTabIds = gameAvailableForSlug
+    ? [...baseTabs.map((t) => t.id), "build"]
+    : baseTabs.map((t) => t.id);
+
+  const isTabDone = (tabId: string): boolean => {
+    if (!user || !pattern) return false;
+    if (tabId === "build") return hasPlayedAnyGame(pattern.slug);
+    return hasVisitedTab(pattern.slug, tabId);
+  };
+
+  // Record visit on first render and whenever the active tab changes.
+  useEffect(() => {
+    if (!canAccess || !pattern || !user) return;
+    markTabVisited("developer", pattern.slug, activeTab);
+  }, [canAccess, pattern, user, activeTab, markTabVisited]);
+
+  // Mark pattern read only when ALL tabs are done.
   useEffect(() => {
     if (!canAccess || !pattern || !user) return;
     if (readSlugs.includes(pattern.slug)) return;
-
-    const timer = setTimeout(() => {
-      markRead(pattern.slug);
-    }, 5000);
-
-    return () => clearTimeout(timer);
-  }, [canAccess, pattern, user, readSlugs, markRead]);
+    const allDone = allTabIds.every((tabId) => isTabDone(tabId));
+    if (allDone) markRead(pattern.slug);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [canAccess, pattern, user, readSlugs, markRead, hasPlayedAnyGame, hasVisitedTab]);
 
   if (!pattern) {
     return (
@@ -287,24 +304,37 @@ export default function PatternDetailPage() {
 
             {/* Tabs */}
             <div className="flex gap-1 mb-8 overflow-x-auto border-b border-border pb-px">
-              {tabs.map((tab) => (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`
-                    px-4 py-2.5 font-mono text-sm whitespace-nowrap transition-colors border-b-2 -mb-px
-                    ${
-                      activeTab === tab.id
-                        ? tab.id === "build"
-                          ? "border-accent text-accent"
-                          : "border-primary text-primary"
-                        : "border-transparent text-text-secondary hover:text-text-primary"
-                    }
-                  `}
-                >
-                  {tab.label}
-                </button>
-              ))}
+              {tabs.map((tab) => {
+                const done = isTabDone(tab.id);
+                const active = activeTab === tab.id;
+                let cls = "border-transparent text-text-secondary hover:text-text-primary";
+                if (done) {
+                  cls = active
+                    ? "border-success text-success"
+                    : "border-success/40 text-success/80 hover:text-success";
+                } else if (active) {
+                  cls = tab.id === "build"
+                    ? "border-accent text-accent"
+                    : "border-primary text-primary";
+                }
+                return (
+                  <button
+                    key={tab.id}
+                    onClick={() => {
+                      setActiveTab(tab.id);
+                      if (pattern && user) markTabVisited("developer", pattern.slug, tab.id);
+                    }}
+                    className={`flex items-center gap-1.5 px-4 py-2.5 font-mono text-sm whitespace-nowrap transition-colors border-b-2 -mb-px ${cls}`}
+                  >
+                    {done ? (
+                      <CheckCircle2 size={14} className="text-success" />
+                    ) : (
+                      <Circle size={14} className="text-text-secondary/50" />
+                    )}
+                    {tab.label}
+                  </button>
+                );
+              })}
             </div>
 
             {/* Tab content -- all tabs rendered in HTML for crawlability, hidden with CSS */}

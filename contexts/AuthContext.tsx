@@ -54,6 +54,8 @@ export interface LeaderboardEntry {
   games_played: number;
 }
 
+export type Track = "developer" | "pm";
+
 interface AuthContextValue {
   user: AuthUser | null;
   isLoading: boolean;
@@ -89,6 +91,11 @@ interface AuthContextValue {
     efficiency: number;
     passed: boolean;
   }) => Promise<void>;
+  /** Set of `${slug}::${tabId}` strings the current user has visited. */
+  visitedTabs: Set<string>;
+  hasVisitedTab: (slug: string, tabId: string) => boolean;
+  hasPlayedAnyGame: (slug: string) => boolean;
+  markTabVisited: (track: Track, slug: string, tabId: string) => void;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -109,6 +116,7 @@ export function AuthProvider({ children, totalPatterns }: { children: ReactNode;
   const [avgPercent, setAvgPercent] = useState(0);
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
   const [userRank, setUserRank] = useState<number | null>(null);
+  const [visitedTabs, setVisitedTabs] = useState<Set<string>>(new Set());
 
   const progressPercent = totalPatterns > 0
     ? Math.round((readSlugs.length / totalPatterns) * 100)
@@ -140,6 +148,19 @@ export function AuthProvider({ children, totalPatterns }: { children: ReactNode;
       }
     } catch {
       // Progress is non-critical
+    }
+  }, []);
+
+  const fetchTabVisits = useCallback(async () => {
+    try {
+      const res = await fetch("/api/tab-visits", { credentials: "include" });
+      if (res.ok) {
+        const data = await res.json();
+        const visits: { slug: string; tab_id: string }[] = data.visits ?? [];
+        setVisitedTabs(new Set(visits.map((v) => `${v.slug}::${v.tab_id}`)));
+      }
+    } catch {
+      // Tab visits are non-critical
     }
   }, []);
 
@@ -177,7 +198,7 @@ export function AuthProvider({ children, totalPatterns }: { children: ReactNode;
           setUser(data.user);
           saveToStorage(data.user.email, data.user.firstName, data.user.role || "Other");
           if (!hadLocalData) setCrossDomainAutoLogin(true);
-          await Promise.all([fetchProgress(), fetchGameScores()]);
+          await Promise.all([fetchProgress(), fetchGameScores(), fetchTabVisits()]);
         } else if (res.status === 401) {
           clearStorage();
         }
@@ -188,7 +209,7 @@ export function AuthProvider({ children, totalPatterns }: { children: ReactNode;
       }
     }
     init();
-  }, [fetchProgress, fetchGameScores]);
+  }, [fetchProgress, fetchGameScores, fetchTabVisits]);
 
   const signup = async (formData: {
     firstName: string;
@@ -210,7 +231,7 @@ export function AuthProvider({ children, totalPatterns }: { children: ReactNode;
 
     setUser(data.user);
     saveToStorage(data.user.email, data.user.firstName, data.user.role || formData.role);
-    await Promise.all([fetchProgress(), fetchGameScores()]);
+    await Promise.all([fetchProgress(), fetchGameScores(), fetchTabVisits()]);
 
     if (typeof window !== "undefined" && POSTHOG_KEY) {
       posthog.capture("user_signed_up", { role: formData.role });
@@ -229,7 +250,7 @@ export function AuthProvider({ children, totalPatterns }: { children: ReactNode;
 
     setUser(data.user);
     saveToStorage(data.user.email, data.user.firstName, data.user.role || "Other");
-    await Promise.all([fetchProgress(), fetchGameScores()]);
+    await Promise.all([fetchProgress(), fetchGameScores(), fetchTabVisits()]);
 
     if (typeof window !== "undefined" && POSTHOG_KEY) {
       posthog.capture("user_logged_in");
@@ -250,6 +271,7 @@ export function AuthProvider({ children, totalPatterns }: { children: ReactNode;
     setAvgPercent(0);
     setLeaderboard([]);
     setUserRank(null);
+    setVisitedTabs(new Set());
     if (typeof window !== "undefined" && POSTHOG_KEY) {
       posthog.reset();
     }
@@ -278,6 +300,35 @@ export function AuthProvider({ children, totalPatterns }: { children: ReactNode;
       }
     },
     [user, fetchGameScores],
+  );
+
+  const hasVisitedTab = useCallback(
+    (slug: string, tabId: string) => visitedTabs.has(`${slug}::${tabId}`),
+    [visitedTabs]
+  );
+
+  const hasPlayedAnyGame = useCallback(
+    (slug: string) => gameScores.some((s) => s.pattern_slug === slug),
+    [gameScores]
+  );
+
+  const markTabVisited = useCallback(
+    (track: Track, slug: string, tabId: string) => {
+      if (!user) return;
+      const key = `${slug}::${tabId}`;
+      setVisitedTabs((prev) => {
+        if (prev.has(key)) return prev;
+        const next = new Set(prev);
+        next.add(key);
+        return next;
+      });
+      fetch("/api/tab-visits", {
+        method: "POST",
+        ...jsonFetchOpts,
+        body: JSON.stringify({ track, slug, tabId }),
+      }).catch(() => {});
+    },
+    [user]
   );
 
   const markRead = useCallback(
@@ -313,6 +364,7 @@ export function AuthProvider({ children, totalPatterns }: { children: ReactNode;
         user, isLoading, isProductManager, crossDomainAutoLogin, dismissAutoLogin,
         readSlugs, pmReadSlugs, pmProgressPercent, signup, login, logout, markRead, progressPercent,
         gameScores, totalAttempts, avgPercent, leaderboard, userRank, saveGameScore,
+        visitedTabs, hasVisitedTab, hasPlayedAnyGame, markTabVisited,
       }}
     >
       {children}

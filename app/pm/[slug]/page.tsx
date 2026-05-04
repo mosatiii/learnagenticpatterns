@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import { motion } from "framer-motion";
 import {
-  ArrowRight, ChevronRight, Home, Check,
+  ArrowRight, ChevronRight, Home, Check, CheckCircle2, Circle,
   Layers, Compass, Zap, ShieldCheck, Plug, Users,
   Brain, BarChart3, GitBranch, Search, Terminal,
   ListChecks, MessageCircleQuestion,
@@ -42,18 +42,33 @@ export default function PMModulePage() {
   const slug = params.slug as string;
   const mod = getPMModuleBySlug(slug);
   const [activeTab, setActiveTab] = useState("learn");
-  const { user, readSlugs, markRead } = useAuth();
+  const {
+    user, readSlugs, markRead,
+    hasVisitedTab, hasPlayedAnyGame, markTabVisited,
+  } = useAuth();
 
+  // Per-tab completion (used for tab color + overall complete check).
+  const isTabDone = (tabId: string): boolean => {
+    if (!user || !mod) return false;
+    if (tabId === "play") return hasPlayedAnyGame(mod.slug);
+    return hasVisitedTab(mod.slug, tabId);
+  };
+
+  // Record visit on first render (Learn is the default tab).
+  useEffect(() => {
+    if (!mod || !user) return;
+    markTabVisited("pm", mod.slug, activeTab);
+  }, [mod, user, activeTab, markTabVisited]);
+
+  // Mark module read only when ALL tabs are done.
   useEffect(() => {
     if (!mod || !user) return;
     if (readSlugs.includes(mod.slug)) return;
-
-    const timer = setTimeout(() => {
-      markRead(mod.slug);
-    }, 5000);
-
-    return () => clearTimeout(timer);
-  }, [mod, user, readSlugs, markRead]);
+    const allDone = tabs.every((t) => isTabDone(t.id));
+    if (allDone) markRead(mod.slug);
+    // isTabDone closes over user/mod/visited/games so we depend on those.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mod, user, readSlugs, markRead, hasPlayedAnyGame, hasVisitedTab]);
 
   if (!mod) {
     return (
@@ -165,24 +180,37 @@ export default function PMModulePage() {
 
             {/* Tabs */}
             <div className="flex gap-1 mb-8 overflow-x-auto border-b border-border pb-px">
-              {tabs.map((tab) => (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`
-                    px-4 py-2.5 font-mono text-sm whitespace-nowrap transition-colors border-b-2 -mb-px
-                    ${
-                      activeTab === tab.id
-                        ? tab.accent
-                          ? "border-accent text-accent"
-                          : "border-primary text-primary"
-                        : "border-transparent text-text-secondary hover:text-text-primary"
-                    }
-                  `}
-                >
-                  {tab.label}
-                </button>
-              ))}
+              {tabs.map((tab) => {
+                const done = isTabDone(tab.id);
+                const active = activeTab === tab.id;
+                let cls = "border-transparent text-text-secondary hover:text-text-primary";
+                if (done) {
+                  cls = active
+                    ? "border-success text-success"
+                    : "border-success/40 text-success/80 hover:text-success";
+                } else if (active) {
+                  cls = tab.accent
+                    ? "border-accent text-accent"
+                    : "border-primary text-primary";
+                }
+                return (
+                  <button
+                    key={tab.id}
+                    onClick={() => {
+                      setActiveTab(tab.id);
+                      if (mod && user) markTabVisited("pm", mod.slug, tab.id);
+                    }}
+                    className={`flex items-center gap-1.5 px-4 py-2.5 font-mono text-sm whitespace-nowrap transition-colors border-b-2 -mb-px ${cls}`}
+                  >
+                    {done ? (
+                      <CheckCircle2 size={14} className="text-success" />
+                    ) : (
+                      <Circle size={14} className="text-text-secondary/50" />
+                    )}
+                    {tab.label}
+                  </button>
+                );
+              })}
             </div>
 
             {/* Tab content */}

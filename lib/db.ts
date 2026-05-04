@@ -110,6 +110,17 @@ async function ensureTables() {
       created_at      TIMESTAMPTZ DEFAULT NOW()
     );
 
+    CREATE TABLE IF NOT EXISTS tab_visits (
+      id              SERIAL PRIMARY KEY,
+      user_id         INTEGER REFERENCES users(id) ON DELETE CASCADE,
+      track           TEXT NOT NULL,
+      slug            TEXT NOT NULL,
+      tab_id          TEXT NOT NULL,
+      visited_at      TIMESTAMPTZ DEFAULT NOW(),
+      UNIQUE(user_id, track, slug, tab_id)
+    );
+    CREATE INDEX IF NOT EXISTS tab_visits_user_slug_idx ON tab_visits(user_id, slug);
+
     CREATE TABLE IF NOT EXISTS user_badges (
       id              SERIAL PRIMARY KEY,
       user_id         INTEGER REFERENCES users(id) ON DELETE CASCADE,
