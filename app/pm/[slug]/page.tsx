@@ -44,13 +44,20 @@ export default function PMModulePage() {
   const [activeTab, setActiveTab] = useState("learn");
   const {
     user, readSlugs, markRead,
-    hasVisitedTab, hasPlayedAnyGame, markTabVisited,
+    hasVisitedTab, gameScores, markTabVisited,
   } = useAuth();
+
+  // The Play tab on every PM module shows the same 3 games (PMGameSection).
+  // They save under fixed slugs, not the module's slug. So Play is "done"
+  // when the user has played all 3 at least once.
+  const PM_PLAY_SLUGS = ["pm-ship-or-skip", "pm-budget-builder", "pm-stakeholder-sim"];
 
   // Per-tab completion (used for tab color + overall complete check).
   const isTabDone = (tabId: string): boolean => {
     if (!user || !mod) return false;
-    if (tabId === "play") return hasPlayedAnyGame(mod.slug);
+    if (tabId === "play") {
+      return PM_PLAY_SLUGS.every((s) => gameScores.some((g) => g.pattern_slug === s));
+    }
     return hasVisitedTab(mod.slug, tabId);
   };
 
@@ -68,7 +75,7 @@ export default function PMModulePage() {
     if (allDone) markRead(mod.slug);
     // isTabDone closes over user/mod/visited/games so we depend on those.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mod, user, readSlugs, markRead, hasPlayedAnyGame, hasVisitedTab]);
+  }, [mod, user, readSlugs, markRead, gameScores, hasVisitedTab]);
 
   if (!mod) {
     return (

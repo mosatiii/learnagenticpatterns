@@ -55,7 +55,7 @@ export const BADGES: BadgeDef[] = [
   {
     slug: "all-pm-games",
     name: "PM Operator",
-    description: "Complete all 4 PM games.",
+    description: "Complete all 3 PM games.",
     icon: "Briefcase",
     tier: "silver",
   },
@@ -89,7 +89,9 @@ export const BADGES: BadgeDef[] = [
   },
 ];
 
-const PM_GAME_SLUGS = ["stakeholder-sim", "ship-or-skip", "agent-budget", "incident-response"];
+// Must match the slugs the 3 PM games actually save under (see PMGameSection +
+// each game's saveGameScore call). There are only 3 games, not 4.
+const PM_GAME_SLUGS = ["pm-ship-or-skip", "pm-budget-builder", "pm-stakeholder-sim"];
 
 interface UserStats {
   patternsRead: number;
@@ -190,7 +192,7 @@ function meets(slug: string, s: UserStats): boolean {
     case "all-patterns":    return s.patternsRead >= 21;
     case "first-game":      return s.gamesPlayed >= 1;
     case "game-passed":     return s.gamesPassed >= 1;
-    case "all-pm-games":    return s.pmGamesPassed >= 4;
+    case "all-pm-games":    return s.pmGamesPassed >= 3;
     case "feedback-giver":  return s.feedbackCount >= 3;
     case "day-7-returner":  return s.daysSinceSignup >= 7 && s.currentStreak >= 1;
     case "streak-7":        return s.currentStreak >= 7;
